@@ -1,0 +1,3 @@
+"NSCalendarsWriteOnlyAccessUsageDescription" = "Mail Dot adaugă în calendar o întâlnire dintr-un mesaj când apeși Adaugă în calendar. Nu îți citește niciodată calendarul.";
+"NSAudioCaptureUsageDescription" = "Mail Dot redă în tăcere în apel solicitarea sa vorbită către Dot. Captează doar propriul sunet, niciodată alte aplicații sau microfonul.";
+"NSAppleEventsUsageDescription" = "Mail Dot citește doar conturile și dosarele pe care le autorizezi, conectează răspunsurile pe care le partajezi explicit și aplică sau trimite ciornele verificate doar după aprobarea ta.";

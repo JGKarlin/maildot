@@ -1,0 +1,3 @@
+"NSCalendarsWriteOnlyAccessUsageDescription" = "A Mail Dot hozzáad egy értekezletet egy üzenetből a naptárához, amikor megnyomja a Hozzáadás a naptárhoz gombot. A naptárát soha nem olvassa.";
+"NSAudioCaptureUsageDescription" = "A Mail Dot hangtalanul lejátssza a hívásba a Dotnak szóló hangos kérését. Csak a saját hangját rögzíti, más appokat vagy a mikrofont soha.";
+"NSAppleEventsUsageDescription" = "A Mail Dot csak az Ön által engedélyezett fiókokat és mappákat olvassa, összekapcsolja a kifejezetten megosztott válaszokat, és csak jóváhagyása után illeszti be vagy küldi el az ellenőrzött piszkozatokat.";

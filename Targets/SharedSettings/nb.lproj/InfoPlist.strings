@@ -1,0 +1,3 @@
+"NSCalendarsWriteOnlyAccessUsageDescription" = "Mail Dot legger til et møte fra en melding i kalenderen din når du trykker på Legg til i kalender. Den leser aldri kalenderen din.";
+"NSAudioCaptureUsageDescription" = "Mail Dot spiller av den muntlige forespørselen til Dot lydløst i samtalen. Den fanger bare sin egen lyd, aldri andre apper eller mikrofonen.";
+"NSAppleEventsUsageDescription" = "Mail Dot leser bare kontoene og mappene du godkjenner, kobler svar du uttrykkelig deler, og setter inn eller sender gjennomgåtte utkast etter at du har godkjent.";

@@ -1,0 +1,12 @@
+#!/bin/sh
+# Mail must be closed while Mail Dot is installed or updated: replacing the extension under a running Mail has
+# crashed Mail (13 November 2026). The installer's own window asks the user to quit Mail first (must-close in
+# distribution.xml); this is the backstop for an install from the command line, which skips that step.
+if /usr/bin/pgrep -x Mail >/dev/null 2>&1; then
+    echo "Mail Dot was not installed: quit Mail and open the installer again." >&2
+    exit 1
+fi
+# An update: the copy that is running gives way to the new one.
+/usr/bin/pkill -x "Mail Dot" >/dev/null 2>&1
+/usr/bin/pkill -x MailDotExtension >/dev/null 2>&1
+exit 0

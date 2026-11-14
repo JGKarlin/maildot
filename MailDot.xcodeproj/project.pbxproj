@@ -1,0 +1,1145 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0D7AD48A776E29ADDD810FCC /* ReplyPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4F3BD01CD1B7E9C0A52ECC /* ReplyPanelView.swift */; };
+		132238709EC706C0358E071E /* MailDotThreadWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5149831378E25F1240A6B043 /* MailDotThreadWindow.swift */; };
+		14C87287DD99CC9A74635D7B /* MailSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10F8D04A450B4130B0857E7 /* MailSettingsView.swift */; };
+		25C19199E8CCA527539F7F5F /* MessageReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C8DF88D873F6C176FDADE4 /* MessageReportView.swift */; };
+		377AF868687C7BAE0E0207FE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = D408EEE2B6689249C8419FBF /* Localizable.strings */; };
+		44304745648CEA1E28FA6081 /* MailDotExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 248F4ECBF795E6386DF279F1 /* MailDotExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		499E2DD795C6A5D5D5F92A54 /* DotCallCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9496CA679577A9B36A06EEFB /* DotCallCommands.swift */; };
+		4BF83BB1D5F4A6DDDBB4C2D6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5A39AFAC61F01EAAD074C0EF /* Assets.xcassets */; };
+		5831E86F0D1D054AAD9D83D5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 29CA92CC90AD84429063762D /* InfoPlist.strings */; };
+		589E19A074BA2E88CD37F351 /* MailDotAgent in Embed Dependencies */ = {isa = PBXBuildFile; fileRef = 5D564831C5948F5FC250E70E /* MailDotAgent */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		58C000B8E714D1D3F928D32C /* AgentMain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3202E10D2402726FB9CEF021 /* AgentMain.swift */; };
+		58D008CC13EF2ED63C024219 /* ConnectionViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC05BB45DD2FA050C9B773AB /* ConnectionViews.swift */; };
+		64B571F02920B1298CA31069 /* TriageViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBB7789E0EAA0366D1C9B437 /* TriageViews.swift */; };
+		69A8D6FE627782999A91C926 /* BridgeAutomation in Frameworks */ = {isa = PBXBuildFile; productRef = 3E005AB239FA6960BB74C58E /* BridgeAutomation */; };
+		6F9C48EC493973B5DB191C20 /* ReplyPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4F3BD01CD1B7E9C0A52ECC /* ReplyPanelView.swift */; };
+		70918AF9CF20976498950C07 /* DotCallCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9496CA679577A9B36A06EEFB /* DotCallCommands.swift */; };
+		75E89BD21BB36A60E733CCC2 /* TriageViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBB7789E0EAA0366D1C9B437 /* TriageViews.swift */; };
+		7653B0769220BB416B341EE6 /* AskDotPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DCE329DE8A999D4E6B8B8C8 /* AskDotPanel.swift */; };
+		7BD30682FD15B41DC64EC32C /* MailExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4747F0EEC45A8514A372E5B1 /* MailExtension.swift */; };
+		7C09BC4421420A372B4B45F7 /* MailDotSetupWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98EE36F7DFA03E0ACC22A656 /* MailDotSetupWindow.swift */; };
+		8054333F5CDEB0C197BA3602 /* UpdateCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3D0E083784554933ECFD6E /* UpdateCommands.swift */; };
+		82880DB326D9A5778D825665 /* MailDotStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AA4EE4E5C58160D67C425EE /* MailDotStyle.swift */; };
+		8A55B050D0A7A1AE5D9C2FC0 /* NativeMailSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4E559E2C3AD85DD7C8C95B4 /* NativeMailSetupView.swift */; };
+		8D8A5885EBC9C60CA246F69D /* ConnectionViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC05BB45DD2FA050C9B773AB /* ConnectionViews.swift */; };
+		9AB1C1BB0619F49CF2CDB292 /* BridgeCore in Frameworks */ = {isa = PBXBuildFile; productRef = 7D69B97D91AED867DB320DF5 /* BridgeCore */; };
+		A878235DFB71578A6DE1708F /* MailDotApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9124C0BC7081B074C6947CC /* MailDotApp.swift */; };
+		AC608DCED278E8D8697CA19F /* LaunchAgents in CopyFiles */ = {isa = PBXBuildFile; fileRef = 88C2CDD6C90861E09DA014D2 /* LaunchAgents */; };
+		AC764B9C667ECA611AF18AA5 /* RuntimeMain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26D4B5F7836E9B62A1CD2BB /* RuntimeMain.swift */; };
+		AD0D37ED33EE7716F70C18CC /* BridgeCore in Frameworks */ = {isa = PBXBuildFile; productRef = 74B7EC4A2781F49F7C48EF6E /* BridgeCore */; };
+		B3E7B7FFDA76806189E00D02 /* MailDotStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AA4EE4E5C58160D67C425EE /* MailDotStyle.swift */; };
+		B756DB89F73EC8495A550BAF /* ConnectionWatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91CDB9B4B683F467BEC33EAA /* ConnectionWatch.swift */; };
+		B868B696AEB7F7F704454343 /* MailDotAboutWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3F3D27595C87E032BEA605 /* MailDotAboutWindow.swift */; };
+		C89E90E6776B3D3E97DD5D68 /* MailDotThreadWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5149831378E25F1240A6B043 /* MailDotThreadWindow.swift */; };
+		CA596239658360B0A340650D /* MessageReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C8DF88D873F6C176FDADE4 /* MessageReportView.swift */; };
+		CB492A0DA4BADAA848ED5F39 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 29CA92CC90AD84429063762D /* InfoPlist.strings */; };
+		D201E8F5C5A589B44F95C3A0 /* MailDotRuntime in Embed Dependencies */ = {isa = PBXBuildFile; fileRef = 0ADC6062018B3349DDC45B6B /* MailDotRuntime */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D6BA57C968AD049396875E7B /* BackgroundConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEC94660338DDB47E99558D1 /* BackgroundConnection.swift */; };
+		D7D3946EAD554C536074C91E /* MeetingCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034CA28D2AF12E9CCA039637 /* MeetingCalendar.swift */; };
+		D9A9AA14C605D7DC729A6901 /* NativeMailSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4E559E2C3AD85DD7C8C95B4 /* NativeMailSetupView.swift */; };
+		DB93CBF6E1C676603EEC3E23 /* BridgeCore in Frameworks */ = {isa = PBXBuildFile; productRef = FBDEE00C0D921FC6165F16A8 /* BridgeCore */; };
+		ED2C69D8717D894ECF06AC95 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = D408EEE2B6689249C8419FBF /* Localizable.strings */; };
+		F067B540FFD04A61AEA560A6 /* UpdateCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3D0E083784554933ECFD6E /* UpdateCommands.swift */; };
+		F0B230886FE0D183D0F5937E /* PreviewRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66DDEB7713E6AC58D26AA093 /* PreviewRenderer.swift */; };
+		F4F8BEA6265C47AEC3DA6B67 /* MailSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10F8D04A450B4130B0857E7 /* MailSettingsView.swift */; };
+		F6A641AFC222C140D9DC9EC7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 031EB155CA4A90176C000939 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		04C60875F860CCAF5AE46E76 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2888C6E7C61678D9DAE89B9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ED3EDB5BE5660BA190234F43;
+			remoteInfo = MailDotRuntime;
+		};
+		4B06B45DBF34C8222ABE6EAC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2888C6E7C61678D9DAE89B9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E9B324F7419DA49423ADA8C5;
+			remoteInfo = MailDotExtension;
+		};
+		C96930AB3E5BAF22D7155017 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E2888C6E7C61678D9DAE89B9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FA90BE828067EB363BB1A204;
+			remoteInfo = MailDotAgent;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		37A576DEC5D533D2DB204232 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Contents/Library;
+			dstSubfolderSpec = 1;
+			files = (
+				AC608DCED278E8D8697CA19F /* LaunchAgents in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5AE87E0FA11FFAD3C829D26C /* Embed Dependencies */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Contents/Helpers;
+			dstSubfolderSpec = 1;
+			files = (
+				D201E8F5C5A589B44F95C3A0 /* MailDotRuntime in Embed Dependencies */,
+				589E19A074BA2E88CD37F351 /* MailDotAgent in Embed Dependencies */,
+			);
+			name = "Embed Dependencies";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		88EBAAC1B973D70EC6435EBC /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				44304745648CEA1E28FA6081 /* MailDotExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		003610A10C9E92ECFFC1D8C1 /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		02077B17F66677E27FEB9AD1 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/Localizable.strings; sourceTree = "<group>"; };
+		020800C057A4235F2AD1CFF1 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		022771985469896A9085DE37 /* ml */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ml; path = ml.lproj/Localizable.strings; sourceTree = "<group>"; };
+		031EB155CA4A90176C000939 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		034CA28D2AF12E9CCA039637 /* MeetingCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingCalendar.swift; sourceTree = "<group>"; };
+		03E344AA2D81091BA5FE0FAA /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Localizable.strings; sourceTree = "<group>"; };
+		04C41C906C357B3DE1EB535A /* or */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = or; path = or.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		0ABB58500010FB5C7E919550 /* fr-CA */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "fr-CA"; path = "fr-CA.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		0ADC6062018B3349DDC45B6B /* MailDotRuntime */ = {isa = PBXFileReference; includeInIndex = 0; path = MailDotRuntime; sourceTree = BUILT_PRODUCTS_DIR; };
+		0B3D0E083784554933ECFD6E /* UpdateCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateCommands.swift; sourceTree = "<group>"; };
+		0B3F0106761D1E6442A29355 /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/Localizable.strings; sourceTree = "<group>"; };
+		0D22F65EED32CCA857AC4589 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		11544BBC14A8049FF788661E /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sl; path = sl.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		14A40CC38D38BBF28240B602 /* gu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = gu; path = gu.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		155A798BC51470013AB2FD39 /* kn */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = kn; path = kn.lproj/Localizable.strings; sourceTree = "<group>"; };
+		1EB4D63C6E28B681417CC760 /* ur */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ur; path = ur.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		2394AE6DA3FF89FAC54AE8ED /* th */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = th; path = th.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		248F4ECBF795E6386DF279F1 /* MailDotExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MailDotExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		26D7481894F52BA424A93C0D /* ms */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ms; path = ms.lproj/Localizable.strings; sourceTree = "<group>"; };
+		2B6970F91546192254E4EDCB /* ta */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ta; path = ta.lproj/Localizable.strings; sourceTree = "<group>"; };
+		3202E10D2402726FB9CEF021 /* AgentMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentMain.swift; sourceTree = "<group>"; };
+		3327D2CDE95BDFCA9255349B /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		37F3F5467EEF7501076DDA0E /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		37FFCF7AF04466F946CEA4F1 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		382ECAF6E9158B92D1A3104E /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		38CC46E67900903BBD578E47 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
+		3B4F1D76F62B3420DEA8244D /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
+		3EEEC7152017E30AB7C08FC4 /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/Localizable.strings; sourceTree = "<group>"; };
+		3F69D9884522D816B6643FE5 /* gu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = gu; path = gu.lproj/Localizable.strings; sourceTree = "<group>"; };
+		4356CCCEB10FF892EC6FDD36 /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/Localizable.strings; sourceTree = "<group>"; };
+		4728F56FAD76B4591155A895 /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		4747F0EEC45A8514A372E5B1 /* MailExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailExtension.swift; sourceTree = "<group>"; };
+		4F71736C2C62211567B80158 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		4FB7E669E698594FC7204EA4 /* Mail Dot */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "Mail Dot"; path = .; sourceTree = SOURCE_ROOT; };
+		5149831378E25F1240A6B043 /* MailDotThreadWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailDotThreadWindow.swift; sourceTree = "<group>"; };
+		526791630CC7C5B2F7A62286 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		529AAA3B0E186DC361333C37 /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		529EBB2EE514AE31EA529C67 /* ta */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ta; path = ta.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		53DFFC3763B05F04B203F7C0 /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = hr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		569A1BF78C9C33219202B225 /* mr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = mr; path = mr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		57C8DF88D873F6C176FDADE4 /* MessageReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageReportView.swift; sourceTree = "<group>"; };
+		58C9B232FFB7E34549855F2B /* pa */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pa; path = pa.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5A39AFAC61F01EAAD074C0EF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		5B839666D5A6A0D6D3A6A1D3 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		5CEFA9971DC0E603C7D45986 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5D564831C5948F5FC250E70E /* MailDotAgent */ = {isa = PBXFileReference; includeInIndex = 0; path = MailDotAgent; sourceTree = BUILT_PRODUCTS_DIR; };
+		611790A36B03669F6CCD4213 /* hi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hi; path = hi.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		65CA2A1F16062D04D3956FE2 /* or */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = or; path = or.lproj/Localizable.strings; sourceTree = "<group>"; };
+		65EFAC301AA54F16AE1CDB75 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Localizable.strings; sourceTree = "<group>"; };
+		66DDEB7713E6AC58D26AA093 /* PreviewRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewRenderer.swift; sourceTree = "<group>"; };
+		66EDA7707A3C3ACA2FFAA2ED /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = sk.lproj/Localizable.strings; sourceTree = "<group>"; };
+		6968BBDBD74FCD84E1B6FDE4 /* th */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = th; path = th.lproj/Localizable.strings; sourceTree = "<group>"; };
+		6DB6BDD9EC1E549051AA6284 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		6F1909D1F59B771DD31F13B5 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		71621DEBCA4915D005FD51C0 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
+		747119044A5AB20AC4DF0708 /* te */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = te; path = te.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		74A340F3EFAF535C1307B6A3 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		7691B640C9235A77BF0BE88F /* hi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hi; path = hi.lproj/Localizable.strings; sourceTree = "<group>"; };
+		78881F7DAE5FA75A11D40FB1 /* sl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sl; path = sl.lproj/Localizable.strings; sourceTree = "<group>"; };
+		78DFC505627000B8D80CB496 /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ro; path = ro.lproj/Localizable.strings; sourceTree = "<group>"; };
+		79E963E0AEC5443872CC8C21 /* ms */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ms; path = ms.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		7AE5F704842CFF6A85E30A4D /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		7AE6D80F6D8B8183224080B4 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
+		7B3F3D27595C87E032BEA605 /* MailDotAboutWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailDotAboutWindow.swift; sourceTree = "<group>"; };
+		7D4E26DA9C15ED450FD6B652 /* es-419 */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-419"; path = "es-419.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		85D341DAAB8CBAD268F0B93D /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		88C2CDD6C90861E09DA014D2 /* LaunchAgents */ = {isa = PBXFileReference; lastKnownFileType = folder; name = LaunchAgents; path = Config/LaunchAgents; sourceTree = SOURCE_ROOT; };
+		894DDBD5FED89BD8EA619523 /* ur */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ur; path = ur.lproj/Localizable.strings; sourceTree = "<group>"; };
+		8F961F94CCDC8DE6A88D83D9 /* bn */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = bn; path = bn.lproj/Localizable.strings; sourceTree = "<group>"; };
+		8FCB35C8466958FAE3712D70 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		906A934FE4FFEE01EE305A93 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		907287D4A4BA914FE674D42C /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
+		91CDB9B4B683F467BEC33EAA /* ConnectionWatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionWatch.swift; sourceTree = "<group>"; };
+		928941D2232545D46BC40286 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		931E6DDF125D6D1977C99A7D /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = hr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		93A032F5603B665F5E642F76 /* te */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = te; path = te.lproj/Localizable.strings; sourceTree = "<group>"; };
+		93BA638DD5F112151BC87583 /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ro; path = ro.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		9496CA679577A9B36A06EEFB /* DotCallCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DotCallCommands.swift; sourceTree = "<group>"; };
+		98EE36F7DFA03E0ACC22A656 /* MailDotSetupWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailDotSetupWindow.swift; sourceTree = "<group>"; };
+		9AA4EE4E5C58160D67C425EE /* MailDotStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailDotStyle.swift; sourceTree = "<group>"; };
+		9DCE329DE8A999D4E6B8B8C8 /* AskDotPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AskDotPanel.swift; sourceTree = "<group>"; };
+		A6BBF75AC4847D8355F21ACC /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		A7BFEB4FA8D5BE0F4F19F7E3 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
+		A888651B1FE9FAFFBAC4F6E9 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/Localizable.strings; sourceTree = "<group>"; };
+		AD9A9C9D5982D5269C6D97BF /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
+		AE82BFB13FDC9CFE2620B4CE /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		AFE91775EC9B4125EB635853 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
+		B26D4B5F7836E9B62A1CD2BB /* RuntimeMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeMain.swift; sourceTree = "<group>"; };
+		B7CA0F60A2877DEA30B1D10C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		B8961A0405886483C0FF1EE6 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		B8C1541769B391F13BAE69A4 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		BACD1C80ED95CEDB5AB6B12F /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		BEC94660338DDB47E99558D1 /* BackgroundConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundConnection.swift; sourceTree = "<group>"; };
+		C0C27F5DB7D288F5437DEF30 /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C1BB84831C50B4FA14436C88 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		C2533A2168CF4AA44A40425A /* pa */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pa; path = pa.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		C333B72053D7F31D96613857 /* Mail Dot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Mail Dot.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C4D87489064661BD99F1628C /* kn */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = kn; path = kn.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		C4E559E2C3AD85DD7C8C95B4 /* NativeMailSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeMailSetupView.swift; sourceTree = "<group>"; };
+		C807B1395772A85A5D890BF9 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CBB7789E0EAA0366D1C9B437 /* TriageViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriageViews.swift; sourceTree = "<group>"; };
+		D07F7ECA36103F0FD727FA31 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		D167464A135FC5BBAEAC250A /* ml */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ml; path = ml.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		D2272B1481A2F190CAF45932 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		D872A1A6034983B99D69318C /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = sk.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E10F8D04A450B4130B0857E7 /* MailSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailSettingsView.swift; sourceTree = "<group>"; };
+		E62BD4E31CC35FC8A4F8C837 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E6AEB7DB70E4DD2236A62816 /* mr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = mr; path = mr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		E86B0414BC3FE9D6B61A5595 /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E9124C0BC7081B074C6947CC /* MailDotApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailDotApp.swift; sourceTree = "<group>"; };
+		E9E068FA117EA5D3AF59F209 /* id */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = id; path = id.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		EB2BE603793D5BF39B22C1BB /* bn */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = bn; path = bn.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		ED4F3BD01CD1B7E9C0A52ECC /* ReplyPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplyPanelView.swift; sourceTree = "<group>"; };
+		EF010DBE176B58926FB6B06D /* fr-CA */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "fr-CA"; path = "fr-CA.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		EFC0C2A9F2ADB0618F43B3DE /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F07CB8ED00CB9F19BF7780DD /* es-419 */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-419"; path = "es-419.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		F1FAA747BAE0DF0C95E41ACA /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		F6D2176EF3F0DE64DC3DF426 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		F6F5AC061516C70335B498FA /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
+		F7202F2EAC21A04B82F7898B /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		FC05BB45DD2FA050C9B773AB /* ConnectionViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionViews.swift; sourceTree = "<group>"; };
+		FCC029EB46D35806392AF904 /* id */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = id; path = id.lproj/Localizable.strings; sourceTree = "<group>"; };
+		FD242084019FBDABC8EBE91B /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		662FAC45136AEC123A19DC40 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DB93CBF6E1C676603EEC3E23 /* BridgeCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F65716824742969A62EC850D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AD0D37ED33EE7716F70C18CC /* BridgeCore in Frameworks */,
+				69A8D6FE627782999A91C926 /* BridgeAutomation in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FFF252D81BE19672A6B7A922 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9AB1C1BB0619F49CF2CDB292 /* BridgeCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		093EADF0475C2E5C0FC74DA6 /* SharedSettings */ = {
+			isa = PBXGroup;
+			children = (
+				FC05BB45DD2FA050C9B773AB /* ConnectionViews.swift */,
+				9496CA679577A9B36A06EEFB /* DotCallCommands.swift */,
+				9AA4EE4E5C58160D67C425EE /* MailDotStyle.swift */,
+				5149831378E25F1240A6B043 /* MailDotThreadWindow.swift */,
+				E10F8D04A450B4130B0857E7 /* MailSettingsView.swift */,
+				57C8DF88D873F6C176FDADE4 /* MessageReportView.swift */,
+				C4E559E2C3AD85DD7C8C95B4 /* NativeMailSetupView.swift */,
+				ED4F3BD01CD1B7E9C0A52ECC /* ReplyPanelView.swift */,
+				CBB7789E0EAA0366D1C9B437 /* TriageViews.swift */,
+				0B3D0E083784554933ECFD6E /* UpdateCommands.swift */,
+				29CA92CC90AD84429063762D /* InfoPlist.strings */,
+				D408EEE2B6689249C8419FBF /* Localizable.strings */,
+			);
+			name = SharedSettings;
+			path = Targets/SharedSettings;
+			sourceTree = "<group>";
+		};
+		0B2B8C826E831986C9483EA3 /* MailExtension */ = {
+			isa = PBXGroup;
+			children = (
+				5A39AFAC61F01EAAD074C0EF /* Assets.xcassets */,
+				4747F0EEC45A8514A372E5B1 /* MailExtension.swift */,
+			);
+			name = MailExtension;
+			path = Targets/MailExtension;
+			sourceTree = "<group>";
+		};
+		201743075A06231D818921ED /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				4FB7E669E698594FC7204EA4 /* Mail Dot */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		3666424EE8D6EAE28328B692 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C333B72053D7F31D96613857 /* Mail Dot.app */,
+				5D564831C5948F5FC250E70E /* MailDotAgent */,
+				248F4ECBF795E6386DF279F1 /* MailDotExtension.appex */,
+				0ADC6062018B3349DDC45B6B /* MailDotRuntime */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		52FCAA2238FC6C58E6A36514 = {
+			isa = PBXGroup;
+			children = (
+				88C2CDD6C90861E09DA014D2 /* LaunchAgents */,
+				9C7D89540D3D96AA211F7592 /* Agent */,
+				BA25BFA57E060E7F938D58F3 /* Companion */,
+				775F5505C60FA79D703C9058 /* Config */,
+				0B2B8C826E831986C9483EA3 /* MailExtension */,
+				201743075A06231D818921ED /* Packages */,
+				EA4E9B309669C48A1749CB91 /* Runtime */,
+				093EADF0475C2E5C0FC74DA6 /* SharedSettings */,
+				3666424EE8D6EAE28328B692 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		775F5505C60FA79D703C9058 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				AD9A9C9D5982D5269C6D97BF /* Signing.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		9C7D89540D3D96AA211F7592 /* Agent */ = {
+			isa = PBXGroup;
+			children = (
+				3202E10D2402726FB9CEF021 /* AgentMain.swift */,
+			);
+			name = Agent;
+			path = Targets/Agent;
+			sourceTree = "<group>";
+		};
+		BA25BFA57E060E7F938D58F3 /* Companion */ = {
+			isa = PBXGroup;
+			children = (
+				9DCE329DE8A999D4E6B8B8C8 /* AskDotPanel.swift */,
+				031EB155CA4A90176C000939 /* Assets.xcassets */,
+				BEC94660338DDB47E99558D1 /* BackgroundConnection.swift */,
+				91CDB9B4B683F467BEC33EAA /* ConnectionWatch.swift */,
+				7B3F3D27595C87E032BEA605 /* MailDotAboutWindow.swift */,
+				E9124C0BC7081B074C6947CC /* MailDotApp.swift */,
+				98EE36F7DFA03E0ACC22A656 /* MailDotSetupWindow.swift */,
+				034CA28D2AF12E9CCA039637 /* MeetingCalendar.swift */,
+				66DDEB7713E6AC58D26AA093 /* PreviewRenderer.swift */,
+			);
+			name = Companion;
+			path = Targets/Companion;
+			sourceTree = "<group>";
+		};
+		EA4E9B309669C48A1749CB91 /* Runtime */ = {
+			isa = PBXGroup;
+			children = (
+				B26D4B5F7836E9B62A1CD2BB /* RuntimeMain.swift */,
+			);
+			name = Runtime;
+			path = Targets/Runtime;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6814ACE0B1BF759A0701F026 /* MailDot */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 516630087A9BD2B264B24FE9 /* Build configuration list for PBXNativeTarget "MailDot" */;
+			buildPhases = (
+				92AAE61193ADDC1E092A5207 /* Sources */,
+				4DBE6A433B2664E8B7773ED3 /* Resources */,
+				37A576DEC5D533D2DB204232 /* CopyFiles */,
+				F65716824742969A62EC850D /* Frameworks */,
+				88EBAAC1B973D70EC6435EBC /* Embed Foundation Extensions */,
+				5AE87E0FA11FFAD3C829D26C /* Embed Dependencies */,
+				0DE3B019FC1046F9B71F167B /* Embed OpenAI tunnel client */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A0870B800D2F18365621C74B /* PBXTargetDependency */,
+				B06C4437DC2A8BDEF41EA04B /* PBXTargetDependency */,
+				23720B8C6490101633B0C45D /* PBXTargetDependency */,
+			);
+			name = MailDot;
+			packageProductDependencies = (
+				74B7EC4A2781F49F7C48EF6E /* BridgeCore */,
+				3E005AB239FA6960BB74C58E /* BridgeAutomation */,
+			);
+			productName = MailDot;
+			productReference = C333B72053D7F31D96613857 /* Mail Dot.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E9B324F7419DA49423ADA8C5 /* MailDotExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CBCCA52C56EF9CC4335930DB /* Build configuration list for PBXNativeTarget "MailDotExtension" */;
+			buildPhases = (
+				756CE3A97CEF6C5181BA98F2 /* Sources */,
+				41DB686BDD1BBD8FF1D1B84D /* Resources */,
+				662FAC45136AEC123A19DC40 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MailDotExtension;
+			packageProductDependencies = (
+				FBDEE00C0D921FC6165F16A8 /* BridgeCore */,
+			);
+			productName = MailDotExtension;
+			productReference = 248F4ECBF795E6386DF279F1 /* MailDotExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		ED3EDB5BE5660BA190234F43 /* MailDotRuntime */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E43D2E6EBD9DF0CF7791DAB0 /* Build configuration list for PBXNativeTarget "MailDotRuntime" */;
+			buildPhases = (
+				F8D74108660CA7A55C0A40AA /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MailDotRuntime;
+			packageProductDependencies = (
+			);
+			productName = MailDotRuntime;
+			productReference = 0ADC6062018B3349DDC45B6B /* MailDotRuntime */;
+			productType = "com.apple.product-type.tool";
+		};
+		FA90BE828067EB363BB1A204 /* MailDotAgent */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 67386427A4B49BFE44ADABC3 /* Build configuration list for PBXNativeTarget "MailDotAgent" */;
+			buildPhases = (
+				43DA5A1D3683D2A9C1808A93 /* Sources */,
+				FFF252D81BE19672A6B7A922 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MailDotAgent;
+			packageProductDependencies = (
+				7D69B97D91AED867DB320DF5 /* BridgeCore */,
+			);
+			productName = MailDotAgent;
+			productReference = 5D564831C5948F5FC250E70E /* MailDotAgent */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E2888C6E7C61678D9DAE89B9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					6814ACE0B1BF759A0701F026 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Manual;
+					};
+					E9B324F7419DA49423ADA8C5 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Manual;
+					};
+					ED3EDB5BE5660BA190234F43 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Manual;
+					};
+					FA90BE828067EB363BB1A204 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = 91ED6C3F8ECDC8EDF8101D25 /* Build configuration list for PBXProject "MailDot" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				ar,
+				bn,
+				ca,
+				cs,
+				da,
+				de,
+				el,
+				en,
+				es,
+				"es-419",
+				fi,
+				fr,
+				"fr-CA",
+				gu,
+				he,
+				hi,
+				hr,
+				hu,
+				id,
+				it,
+				ja,
+				kn,
+				ko,
+				ml,
+				mr,
+				ms,
+				nb,
+				nl,
+				or,
+				pa,
+				pl,
+				"pt-BR",
+				"pt-PT",
+				ro,
+				ru,
+				sk,
+				sl,
+				sv,
+				ta,
+				te,
+				th,
+				tr,
+				uk,
+				ur,
+				vi,
+				"zh-Hans",
+				"zh-Hant",
+			);
+			mainGroup = 52FCAA2238FC6C58E6A36514;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				D5ABF8864C8A536D47F27B7D /* XCLocalSwiftPackageReference "." */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 3666424EE8D6EAE28328B692 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6814ACE0B1BF759A0701F026 /* MailDot */,
+				E9B324F7419DA49423ADA8C5 /* MailDotExtension */,
+				ED3EDB5BE5660BA190234F43 /* MailDotRuntime */,
+				FA90BE828067EB363BB1A204 /* MailDotAgent */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		41DB686BDD1BBD8FF1D1B84D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4BF83BB1D5F4A6DDDBB4C2D6 /* Assets.xcassets in Resources */,
+				CB492A0DA4BADAA848ED5F39 /* InfoPlist.strings in Resources */,
+				ED2C69D8717D894ECF06AC95 /* Localizable.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4DBE6A433B2664E8B7773ED3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6A641AFC222C140D9DC9EC7 /* Assets.xcassets in Resources */,
+				5831E86F0D1D054AAD9D83D5 /* InfoPlist.strings in Resources */,
+				377AF868687C7BAE0E0207FE /* Localizable.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		0DE3B019FC1046F9B71F167B /* Embed OpenAI tunnel client */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Embed OpenAI tunnel client";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\nSRC=\"$SRCROOT/Vendor/tunnel-client\"\nAPP=\"$TARGET_BUILD_DIR/$WRAPPER_NAME\"\nif [ ! -x \"$SRC/tunnel-client\" ]; then\n  echo \"warning: Vendor/tunnel-client is missing (run Tools/vendor-tunnel-client.sh); this build uses the tunnel client named in its runtime settings.\"\n  exit 0\nfi\nmkdir -p \"$APP/Contents/Helpers\" \"$APP/Contents/Resources/Licenses/tunnel-client\"\nditto \"$SRC/tunnel-client\" \"$APP/Contents/Helpers/tunnel-client\"\ncp \"$SRC/LICENSE\" \"$SRC/NOTICE\" \"$APP/Contents/Resources/Licenses/tunnel-client/\"\ncodesign --force --options runtime --timestamp=none --sign \"${EXPANDED_CODE_SIGN_IDENTITY:--}\" \"$APP/Contents/Helpers/tunnel-client\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		43DA5A1D3683D2A9C1808A93 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				58C000B8E714D1D3F928D32C /* AgentMain.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		756CE3A97CEF6C5181BA98F2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8D8A5885EBC9C60CA246F69D /* ConnectionViews.swift in Sources */,
+				499E2DD795C6A5D5D5F92A54 /* DotCallCommands.swift in Sources */,
+				B3E7B7FFDA76806189E00D02 /* MailDotStyle.swift in Sources */,
+				132238709EC706C0358E071E /* MailDotThreadWindow.swift in Sources */,
+				7BD30682FD15B41DC64EC32C /* MailExtension.swift in Sources */,
+				F4F8BEA6265C47AEC3DA6B67 /* MailSettingsView.swift in Sources */,
+				CA596239658360B0A340650D /* MessageReportView.swift in Sources */,
+				D9A9AA14C605D7DC729A6901 /* NativeMailSetupView.swift in Sources */,
+				6F9C48EC493973B5DB191C20 /* ReplyPanelView.swift in Sources */,
+				64B571F02920B1298CA31069 /* TriageViews.swift in Sources */,
+				F067B540FFD04A61AEA560A6 /* UpdateCommands.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92AAE61193ADDC1E092A5207 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7653B0769220BB416B341EE6 /* AskDotPanel.swift in Sources */,
+				D6BA57C968AD049396875E7B /* BackgroundConnection.swift in Sources */,
+				58D008CC13EF2ED63C024219 /* ConnectionViews.swift in Sources */,
+				B756DB89F73EC8495A550BAF /* ConnectionWatch.swift in Sources */,
+				70918AF9CF20976498950C07 /* DotCallCommands.swift in Sources */,
+				B868B696AEB7F7F704454343 /* MailDotAboutWindow.swift in Sources */,
+				A878235DFB71578A6DE1708F /* MailDotApp.swift in Sources */,
+				7C09BC4421420A372B4B45F7 /* MailDotSetupWindow.swift in Sources */,
+				82880DB326D9A5778D825665 /* MailDotStyle.swift in Sources */,
+				C89E90E6776B3D3E97DD5D68 /* MailDotThreadWindow.swift in Sources */,
+				14C87287DD99CC9A74635D7B /* MailSettingsView.swift in Sources */,
+				D7D3946EAD554C536074C91E /* MeetingCalendar.swift in Sources */,
+				25C19199E8CCA527539F7F5F /* MessageReportView.swift in Sources */,
+				8A55B050D0A7A1AE5D9C2FC0 /* NativeMailSetupView.swift in Sources */,
+				F0B230886FE0D183D0F5937E /* PreviewRenderer.swift in Sources */,
+				0D7AD48A776E29ADDD810FCC /* ReplyPanelView.swift in Sources */,
+				75E89BD21BB36A60E733CCC2 /* TriageViews.swift in Sources */,
+				8054333F5CDEB0C197BA3602 /* UpdateCommands.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F8D74108660CA7A55C0A40AA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AC764B9C667ECA611AF18AA5 /* RuntimeMain.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		23720B8C6490101633B0C45D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FA90BE828067EB363BB1A204 /* MailDotAgent */;
+			targetProxy = C96930AB3E5BAF22D7155017 /* PBXContainerItemProxy */;
+		};
+		A0870B800D2F18365621C74B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E9B324F7419DA49423ADA8C5 /* MailDotExtension */;
+			targetProxy = 4B06B45DBF34C8222ABE6EAC /* PBXContainerItemProxy */;
+		};
+		B06C4437DC2A8BDEF41EA04B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = ED3EDB5BE5660BA190234F43 /* MailDotRuntime */;
+			targetProxy = 04C60875F860CCAF5AE46E76 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		29CA92CC90AD84429063762D /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D07F7ECA36103F0FD727FA31 /* ar */,
+				EB2BE603793D5BF39B22C1BB /* bn */,
+				4728F56FAD76B4591155A895 /* ca */,
+				6F1909D1F59B771DD31F13B5 /* cs */,
+				020800C057A4235F2AD1CFF1 /* da */,
+				BACD1C80ED95CEDB5AB6B12F /* de */,
+				7AE5F704842CFF6A85E30A4D /* el */,
+				B7CA0F60A2877DEA30B1D10C /* en */,
+				3327D2CDE95BDFCA9255349B /* es */,
+				7D4E26DA9C15ED450FD6B652 /* es-419 */,
+				6DB6BDD9EC1E549051AA6284 /* fi */,
+				D2272B1481A2F190CAF45932 /* fr */,
+				EF010DBE176B58926FB6B06D /* fr-CA */,
+				14A40CC38D38BBF28240B602 /* gu */,
+				E86B0414BC3FE9D6B61A5595 /* he */,
+				611790A36B03669F6CCD4213 /* hi */,
+				53DFFC3763B05F04B203F7C0 /* hr */,
+				928941D2232545D46BC40286 /* hu */,
+				E9E068FA117EA5D3AF59F209 /* id */,
+				EFC0C2A9F2ADB0618F43B3DE /* it */,
+				E62BD4E31CC35FC8A4F8C837 /* ja */,
+				C4D87489064661BD99F1628C /* kn */,
+				AE82BFB13FDC9CFE2620B4CE /* ko */,
+				D167464A135FC5BBAEAC250A /* ml */,
+				569A1BF78C9C33219202B225 /* mr */,
+				79E963E0AEC5443872CC8C21 /* ms */,
+				85D341DAAB8CBAD268F0B93D /* nb */,
+				FD242084019FBDABC8EBE91B /* nl */,
+				04C41C906C357B3DE1EB535A /* or */,
+				C2533A2168CF4AA44A40425A /* pa */,
+				B8961A0405886483C0FF1EE6 /* pl */,
+				37FFCF7AF04466F946CEA4F1 /* pt-BR */,
+				5B839666D5A6A0D6D3A6A1D3 /* pt-PT */,
+				93BA638DD5F112151BC87583 /* ro */,
+				74A340F3EFAF535C1307B6A3 /* ru */,
+				D872A1A6034983B99D69318C /* sk */,
+				11544BBC14A8049FF788661E /* sl */,
+				C1BB84831C50B4FA14436C88 /* sv */,
+				529EBB2EE514AE31EA529C67 /* ta */,
+				747119044A5AB20AC4DF0708 /* te */,
+				2394AE6DA3FF89FAC54AE8ED /* th */,
+				A6BBF75AC4847D8355F21ACC /* tr */,
+				529AAA3B0E186DC361333C37 /* uk */,
+				1EB4D63C6E28B681417CC760 /* ur */,
+				003610A10C9E92ECFFC1D8C1 /* vi */,
+				906A934FE4FFEE01EE305A93 /* zh-Hans */,
+				0D22F65EED32CCA857AC4589 /* zh-Hant */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		D408EEE2B6689249C8419FBF /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				F6F5AC061516C70335B498FA /* ar */,
+				8F961F94CCDC8DE6A88D83D9 /* bn */,
+				4356CCCEB10FF892EC6FDD36 /* ca */,
+				38CC46E67900903BBD578E47 /* cs */,
+				A7BFEB4FA8D5BE0F4F19F7E3 /* da */,
+				5CEFA9971DC0E603C7D45986 /* de */,
+				03E344AA2D81091BA5FE0FAA /* el */,
+				526791630CC7C5B2F7A62286 /* en */,
+				AFE91775EC9B4125EB635853 /* es */,
+				F07CB8ED00CB9F19BF7780DD /* es-419 */,
+				A888651B1FE9FAFFBAC4F6E9 /* fi */,
+				37F3F5467EEF7501076DDA0E /* fr */,
+				0ABB58500010FB5C7E919550 /* fr-CA */,
+				3F69D9884522D816B6643FE5 /* gu */,
+				C0C27F5DB7D288F5437DEF30 /* he */,
+				7691B640C9235A77BF0BE88F /* hi */,
+				931E6DDF125D6D1977C99A7D /* hr */,
+				02077B17F66677E27FEB9AD1 /* hu */,
+				FCC029EB46D35806392AF904 /* id */,
+				7AE6D80F6D8B8183224080B4 /* it */,
+				F1FAA747BAE0DF0C95E41ACA /* ja */,
+				155A798BC51470013AB2FD39 /* kn */,
+				3B4F1D76F62B3420DEA8244D /* ko */,
+				022771985469896A9085DE37 /* ml */,
+				E6AEB7DB70E4DD2236A62816 /* mr */,
+				26D7481894F52BA424A93C0D /* ms */,
+				71621DEBCA4915D005FD51C0 /* nb */,
+				C807B1395772A85A5D890BF9 /* nl */,
+				65CA2A1F16062D04D3956FE2 /* or */,
+				58C9B232FFB7E34549855F2B /* pa */,
+				65EFAC301AA54F16AE1CDB75 /* pl */,
+				8FCB35C8466958FAE3712D70 /* pt-BR */,
+				F6D2176EF3F0DE64DC3DF426 /* pt-PT */,
+				78DFC505627000B8D80CB496 /* ro */,
+				382ECAF6E9158B92D1A3104E /* ru */,
+				66EDA7707A3C3ACA2FFAA2ED /* sk */,
+				78881F7DAE5FA75A11D40FB1 /* sl */,
+				907287D4A4BA914FE674D42C /* sv */,
+				2B6970F91546192254E4EDCB /* ta */,
+				93A032F5603B665F5E642F76 /* te */,
+				6968BBDBD74FCD84E1B6FDE4 /* th */,
+				4F71736C2C62211567B80158 /* tr */,
+				0B3F0106761D1E6442A29355 /* uk */,
+				894DDBD5FED89BD8EA619523 /* ur */,
+				3EEEC7152017E30AB7C08FC4 /* vi */,
+				B8C1541769B391F13BAE69A4 /* zh-Hans */,
+				F7202F2EAC21A04B82F7898B /* zh-Hant */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		138590F0FFFE944BE4C6D62B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.jgkarlin.MailBridge.Runtime;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		19088BFE71D924458A094EEC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/Companion.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				INFOPLIST_FILE = "Config/Companion-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.jgkarlin.MailBridge;
+				PRODUCT_MODULE_NAME = MailDot;
+				PRODUCT_NAME = "Mail Dot";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		319C07D3E621EE0942F1E133 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = AD9A9C9D5982D5269C6D97BF /* Signing.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 168;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = "0.4.$(CURRENT_PROJECT_VERSION)";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		373D1CFBAAE0CC2957D52D55 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/Companion.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				INFOPLIST_FILE = "Config/Companion-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.jgkarlin.MailBridge;
+				PRODUCT_MODULE_NAME = MailDot;
+				PRODUCT_NAME = "Mail Dot";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		58B305AFD1170E60C13A72AE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/Agent.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.jgkarlin.MailBridge.Agent;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		9C24F01B6BC0A28A7EB4D44C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/Extension.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = "Config/Extension-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.jgkarlin.MailBridge.MailExtension;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		BCABD7E136A7B46AE3C80207 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/Agent.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.jgkarlin.MailBridge.Agent;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		DA0FDCABAD76D9D23AE5BC9E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/Extension.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = "Config/Extension-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.jgkarlin.MailBridge.MailExtension;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		DA40401E59ED3465EB1979D9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.jgkarlin.MailBridge.Runtime;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		F82A979293D043385EF76F2F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = AD9A9C9D5982D5269C6D97BF /* Signing.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 168;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = "0.4.$(CURRENT_PROJECT_VERSION)";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		516630087A9BD2B264B24FE9 /* Build configuration list for PBXNativeTarget "MailDot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				373D1CFBAAE0CC2957D52D55 /* Debug */,
+				19088BFE71D924458A094EEC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		67386427A4B49BFE44ADABC3 /* Build configuration list for PBXNativeTarget "MailDotAgent" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				58B305AFD1170E60C13A72AE /* Debug */,
+				BCABD7E136A7B46AE3C80207 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		91ED6C3F8ECDC8EDF8101D25 /* Build configuration list for PBXProject "MailDot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F82A979293D043385EF76F2F /* Debug */,
+				319C07D3E621EE0942F1E133 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CBCCA52C56EF9CC4335930DB /* Build configuration list for PBXNativeTarget "MailDotExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9C24F01B6BC0A28A7EB4D44C /* Debug */,
+				DA0FDCABAD76D9D23AE5BC9E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E43D2E6EBD9DF0CF7791DAB0 /* Build configuration list for PBXNativeTarget "MailDotRuntime" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				138590F0FFFE944BE4C6D62B /* Debug */,
+				DA40401E59ED3465EB1979D9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		D5ABF8864C8A536D47F27B7D /* XCLocalSwiftPackageReference "." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = .;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3E005AB239FA6960BB74C58E /* BridgeAutomation */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BridgeAutomation;
+		};
+		74B7EC4A2781F49F7C48EF6E /* BridgeCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BridgeCore;
+		};
+		7D69B97D91AED867DB320DF5 /* BridgeCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BridgeCore;
+		};
+		FBDEE00C0D921FC6165F16A8 /* BridgeCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BridgeCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = E2888C6E7C61678D9DAE89B9 /* Project object */;
+}

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The installer's outline. must-close makes the installer ask the user to quit Mail before it installs. -->
+<installer-gui-script minSpecVersion="2">
+    <title>Mail Dot</title>
+    <welcome file="welcome.html" mime-type="text/html"/>
+    <conclusion file="conclusion.html" mime-type="text/html"/>
+    <!-- Apple silicon only: the tunnel client OpenAI publishes, which Mail Dot carries, is built for arm64 alone. -->
+    <options customize="never" require-scripts="false" hostArchitectures="arm64"/>
+    <domains enable_localSystem="true"/>
+    <choices-outline>
+        <line choice="default"/>
+    </choices-outline>
+    <choice id="default" title="Mail Dot">
+        <pkg-ref id="org.jgkarlin.MailBridge.pkg"/>
+    </choice>
+    <pkg-ref id="org.jgkarlin.MailBridge.pkg" version="@VERSION@" onConclusion="none">
+        <must-close>
+            <app id="com.apple.mail"/>
+        </must-close>
+    </pkg-ref>
+    <pkg-ref id="org.jgkarlin.MailBridge.pkg" version="@VERSION@">MailDot-component.pkg</pkg-ref>
+</installer-gui-script>

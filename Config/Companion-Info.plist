@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>Mail Dot</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Mail Dot</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>org.jgkarlin.MailBridge</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>mailbridge</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>LSUIElement</key>
+	<true/>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Mail Dot reads only the accounts and folders you authorize, connects replies you explicitly share, and applies or submits reviewed drafts after your approval.</string>
+	<key>NSAudioCaptureUsageDescription</key>
+	<string>Mail Dot plays its spoken request to Dot into the call silently. It captures only its own sound, never other apps or the microphone.</string>
+	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+	<string>Mail Dot adds a meeting from a message to your calendar when you press Add to Calendar. It never reads your calendar.</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2026 Hooner LLC. Developed by Jason G. Karlin.</string>
+</dict>
+</plist>

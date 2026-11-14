@@ -1,0 +1,3 @@
+"NSCalendarsWriteOnlyAccessUsageDescription" = "「カレンダーに追加」を押すと、Mail Dot はメッセージの会議をカレンダーに追加します。カレンダーを読むことはありません。";
+"NSAudioCaptureUsageDescription" = "Mail Dot は Dot への音声リクエストを通話に無音で流します。取り込むのは自分の音声だけで、他のアプリやマイクの音は取り込みません。";
+"NSAppleEventsUsageDescription" = "Mail Dot は許可されたアカウントとフォルダだけを読み、明示的に共有した返信をつなぎ、承認後に確認済みの下書きを適用または送信します。";

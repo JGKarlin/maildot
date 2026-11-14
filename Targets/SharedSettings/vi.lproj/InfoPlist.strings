@@ -1,0 +1,3 @@
+"NSCalendarsWriteOnlyAccessUsageDescription" = "Mail Dot thêm cuộc họp từ một thư vào lịch của bạn khi bạn nhấn Thêm vào lịch. Nó không bao giờ đọc lịch của bạn.";
+"NSAudioCaptureUsageDescription" = "Mail Dot phát yêu cầu bằng giọng nói tới Dot vào cuộc gọi một cách im lặng. Nó chỉ thu âm thanh của chính mình, không bao giờ thu ứng dụng khác hay micrô.";
+"NSAppleEventsUsageDescription" = "Mail Dot chỉ đọc các tài khoản và thư mục bạn cho phép, kết nối các thư trả lời bạn chia sẻ rõ ràng, và áp dụng hoặc gửi các bản nháp đã xem xét sau khi bạn chấp thuận.";

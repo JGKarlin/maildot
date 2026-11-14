@@ -1,0 +1,3 @@
+"NSCalendarsWriteOnlyAccessUsageDescription" = "当你按下“添加到日历”时，Mail Dot 会把邮件中的会议添加到你的日历。它从不读取你的日历。";
+"NSAudioCaptureUsageDescription" = "Mail Dot 会将其对 Dot 的语音请求静默播放到通话中。它只捕获自己的声音，从不捕获其他应用或麦克风。";
+"NSAppleEventsUsageDescription" = "Mail Dot 只读取你授权的账户和文件夹，连接你明确共享的回复，并在你批准后应用或提交已审核的草稿。";

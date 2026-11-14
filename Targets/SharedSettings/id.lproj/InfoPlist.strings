@@ -1,0 +1,3 @@
+"NSCalendarsWriteOnlyAccessUsageDescription" = "Mail Dot menambahkan rapat dari pesan ke kalender Anda saat Anda menekan Tambahkan ke Kalender. Mail Dot tidak pernah membaca kalender Anda.";
+"NSAudioCaptureUsageDescription" = "Mail Dot memutar permintaan lisannya ke Dot secara senyap ke dalam panggilan. Ia hanya merekam suaranya sendiri, tidak pernah app lain atau mikrofon.";
+"NSAppleEventsUsageDescription" = "Mail Dot hanya membaca akun dan folder yang Anda izinkan, menghubungkan balasan yang Anda bagikan secara eksplisit, serta menerapkan atau mengirim draf yang sudah ditinjau setelah Anda setujui.";

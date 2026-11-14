@@ -1,0 +1,158 @@
+name: MailDot
+options:
+  minimumXcodeGenVersion: 2.44.0
+  deploymentTarget:
+    macOS: '14.0'
+settings:
+  base:
+    SWIFT_VERSION: '6.0'
+    SWIFT_STRICT_CONCURRENCY: complete
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: Apple Development
+    ENABLE_HARDENED_RUNTIME: YES
+    # The version Mail shows in Settings › Extensions changes with every build (owner request, 14 November 2026).
+    MARKETING_VERSION: 0.4.$(CURRENT_PROJECT_VERSION)
+    CURRENT_PROJECT_VERSION: 168
+  configs:
+    Release:
+      # A development-signed build is otherwise given get-task-allow, which lets any process of the same
+      # user attach to programs that hold Accessibility and Automation permission over Mail.
+      CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
+# The developer team comes from Config/Local.xcconfig, which is not in the repository (copy
+# Config/Local.example.xcconfig and put your own team there).
+configFiles:
+  Debug: Config/Signing.xcconfig
+  Release: Config/Signing.xcconfig
+packages:
+  BridgeKit:
+    path: .
+targets:
+  MailDot:
+    type: application
+    productName: Mail Dot
+    platform: macOS
+    sources:
+      - Targets/Companion
+      - Targets/SharedSettings
+      - path: Config/LaunchAgents
+        type: folder
+        buildPhase:
+          copyFiles:
+            destination: wrapper
+            subpath: Contents/Library
+    dependencies:
+      - package: BridgeKit
+        product: BridgeCore
+      - package: BridgeKit
+        product: BridgeAutomation
+      - target: MailDotExtension
+        embed: true
+      - target: MailDotRuntime
+        embed: true
+        codeSign: true
+        copy:
+          destination: wrapper
+          subpath: Contents/Helpers
+      - target: MailDotAgent
+        embed: true
+        codeSign: true
+        copy:
+          destination: wrapper
+          subpath: Contents/Helpers
+    # OpenAI's tunnel client travels inside the app, with its license (release audit, 14 November 2026), signed with
+    # the app before the app's own signature seals it. Vendor/ is filled by Tools/vendor-tunnel-client.sh.
+    postBuildScripts:
+      - name: Embed OpenAI tunnel client
+        basedOnDependencyAnalysis: false
+        script: |
+          set -euo pipefail
+          SRC="$SRCROOT/Vendor/tunnel-client"
+          APP="$TARGET_BUILD_DIR/$WRAPPER_NAME"
+          if [ ! -x "$SRC/tunnel-client" ]; then
+            echo "warning: Vendor/tunnel-client is missing (run Tools/vendor-tunnel-client.sh); this build uses the tunnel client named in its runtime settings."
+            exit 0
+          fi
+          mkdir -p "$APP/Contents/Helpers" "$APP/Contents/Resources/Licenses/tunnel-client"
+          ditto "$SRC/tunnel-client" "$APP/Contents/Helpers/tunnel-client"
+          cp "$SRC/LICENSE" "$SRC/NOTICE" "$APP/Contents/Resources/Licenses/tunnel-client/"
+          codesign --force --options runtime --timestamp=none --sign "${EXPANDED_CODE_SIGN_IDENTITY:--}" "$APP/Contents/Helpers/tunnel-client"
+    settings:
+      base:
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+        PRODUCT_BUNDLE_IDENTIFIER: org.jgkarlin.MailBridge
+        PRODUCT_NAME: Mail Dot
+        PRODUCT_MODULE_NAME: MailDot
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_ENTITLEMENTS: Config/Companion.entitlements
+    info:
+      path: Config/Companion-Info.plist
+      properties:
+        # The app is Mail Dot. Hooner LLC, the publisher, and the developer are named in the copyright line.
+        CFBundleDisplayName: Mail Dot
+        CFBundleName: Mail Dot
+        NSHumanReadableCopyright: "© 2026 Hooner LLC. Developed by Jason G. Karlin."
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSUIElement: true
+        NSCalendarsWriteOnlyAccessUsageDescription: Mail Dot adds a meeting from a message to your calendar when you press Add to Calendar. It never reads your calendar.
+        NSAudioCaptureUsageDescription: Mail Dot plays its spoken request to Dot into the call silently. It captures only its own sound, never other apps or the microphone.
+        NSAppleEventsUsageDescription: Mail Dot reads only the accounts and folders you authorize, connects replies you explicitly share, and applies or submits reviewed drafts after your approval.
+        CFBundleURLTypes:
+          - CFBundleURLName: org.jgkarlin.MailBridge
+            CFBundleURLSchemes: [mailbridge]
+  MailDotExtension:
+    type: app-extension
+    platform: macOS
+    sources: [Targets/MailExtension, Targets/SharedSettings]
+    dependencies:
+      - package: BridgeKit
+        product: BridgeCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.jgkarlin.MailBridge.MailExtension
+        # Mail's Extensions pane shows the extension's own icon; without one it shows a generic puzzle piece.
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_ENTITLEMENTS: Config/Extension.entitlements
+        APPLICATION_EXTENSION_API_ONLY: YES
+    info:
+      path: Config/Extension-Info.plist
+      properties:
+        CFBundleDisplayName: Mail Dot
+        NSHumanReadableCopyright: "© 2026 Hooner LLC. Developed by Jason G. Karlin."
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.email.extension
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).MailExtension
+          NSExtensionAttributes:
+            MEExtensionCapabilities: [MEComposeSessionHandler, MEMessageSecurityHandler, MEMessageActionHandler]
+            MEMessageSecurity:
+              MEMessageSecurityIcon: DotCompose
+            MEComposeSession:
+              MEComposeIcon: DotCompose
+              MEComposeIconToolTip: Mail Dot — Dot status and reply review
+  MailDotRuntime:
+    type: tool
+    platform: macOS
+    sources: [Targets/Runtime]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.jgkarlin.MailBridge.Runtime
+        GENERATE_INFOPLIST_FILE: YES
+  MailDotAgent:
+    type: tool
+    platform: macOS
+    sources: [Targets/Agent]
+    dependencies:
+      - package: BridgeKit
+        product: BridgeCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.jgkarlin.MailBridge.Agent
+        CODE_SIGN_ENTITLEMENTS: Config/Agent.entitlements
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  MailDot:
+    build:
+      targets:
+        MailDot: all

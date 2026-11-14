@@ -1,0 +1,3 @@
+"NSCalendarsWriteOnlyAccessUsageDescription" = "Mail Dot aggiunge al calendario una riunione da un messaggio quando premi Aggiungi al calendario. Non legge mai il tuo calendario.";
+"NSAudioCaptureUsageDescription" = "Mail Dot riproduce in silenzio nella chiamata la sua richiesta vocale a Dot. Cattura solo il proprio suono, mai altre app o il microfono.";
+"NSAppleEventsUsageDescription" = "Mail Dot legge solo gli account e le cartelle che autorizzi, collega le risposte che condividi esplicitamente e applica o invia le bozze verificate dopo la tua approvazione.";

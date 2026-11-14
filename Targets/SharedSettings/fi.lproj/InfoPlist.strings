@@ -1,0 +1,3 @@
+"NSCalendarsWriteOnlyAccessUsageDescription" = "Mail Dot lisää viestin kokouksen kalenteriisi, kun painat Lisää kalenteriin. Se ei koskaan lue kalenteriasi.";
+"NSAudioCaptureUsageDescription" = "Mail Dot toistaa äänipyyntönsä Dotille äänettömästi puheluun. Se tallentaa vain oman äänensä, ei koskaan muita appeja tai mikrofonia.";
+"NSAppleEventsUsageDescription" = "Mail Dot lukee vain sallimasi tilit ja kansiot, yhdistää nimenomaisesti jakamasi vastaukset ja lisää tai lähettää tarkistetut luonnokset vasta hyväksyntäsi jälkeen.";

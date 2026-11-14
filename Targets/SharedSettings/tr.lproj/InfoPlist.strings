@@ -1,0 +1,3 @@
+"NSCalendarsWriteOnlyAccessUsageDescription" = "Takvime Ekle'ye bastığınızda Mail Dot bir iletideki toplantıyı takviminize ekler. Takviminizi asla okumaz.";
+"NSAudioCaptureUsageDescription" = "Mail Dot, Dot'a yönelik sesli isteğini aramaya sessizce çalar. Yalnızca kendi sesini yakalar, asla diğer uygulamaları veya mikrofonu değil.";
+"NSAppleEventsUsageDescription" = "Mail Dot yalnızca izin verdiğiniz hesapları ve klasörleri okur, açıkça paylaştığınız yanıtları bağlar ve gözden geçirilmiş taslakları onayınızdan sonra uygular veya gönderir.";

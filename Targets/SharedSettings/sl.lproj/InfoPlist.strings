@@ -1,0 +1,3 @@
+"NSCalendarsWriteOnlyAccessUsageDescription" = "Mail Dot doda sestanek iz sporočila v vaš koledar, ko pritisnete Dodaj v koledar. Vašega koledarja nikoli ne bere.";
+"NSAudioCaptureUsageDescription" = "Mail Dot v klic tiho predvaja svojo govorjeno zahtevo za Dot. Zajema le lasten zvok, nikoli drugih aplikacij ali mikrofona.";
+"NSAppleEventsUsageDescription" = "Mail Dot bere le račune in mape, ki jih dovolite, povezuje odgovore, ki jih izrecno delite, in pregledane osnutke vstavi ali pošlje šele po vaši odobritvi.";

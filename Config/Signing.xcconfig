@@ -1,0 +1,5 @@
+// Signing for Mail Dot. Your Apple developer team goes in Config/Local.xcconfig, which is not in the
+// repository: copy Config/Local.example.xcconfig to Config/Local.xcconfig and set DEVELOPMENT_TEAM.
+// The app group is derived from it ($(TeamIdentifierPrefix)org.jgkarlin.MailBridge).
+DEVELOPMENT_TEAM =
+#include? "Local.xcconfig"

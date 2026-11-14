@@ -1,0 +1,13 @@
+# Settings for the project page at https://jgkarlin.github.io/maildot, which shows README.md.
+title: Mail Dot
+description: Dot, the assistant in ChatGPT, inside Apple Mail.
+theme: jekyll-theme-primer
+exclude:
+  - Sources
+  - Targets
+  - Tests
+  - Config
+  - Tools
+  - MailDot.xcodeproj
+  - Package.swift
+  - project.yml

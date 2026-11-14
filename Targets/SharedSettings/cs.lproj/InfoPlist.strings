@@ -1,0 +1,3 @@
+"NSCalendarsWriteOnlyAccessUsageDescription" = "Mail Dot přidá schůzku ze zprávy do vašeho kalendáře, když stisknete Přidat do kalendáře. Nikdy váš kalendář nečte.";
+"NSAudioCaptureUsageDescription" = "Mail Dot do hovoru tiše přehraje svou mluvenou žádost pro Dot. Zachytává jen vlastní zvuk, nikdy jiné aplikace ani mikrofon.";
+"NSAppleEventsUsageDescription" = "Mail Dot čte jen účty a složky, které povolíte, propojuje odpovědi, které výslovně sdílíte, a zkontrolované koncepty vloží nebo odešle až po vašem schválení.";

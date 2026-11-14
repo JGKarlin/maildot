@@ -1,0 +1,3 @@
+"NSCalendarsWriteOnlyAccessUsageDescription" = "Mail Dot dodaje sastanak iz poruke u vaš kalendar kada pritisnete Dodaj u kalendar. Nikada ne čita vaš kalendar.";
+"NSAudioCaptureUsageDescription" = "Mail Dot tiho reproducira svoj izgovoreni zahtjev Dotu u poziv. Snima samo vlastiti zvuk, nikada druge aplikacije ili mikrofon.";
+"NSAppleEventsUsageDescription" = "Mail Dot čita samo račune i mape koje odobrite, povezuje odgovore koje izričito dijelite te primjenjuje ili šalje pregledane nacrte tek nakon vašeg odobrenja.";

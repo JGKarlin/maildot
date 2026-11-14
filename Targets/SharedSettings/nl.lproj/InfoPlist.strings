@@ -1,0 +1,3 @@
+"NSCalendarsWriteOnlyAccessUsageDescription" = "Mail Dot zet een afspraak uit een bericht in je agenda als je op Voeg toe aan agenda drukt. Het leest je agenda nooit.";
+"NSAudioCaptureUsageDescription" = "Mail Dot speelt zijn gesproken verzoek aan Dot geluidloos af in het gesprek. Het neemt alleen zijn eigen geluid op, nooit andere apps of de microfoon.";
+"NSAppleEventsUsageDescription" = "Mail Dot leest alleen de accounts en mappen die je toestaat, koppelt antwoorden die je uitdrukkelijk deelt en past gecontroleerde concepten pas na jouw goedkeuring toe of verstuurt ze.";

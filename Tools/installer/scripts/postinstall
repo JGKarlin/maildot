@@ -1,0 +1,15 @@
+#!/bin/sh
+# Registers the new copy for the person at the Mac and opens Mail Dot, which shows its setup until Mail Dot is
+# connected to Dot. Nothing here fails the installation: the app is already in place.
+APP="/Applications/Mail Dot.app"
+LSREGISTER=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
+user=$(/usr/bin/stat -f %Su /dev/console)
+[ -z "$user" ] || [ "$user" = root ] || [ "$user" = loginwindow ] && exit 0
+uid=$(/usr/bin/id -u "$user") || exit 0
+as_user() { /bin/launchctl asuser "$uid" /usr/bin/sudo -u "$user" "$@"; }
+as_user "$LSREGISTER" -f "$APP" >/dev/null 2>&1
+as_user /usr/bin/pluginkit -a "$APP/Contents/PlugIns/MailDotExtension.appex" >/dev/null 2>&1
+# An update: the background helper starts again from the new copy. A first installation has none yet.
+as_user /bin/launchctl kickstart -k "gui/$uid/org.jgkarlin.MailBridge.Runtime" >/dev/null 2>&1
+as_user /usr/bin/open "$APP" >/dev/null 2>&1
+exit 0

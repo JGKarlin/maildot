@@ -1,0 +1,19 @@
+.build/
+.swiftpm/
+build/
+*.xcodeproj/xcuserdata/
+.DS_Store
+*.key
+*.secret
+.env
+.env.*
+
+# Local build outputs, rollback copies and working files; never part of a release.
+/work/
+/outputs/
+# A maintainer-only helper that names this Mac's paths.
+Tools/reregister-installed-extension.sh
+# OpenAI's tunnel client, copied in by Tools/vendor-tunnel-client.sh and embedded at build time.
+/Vendor/
+# Each builder's own signing team (see Config/Local.example.xcconfig).
+Config/Local.xcconfig

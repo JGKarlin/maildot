@@ -1,0 +1,157 @@
+import Foundation
+import Darwin
+
+@_silgen_name("flock") private func workflowFileLock(_ fd:Int32,_ operation:Int32)->Int32
+
+public struct MailWorkflowState:Codable,Sendable {
+    public var schemaVersion=1
+    public var requests:[MailWorkflowRequest]=[]
+    public var dismissedItemVersions:[MailWorkflowItemVersion]=[]
+    /// Questions Dot has put to the owner outside a call. Absent from state saved by earlier builds.
+    public var questions:[OwnerQuestion]=[]
+    /// When a task on the Mac last waited for work through wait_for_work. Absent from state saved by earlier builds.
+    public var listenerSeenAt:Date?
+    /// The worker that last waited there, so that its reports on requests it holds also show it is present.
+    public var listenerWorker:String?
+    public init() {}
+    private enum CodingKeys:String,CodingKey { case schemaVersion,requests,dismissedItemVersions,questions,listenerSeenAt,listenerWorker }
+    public init(from decoder:Decoder) throws {
+        let values=try decoder.container(keyedBy:CodingKeys.self)
+        schemaVersion=try values.decode(Int.self,forKey:.schemaVersion)
+        requests=try values.decode([MailWorkflowRequest].self,forKey:.requests)
+        dismissedItemVersions=try values.decode([MailWorkflowItemVersion].self,forKey:.dismissedItemVersions)
+        questions=try values.decodeIfPresent([OwnerQuestion].self,forKey:.questions) ?? []
+        listenerSeenAt=try values.decodeIfPresent(Date.self,forKey:.listenerSeenAt)
+        listenerWorker=try values.decodeIfPresent(String.self,forKey:.listenerWorker)
+    }
+    /// A listener on the Mac is waiting now: it asked for work within the last half minute.
+    public func listenerActive(now:Date=Date()) -> Bool { listenerSeenAt.map{ now.timeIntervalSince($0) < 30 } ?? false }
+    /// The worker takes the request, unless another holds it. Returns whether it is this worker's now.
+    @discardableResult public mutating func take(_ id:String,worker:String,now:Date=Date()) -> Bool {
+        guard let index=requests.firstIndex(where:{$0.id == id}),![.ready,.failed].contains(requests[index].stage),
+              !requests[index].claimed(byAnotherThan:worker,now:now) else { return false }
+        requests[index].take(worker:worker,now:now)
+        return true
+    }
+    public func validate() throws {
+        guard questions.count <= OwnerQuestion.limit,Set(questions.map(\.id)).count == questions.count,
+              questions.allSatisfy({ OwnerQuestion.normalized($0.text) == $0.text && UUID(uuidString:$0.id) != nil }) else {
+            throw BridgeFailure("Mail workflow state holds invalid questions.")
+        }
+        guard schemaVersion == 1,requests.count <= 20,Set(requests.map(\.id)).count == requests.count,dismissedItemVersions.count <= 1000 else {
+            throw BridgeFailure("Mail workflow state exceeds its limits or contains duplicate requests.")
+        }
+        try requests.forEach { try $0.validate() }
+        for item in dismissedItemVersions {
+            guard !item.id.isEmpty,item.id.utf8.count <= 512,!item.accountID.isEmpty,item.accountID.utf8.count <= 1024,
+                  !item.sourceID.isEmpty,item.sourceID.utf8.count <= 1024,item.revision >= 0 else { throw BridgeFailure("Invalid retained item revision.") }
+        }
+    }
+    public static let limit=20
+    public static let abandonAfter:TimeInterval=30*60
+    public mutating func enqueue(_ request:MailWorkflowRequest,allowedAccountIDs:Set<String>) throws {
+        try request.validate()
+        // An answer or instruction Dot has finished with has nothing left to show; it must not fill the list.
+        requests.removeAll{[.answer,.instruction,.reply,.draftCheck,.ruleCleanup,.noteCleanup,.ask,.check].contains($0.action) && [.ready,.failed].contains($0.stage)}
+        // A draft, reply or rule request Dot left unfinished for half an hour is abandoned: Mail Dot has
+        // stopped waiting for it (a draft is offered again after 15 minutes). Kept, such requests filled the
+        // list's 20 places and every later request was refused, so new mail stayed on Drafting (13 November 2026).
+        let now=Date()
+        requests.removeAll{[.reply,.draftCheck,.ruleCleanup,.noteCleanup,.ask,.check].contains($0.action) && ![.ready,.failed].contains($0.stage) && now.timeIntervalSince($0.createdAt) > Self.abandonAfter}
+        // Still full: the oldest finished requests of any kind make room.
+        while requests.count >= Self.limit,let oldest=requests.indices.filter({[.ready,.failed].contains(requests[$0].stage)}).min(by:{requests[$0].createdAt < requests[$1].createdAt}) {
+            requests.remove(at:oldest)
+        }
+        guard Set(request.accountIDs).isSubset(of:allowedAccountIDs),!requests.contains(where:{$0.id == request.id}),requests.count < Self.limit else {
+            throw BridgeFailure("Select currently linked accounts, or clear completed requests before continuing.")
+        }
+        if request.action.requiresItem {
+            guard let id=request.itemID,let sourceID=request.sourceID,let revision=request.itemRevision,
+                  request.accountIDs.count == 1,
+                  isLatestKnownVersion(id:id,accountID:request.accountIDs[0],sourceID:sourceID,revision:revision) else {
+                throw BridgeFailure("Refresh the list and select its current item before continuing.")
+            }
+        }
+        requests.append(request)
+    }
+    /// Local report history only; this does not establish freshness at the email provider.
+    public func isLatestKnownVersion(_ item:MailWorkflowItem) -> Bool {
+        isLatestKnownVersion(id:item.id,accountID:item.accountID,sourceID:item.sourceID,revision:item.revision)
+    }
+    private func isLatestKnownVersion(id:String,accountID:String,sourceID:String,revision:Int) -> Bool {
+        let candidates=(requests.flatMap(\.observedItems).map(MailWorkflowItemVersion.init)+dismissedItemVersions).filter {
+            $0.id == id && $0.accountID == accountID
+        }
+        return !candidates.isEmpty && candidates.map(\.revision).max() == revision && Set(candidates.map(\.sourceID)) == [sourceID]
+    }
+    public mutating func dismiss(_ id:String) throws {
+        guard let request=requests.first(where:{$0.id == id}) else { return }
+        var retained=dismissedItemVersions
+        for item in request.observedItems {
+            if let index=retained.firstIndex(where:{$0.id == item.id && $0.accountID == item.accountID && $0.sourceID == item.sourceID}) {
+                retained[index].revision=max(retained[index].revision,item.revision)
+            } else { retained.append(MailWorkflowItemVersion(item)) }
+        }
+        guard retained.count <= 1000 else { throw BridgeFailure("The retained item history reached its prototype limit.") }
+        dismissedItemVersions=retained
+        requests.removeAll{$0.id == id}
+    }
+}
+
+public struct MailWorkflowItemVersion:Codable,Sendable {
+    public let id:String
+    public let accountID:String
+    public let sourceID:String
+    public var revision:Int
+    init(_ item:MailWorkflowItem) { id=item.id; accountID=item.accountID; sourceID=item.sourceID; revision=item.revision }
+}
+
+/// Separate storage prevents an older loaded compose extension from dropping
+/// workflow requests when it writes the legacy reply state.
+public struct MailWorkflowStore:Sendable {
+    public let directory:URL
+    private let limit=2_097_152
+    public init(bridgeDirectory:URL) { directory=bridgeDirectory.appendingPathComponent("Workflow",isDirectory:true) }
+    public static func shared() throws -> Self { try Self(bridgeDirectory:BridgeStore.shared().directory) }
+    public func read() throws -> MailWorkflowState { try locked { try load() } }
+    public func transaction<T>(_ body:(inout MailWorkflowState)throws->T) throws -> T {
+        try locked {
+            var state=try load(); let result=try body(&state); try state.validate()
+            let data=try JSONEncoder().encode(state)
+            guard data.count <= limit else { throw BridgeFailure("Mail workflow state exceeds 2 MiB.") }
+            let temporary=directory.appendingPathComponent("workflow-\(UUID().uuidString).tmp")
+            let fd=Darwin.open(temporary.path,O_WRONLY|O_CREAT|O_EXCL|O_CLOEXEC|O_NOFOLLOW,0o600)
+            guard fd >= 0 else { throw BridgeFailure("Cannot create private workflow state.") }
+            let handle=FileHandle(fileDescriptor:fd,closeOnDealloc:true)
+            defer { try? handle.close(); try? FileManager.default.removeItem(at:temporary) }
+            try handle.write(contentsOf:data); try handle.synchronize()
+            guard Darwin.rename(temporary.path,directory.appendingPathComponent("workflow.json").path) == 0 else { throw BridgeFailure("Cannot save workflow state.") }
+            return result
+        }
+    }
+    private func load() throws -> MailWorkflowState {
+        let fd=Darwin.open(directory.appendingPathComponent("workflow.json").path,O_RDONLY|O_CLOEXEC|O_NOFOLLOW)
+        if fd < 0 {
+            if errno == ENOENT { return MailWorkflowState() }
+            throw BridgeFailure("Cannot open workflow state.")
+        }
+        let handle=FileHandle(fileDescriptor:fd,closeOnDealloc:true); defer { try? handle.close() }
+        var info=stat()
+        guard fstat(fd,&info) == 0,info.st_mode & S_IFMT == S_IFREG,info.st_size <= limit else { throw BridgeFailure("Workflow state is not a bounded regular file.") }
+        var data=Data()
+        while data.count <= limit {
+            guard let chunk=try handle.read(upToCount:min(65_536,limit+1-data.count)),!chunk.isEmpty else { break }
+            data.append(chunk)
+        }
+        guard data.count <= limit else { throw BridgeFailure("Workflow state exceeds its read limit.") }
+        let state=try JSONDecoder().decode(MailWorkflowState.self,from:data); try state.validate(); return state
+    }
+    private func locked<T>(_ body:()throws->T) throws -> T {
+        try FileManager.default.createDirectory(at:directory,withIntermediateDirectories:true,attributes:[.posixPermissions:0o700])
+        let fd=Darwin.open(directory.appendingPathComponent("workflow.lock").path,O_RDWR|O_CREAT|O_CLOEXEC|O_NOFOLLOW,0o600)
+        guard fd >= 0 else { throw BridgeFailure("Cannot open workflow lock.") }
+        defer { _=workflowFileLock(fd,LOCK_UN); Darwin.close(fd) }
+        guard workflowFileLock(fd,LOCK_EX) == 0 else { throw BridgeFailure("Cannot lock workflow state.") }
+        return try body()
+    }
+}
