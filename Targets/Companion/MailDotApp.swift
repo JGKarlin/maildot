@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import ApplicationServices
 import BridgeCore
 import BridgeAutomation
 import UserNotifications
@@ -742,6 +743,10 @@ import OSLog
         // A voice device left by a run that ended badly is removed, so ChatGPT is never left listening to it.
         if #available(macOS 14.2,*) { DotVoiceLine.removeStale() }
         AskDotController.shared.start()
+        if !inert { MailQuitWatch.shared.start(); MailDotOutsideClick.shared.start() }
+        // A setup entry left in ChatGPT's settings by a run that ended without warning goes at the next start: no
+        // setup window is open at this moment, and pressing Ask Dot to Continue writes it again (review, M9).
+        if !inert { SetupCodexEntry.remove() }
         connectionWorker=Task {
             while !Task.isCancelled {
                 await AskDotController.shared.tick()
@@ -751,7 +756,9 @@ import OSLog
                 // Mail Dot posts no notifications about drafts (the owner's decision of 12 November 2026):
                 // a draft's state is shown in the reply panel and on the message's banner instead.
                 await self.checkTriage()
-                if !self.inert { await ConnectionWatch.tick() }
+                await self.openRequestedReply()
+                self.retireCoveredGrants()
+                if !self.inert { await ConnectionWatch.tick(); SetupCodexEntry.tick(); MailIndexRunner.shared.tickLocal() }
                 self.speakReports()
                 self.withdrawStaleConfirmations()
                 try? await Task.sleep(for:.seconds(5))
@@ -771,6 +778,7 @@ import OSLog
                     await self.compositionWorker?.processNext()
                     await self.mailSetupWorker?.processNext()
                     await self.nativeMailWorker?.processNext()
+                    if !self.inert { await MailIndexRunner.shared.tick() }
                     self.reading=false
                 }
                 // Requests wake the companion directly; this loop is only the fallback, so it need not spin.
@@ -780,14 +788,24 @@ import OSLog
         // Until Mail Dot has a connection, opening the app shows setup instead (owner request, 14 November 2026).
         if openedByPerson { if MailDotSetupWindow.needed { MailDotSetupWindow.shared.show() } else { MailDotAboutWindow.shared.show() } }
     }
-    func applicationWillTerminate(_ notification: Notification) { worker?.cancel(); connectionWorker?.cancel() }
+    /// Removal is under way: nothing writes to Mail Dot's stores again.
+    func stopForRemoval() { removing=true; worker?.cancel(); connectionWorker?.cancel() }
+    private var removing=false
+    func applicationWillTerminate(_ notification: Notification) {
+        worker?.cancel(); connectionWorker?.cancel()
+        // The setup entry in ChatGPT's settings does not stay behind when Mail Dot quits.
+        if !inert,!removing { SetupCodexEntry.remove() }
+    }
     /// Opening the app again shows its small about window.
     func applicationShouldHandleReopen(_ sender:NSApplication, hasVisibleWindows:Bool) -> Bool {
+        guard !removing else { return false }
         if MailDotSetupWindow.needed { MailDotSetupWindow.shared.show() } else { MailDotAboutWindow.shared.show() }
         return false
     }
+    /// Once Mail Dot is removed, closing its last window ends it.
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender:NSApplication) -> Bool { removing }
     func application(_ application: NSApplication, open urls:[URL]) {
-        guard !inert else { return }
+        guard !inert,!removing else { return }
         if let command=urls.first(where:{ $0.scheme == "mailbridge" && ["enable-background","disable-background"].contains($0.host ?? "") }) {
             // Any app or web link can open this address, so the owner confirms before the service changes.
             guard confirmBackgroundChange(enabling:command.host == "enable-background") else {
@@ -830,6 +848,100 @@ import OSLog
                 }
             }
         } catch { /* The popover surfaces shared-container failures directly. */ }
+    }
+
+    // MARK: Accounts Dot now reaches through a plugin
+
+    /// An account set up through AppleScript, which Dot now reaches through its ChatGPT plugin (iCloud Mail or Gmail),
+    /// switches to the plugin: its folder permission is withdrawn, its Search by Meaning is switched off, and with that
+    /// the background app removes its part of the index and its embeddings (owner decision, 15 November 2026).
+    private func retireCoveredGrants() {
+        guard !inert,let bridge=try? BridgeStore.shared(),let settings=try? MailSettingsStore(bridgeDirectory:bridge.directory).read() else { return }
+        let nativeStore=NativeMailStore(bridgeDirectory:bridge.directory)
+        guard let native=try? nativeStore.read() else { return }
+        let covered=Set(native.grants.filter{ $0.revokedAt == nil && MailIndexPass.coveredByConnector(account:$0.accountID,settings:settings) }.map(\.accountID))
+        guard !covered.isEmpty else { return }
+        try? nativeStore.transaction { state in for id in covered { NativeMailCoordinator.revoke(accountID:id,state:&state) } }
+        try? MailSettingsStore(bridgeDirectory:bridge.directory).transaction { value in
+            for id in covered where value.searchByMeaning(account:id) { value.setSearchByMeaning(false,account:id) }
+        }
+        Logger(subsystem:"org.jgkarlin.MailBridge",category:"accounts").info("\(covered.count,privacy:.public) account(s) now reached through a plugin: AppleScript access withdrawn")
+    }
+
+    // MARK: Open in Reply
+
+    private var openingReply=false
+    /// Open in Reply (owner decision, 15 November 2026): a Mail reply to the message, opened as the owner's Reply would
+    /// open it, with Dot's draft put at its top by the same steps as Insert on the reply panel. Nothing is sent: the owner
+    /// edits and sends from Mail. It waits while a Mail Dot window is open, since Mail holds its other windows meanwhile.
+    private func openRequestedReply() async {
+        guard !inert,!openingReply,let store=try? MailTriageStore.shared() else { return }
+        // With Mail closed no Mail Dot window is open, whatever the store last heard; a reply waits for Mail.
+        guard !NSRunningApplication.runningApplications(withBundleIdentifier:"com.apple.mail").isEmpty else {
+            if (try? store.read())?.mailDotWindowOpenAt != nil { try? store.transaction { $0.mailDotWindowOpenAt=nil } }
+            return
+        }
+        // Mail holds a reply waiting while the Mail Dot window is open. What Mail itself shows is believed first; the
+        // note the extension keeps is the fallback.
+        let windowOpen=AXIsProcessTrusted() ? MailDotWindowCloser.open() > 0 : (try? store.read())?.mailDotWindowOpenAt.map{ Date().timeIntervalSince($0) < 3600 } ?? false
+        if windowOpen {
+            // Open in Reply was pressed in that window: Mail Dot closes it by its own close button, so the reply can open.
+            // A draft that simply arrived while the window is open waits for the owner to close it.
+            guard (try? store.read())?.entries.contains(where:{ $0.openReplyClosesWindow == true && $0.openReplyRequestedAt != nil }) == true else { return }
+            guard await MailDotWindowCloser.closeAndWait() else {
+                Logger(subsystem:"org.jgkarlin.MailBridge",category:"Reply").error("Open in Reply: the Mail Dot window did not close when its close button was pressed")
+                return
+            }
+        }
+        guard let entry=(try? store.transaction({ $0.nextReplyToOpen() })) ?? nil,let messageID=entry.messageID else { return }
+        openingReply=true; defer { openingReply=false }
+        let log=Logger(subsystem:"org.jgkarlin.MailBridge",category:"Reply")
+        let contextID="open-"+entry.id
+        do {
+            let bridge=try BridgeStore.shared()
+            let reply=try await automation.openReply(toMessageID:messageID)
+            try bridge.transaction { state in
+                var context=ReplyContext(id:contextID,envelope:reply,originalSubject:entry.subject,originalSender:entry.sender,originalMessageID:messageID)
+                BridgeCoordinator.ownerOpensPanel(context:&context)
+                context.ownerRequest?.delivery = .save
+                state.contexts[contextID]=context; state.activeContextID=contextID
+                state.operations.removeAll{ $0.contextID == contextID }
+            }
+            // Mail draws the reply first; it is read once it is on screen, with a few tries while it loads.
+            var shared=false
+            for attempt in 0..<5 where !shared {
+                try? await Task.sleep(for:.seconds(attempt == 0 ? 1.5 : 2))
+                try bridge.transaction { $0.operations.append(NativeOperation(contextID:contextID,kind:"share")) }
+                await processOperations()
+                shared=try bridge.read().contexts[contextID]?.snapshot != nil
+            }
+            guard shared else {
+                let reason=try bridge.read().operations.last{ $0.contextID == contextID && $0.kind == "share" }?.error
+                throw BridgeFailure(reason ?? String(localized:"Mail Dot could not read the new reply."))
+            }
+            // Reading the reply puts Dot's stored draft in it as the proposal, without asking Dot again.
+            if try bridge.read().contexts[contextID]?.proposal == nil { StoredDraft.adopt(contextID:contextID) }
+            try bridge.transaction { state in
+                guard let context=state.contexts[contextID],let snapshot=context.snapshot,let proposal=context.proposal else {
+                    throw BridgeFailure(String(localized:"Dot’s draft could not be put in the reply."))
+                }
+                try BridgeCoordinator.enqueueApply(contextID:contextID,displayedFingerprint:snapshot.fingerprint,displayedProposalRevision:proposal.revision,reviewedBody:proposal.body,state:&state)
+            }
+            await processOperations()
+            if let failed=try bridge.read().operations.last(where:{ $0.contextID == contextID && $0.kind == "apply" })?.error { throw BridgeFailure(failed) }
+            try? store.transaction { $0.noteReplyOpened(entry.id,failure:nil) }
+            log.info("opened a reply with Dot's draft")
+        } catch {
+            let first=error.localizedDescription.split(separator:"\n").first.map(String.init) ?? error.localizedDescription
+            try? store.transaction { $0.noteReplyOpened(entry.id,failure:String(localized:"The reply could not be opened with Dot’s draft: ")+first) }
+            log.error("Open in Reply failed: \(error.localizedDescription,privacy:.public)")
+        }
+        // The reply is the owner's now; Mail Dot keeps no hold on it.
+        try? BridgeStore.shared().transaction { state in
+            state.contexts.removeValue(forKey:contextID)
+            state.operations.removeAll{ $0.contextID == contextID }
+            if state.activeContextID == contextID { state.activeContextID=nil }
+        }
     }
 
     private func confirmBackgroundChange(enabling:Bool) -> Bool {
@@ -900,7 +1012,9 @@ import OSLog
         settings=saved
     }
     private var lastListPass=Date.distantPast
-    private var lastBannerPrint:Int?
+    private var lastBannerStates:[String:Int]?
+    private var lastBannerReload=Date.distantPast
+    private var bannerReloadOwed=false
     private var lastBannerReloadRequest=Date()
     nonisolated private static let bannerLog=Logger(subsystem:"org.jgkarlin.MailBridge",category:"Banners")
     /// Offers essential arriving mail to Dot one message at a time, tells the owner when Dot has drafted or
@@ -1036,19 +1150,36 @@ import OSLog
         // The banner on an open message says the new state too. Dot's answers are written by the agent, not
         // here, so a change is noticed by comparing each message's state with the last pass: without this, a
         // finished draft kept showing Drafting until the owner selected the message again (13 November 2026).
+        // A message that has only just been recorded, because Mail showed it, is not a change of state: asking Mail to
+        // redraw for it made Mail show messages again, record more, and redraw every five seconds (owner report, 15
+        // November 2026). Its banner comes with the next redraw that a real change asks for.
+        var onlyNew=false
         if let state=try? store.read() {
-            var hasher=Hasher()
-            for entry in state.entries { hasher.combine(entry.id); hasher.combine("\(entry.outcome)"); hasher.combine(entry.draft?.count ?? -1); hasher.combine(entry.dotNote) }
-            let print=hasher.finalize()
-            if lastBannerPrint != nil,lastBannerPrint != print { changed=true }
-            lastBannerPrint=print
+            var states:[String:Int]=[:]
+            for entry in state.entries {
+                var hasher=Hasher(); hasher.combine("\(entry.outcome)"); hasher.combine(entry.draft?.count ?? -1); hasher.combine(entry.dotNote)
+                states[entry.id]=hasher.finalize()
+            }
+            if let last=lastBannerStates {
+                if states.contains(where:{ id,value in last[id].map{ $0 != value } ?? false }) { changed=true }
+                else if states.keys.contains(where:{ last[$0] == nil }) { onlyNew=true }
+            }
+            lastBannerStates=states
             // The extension's Mail Dot window closed: its message's banner is shown again.
             if let asked=state.bannerReloadRequestedAt,asked > lastBannerReloadRequest { lastBannerReloadRequest=asked; changed=true }
         }
         // Only while Mail is open: asking a closed Mail to reload starts it. Seen twice on 13 November 2026,
         // Mail reopened seconds after the owner quit it, or after Mail Dot restarted.
-        if changed,!NSRunningApplication.runningApplications(withBundleIdentifier:"com.apple.mail").isEmpty {
-            do { try await MEExtensionManager.reloadVisibleMessages(); Self.bannerLog.info("asked Mail to reload visible messages") }
+        // Never while the Mail Dot window is open: the message behind it redrew under the owner's eyes. The redraw is owed
+        // and made when the window closes. Never more than once in ten seconds, and for newly recorded messages alone at
+        // most once a minute.
+        if changed { bannerReloadOwed=true }
+        let sinceLast=Date().timeIntervalSince(lastBannerReload)
+        let due=(bannerReloadOwed && sinceLast >= 10) || (onlyNew && sinceLast >= 60)
+        let windowOpen=AXIsProcessTrusted() ? MailDotWindowCloser.open() > 0 : (try? store.read())?.mailDotWindowOpenAt != nil
+        if due,!windowOpen,!NSRunningApplication.runningApplications(withBundleIdentifier:"com.apple.mail").isEmpty {
+            bannerReloadOwed=false; lastBannerReload=Date()
+            do { try await MEExtensionManager.reloadVisibleMessages(); Self.bannerLog.info("asked Mail to reload visible messages (\(onlyNew && !changed ? "new messages" : "a change",privacy:.public))") }
             catch { Self.bannerLog.error("Mail refused to reload visible messages: \(error.localizedDescription,privacy:.public)") }
         }
     }

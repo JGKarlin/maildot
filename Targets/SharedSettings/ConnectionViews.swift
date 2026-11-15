@@ -66,6 +66,15 @@ struct ConnectionLine:Identifiable {
         lines.append(dot(snapshot,found))
         return lines
     }
+    /// What each item is, in one line.
+    static func about(_ id:String) -> LocalizedStringKey {
+        switch id {
+        case "mail": "Lets Mail Dot read the messages you choose and place Dot’s drafts."
+        case "accessibility": "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot."
+        case "chatgpt": "The app Dot lives in. It needs to be open only for a call with Dot."
+        default: "Your ChatGPT assistant, reached through Mail Dot’s private connection."
+        }
+    }
     private static func dot(_ snapshot:ConnectionSnapshot,_ found:ConnectionState) -> ConnectionLine {
         if snapshot.availability.isAvailable { return .init(id:"dot",title:"Dot",state:String(localized:"Connected"),mark:.ok) }
         if snapshot.access.checking { return .init(id:"dot",title:"Dot",state:String(localized:"Asking Dot…"),mark:.idle) }
@@ -74,7 +83,7 @@ struct ConnectionLine:Identifiable {
 }
 
 /// The Connection tab of Settings (owner approval of the mock-ups, 14 November 2026): four lines that check
-/// themselves, each a state and at most one button, and no other text.
+/// themselves, each a state, at most one button, and one faint line saying what the item is.
 struct ConnectionList:View {
     /// For rendering previews: findings given instead of read from the stores.
     var fixed:ConnectionSnapshot?
@@ -83,26 +92,33 @@ struct ConnectionList:View {
     var body:some View {
         let lines=ConnectionLine.lines(fixed ?? snapshot)
         VStack(alignment:.leading,spacing:12) {
-            Text("CONNECTION").font(.caption.weight(.semibold)).foregroundStyle(.secondary).kerning(0.5).padding(.horizontal,10)
+            Text("CONNECTION").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting).kerning(0.5).padding(.horizontal,10)
             VStack(spacing:0) {
                 ForEach(Array(lines.enumerated()),id:\.element.id) { index,line in
                     HStack(spacing:10) {
                         Image(systemName:line.mark == .ok ? "checkmark.circle.fill" : line.mark == .attention ? "exclamationmark.circle.fill" : "circle.dotted")
-                            .foregroundStyle(line.mark == .ok ? Color.green : line.mark == .attention ? Color.orange : Color.secondary).frame(width:20)
+                            .foregroundStyle(line.mark == .ok ? Color.green : line.mark == .attention ? MailDotStyle.warningText : MailDotStyle.supporting).frame(width:20)
                             .accessibilityHidden(true)
-                        Text(verbatim:line.title).fontWeight(.semibold).lineLimit(1)
-                        Text(verbatim:line.state).foregroundStyle(.secondary).lineLimit(1)
+                        // Under each item, one faint line saying what it is (owner's request, 15 November 2026: an
+                        // exception he asked for to the rule of labels without captions).
+                        VStack(alignment:.leading,spacing:2) {
+                            HStack(spacing:10) {
+                                Text(verbatim:line.title).fontWeight(.semibold).lineLimit(1)
+                                Text(verbatim:line.state).foregroundStyle(MailDotStyle.supporting).lineLimit(1)
+                            }
+                            Text(ConnectionLine.about(line.id)).font(.caption).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true)
+                        }
                         Spacer(minLength:8)
                         if let button=line.button { Button(button.title) { run(button.action) }.controlSize(.small).fixedSize() }
                     }
-                    .padding(.horizontal,12).frame(minHeight:40)
+                    .padding(.horizontal,12).padding(.vertical,8).frame(minHeight:40)
                     .accessibilityElement(children:.combine)
                     if index < lines.count-1 { Divider().padding(.leading,42) }
                 }
             }
             .background(RoundedRectangle(cornerRadius:10).fill(Color.primary.opacity(0.04)))
             .overlay(RoundedRectangle(cornerRadius:10).stroke(Color.primary.opacity(0.08)))
-            if let failure { Text(failure).font(.caption).foregroundStyle(.red) }
+            if let failure { Text(failure).font(.caption).foregroundStyle(MailDotStyle.dangerText) }
         }
         .task {
             guard fixed == nil else { return }
@@ -146,7 +162,7 @@ struct DotUnavailableLine:View {
     var body:some View {
         if let words=Self.words(snapshot) {
             HStack(spacing:8) {
-                Image(systemName:"exclamationmark.circle").foregroundStyle(.orange).accessibilityHidden(true)
+                Image(systemName:"exclamationmark.circle").foregroundStyle(MailDotStyle.warningText).accessibilityHidden(true)
                 Text(verbatim:words).font(.callout).fixedSize(horizontal:false,vertical:true)
                 Spacer(minLength:4)
                 if let button {
@@ -160,7 +176,7 @@ struct DotUnavailableLine:View {
                     }.controlSize(.small).fixedSize()
                 }
             }
-            .padding(.horizontal,16).padding(.vertical,8).background(Color.orange.opacity(0.10))
+            .padding(.horizontal,16).padding(.vertical,8).background(MailDotStyle.warningText.opacity(0.10))
         }
     }
 }

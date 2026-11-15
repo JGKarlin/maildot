@@ -49,7 +49,7 @@ public struct NativeCompositionPlan:Codable,Sendable {
         let sender=MailDraft.address(proposal.sender)
         guard selected.count == 1,let account=selected.first,
               account.senderAddresses.contains(where:{MailDraft.address($0) == sender}),
-              ["gmail","mail"].contains(account.route) else {
+              ["gmail","icloud","mail"].contains(account.route) else {
             throw BridgeFailure("The proposed sender is no longer linked to this Mail Dot account.")
         }
         // Mail selects an outgoing account by sender address, so even a native

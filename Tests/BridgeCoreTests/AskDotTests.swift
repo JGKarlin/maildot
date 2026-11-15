@@ -59,7 +59,7 @@ final class AskDotTests:XCTestCase {
     func testOlderSavedListsStillLoadAndDotIsToldToCite() throws {
         let saved=try JSONEncoder().encode(MailTriageState())
         XCTAssertTrue(try JSONDecoder().decode(MailTriageState.self,from:saved).askList.isEmpty)
-        XCTAssertTrue(MailWorkflowTools.instructions(for:.ask).contains("Sources:"))
+        XCTAssertTrue(MailWorkflowTools.instructions(for:.ask).contains("MUST also carry sources"))
         XCTAssertTrue(MailWorkflowTools.instructions(for:.ask).contains("message_id"))
     }
     func testDraftingNotesArePolishedByDotAndOldNotesCarryOver() throws {
@@ -208,3 +208,139 @@ final class ReviewFollowUpTests:XCTestCase {
     }
 }
 
+/// Ask Dot review, 15 November 2026: every answer says what was searched in every account asked about.
+final class AskCoverageTests:XCTestCase {
+    private func bridge() throws -> (URL,MailWorkflowRequest) {
+        let root=FileManager.default.temporaryDirectory.appendingPathComponent("ask-\(UUID().uuidString)",isDirectory:true)
+        try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true)
+        try MailSettingsStore(bridgeDirectory:root).transaction {
+            var first=MailConnection(id:"a",email:"owner@example.invalid",connectionID:"link"); first.observedAt=Date()
+            var second=MailConnection(id:"b",email:"owner@work.example.invalid",connectionID:"link2"); second.observedAt=Date()
+            $0.connections=[first,second]
+            try $0.addDraftingRule("Sign with my first name")
+        }
+        let request=try MailWorkflowRequest(action:.ask,accountIDs:["gmail:a","gmail:b"])
+        try MailWorkflowStore(bridgeDirectory:root).transaction { try $0.enqueue(request,allowedAccountIDs:["gmail:a","gmail:b"]) }
+        try MailTriageStore(bridgeDirectory:root).transaction {
+            var filters=AskDot.Filters(); filters.accountName="Work"; filters.person="Priya"
+            let question=try $0.ask("What did Priya decide?",filters:filters)
+            $0.markAskSent(question.id,requestID:request.id)
+        }
+        return (root,request)
+    }
+    func testTheRequestGivesEachAccountsRouteAndLeavesOutDraftingRulesAndTheAccountFilter() throws {
+        let (root,request)=try bridge(); defer { try? FileManager.default.removeItem(at:root) }
+        let read=try MailWorkflowTools.call("get_mail_workflow",arguments:["request_id":.string(request.id)],bridgeDirectory:root)
+        let reach=try XCTUnwrap(read["reach"].array)
+        XCTAssertEqual(reach.map{ $0["account"].string },["gmail:a","gmail:b"])
+        XCTAssertEqual(reach[0]["route"],"gmail_connector")
+        XCTAssertNil(read["question"]["filters"].object?["account"],"the accounts are the request's own")
+        XCTAssertEqual(read["question"]["filters"]["person"],"Priya")
+        let instructions=try XCTUnwrap(read["instructions"].string)
+        XCTAssertTrue(instructions.contains("MUST search every account in reach"))
+        XCTAssertTrue(instructions.contains("has:attachment"))
+        XCTAssertFalse(instructions.contains("Sign with my first name"),"a question drafts nothing, so it carries no drafting rules")
+    }
+    func testAnAnswerThatDoesNotCoverEveryAccountIsRefusedAndACompleteOneIsShownPerAccount() throws {
+        let (root,request)=try bridge(); defer { try? FileManager.default.removeItem(at:root) }
+        _ = try MailWorkflowTools.call("get_mail_workflow",arguments:["request_id":.string(request.id)],bridgeDirectory:root)
+        var report=MailWorkflowReport(requestID:request.id,expectedRevision:0,stage:.ready,summary:"She chose Harbor Hall [1].\nSources: [{\"n\":1,\"subject\":\"Venue\"}]",items:[])
+        XCTAssertThrowsError(try MailWorkflowTools.call("report_mail_workflow",arguments:["report":try .encode(report)],bridgeDirectory:root),"no coverage at all")
+        report.coverage=[.init(account:"gmail:a",searched:true,detail:"Inbox and Sent, all dates")]
+        XCTAssertThrowsError(try MailWorkflowTools.call("report_mail_workflow",arguments:["report":try .encode(report)],bridgeDirectory:root)) { XCTAssertTrue("\($0)".contains("gmail:b")) }
+        XCTAssertEqual(try MailTriageStore(bridgeDirectory:root).read().askList[0].state,.asked,"nothing was shown to the owner")
+        report.coverage?.append(.init(account:"GMAIL:B",searched:false,detail:"The connector for this account is signed out."))
+        _ = try MailWorkflowTools.call("report_mail_workflow",arguments:["report":try .encode(report)],bridgeDirectory:root)
+        let answered=try MailTriageStore(bridgeDirectory:root).read().askList[0]
+        XCTAssertEqual(answered.state,.answered)
+        XCTAssertEqual(answered.coverage?.map(\.searched),[true,false])
+        XCTAssertEqual(answered.coverage?.map(\.account),["gmail:a","gmail:b"])
+        XCTAssertEqual(answered.coverage?[1].name,"owner@work.example.invalid")
+        // A failure needs no coverage.
+        XCTAssertTrue(AskDot.accountsMissing(from:nil,asked:[]).isEmpty)
+    }
+}
+
+/// Ask Dot review, rank 5: Dot's sources arrive as fields of its report and are checked against Mail on this Mac.
+final class AskCitationTests:XCTestCase {
+    private let account="ACCOUNT-1"
+    private var inbox:NativeMailbox { NativeMailbox(accountID:account,path:["INBOX"]) }
+    private func indexed(_ root:URL,complete:Bool) throws -> (MailSearchIndex,[NativeMailGrant]) {
+        let index=MailSearchIndex(bridgeDirectory:root)
+        try index.add([IndexedMessage(account:account,mailbox:inbox.id,messageID:"<venue@example.invalid>",date:Date(timeIntervalSince1970:1_794_000_000),sender:"Priya Raman <priya@example.invalid>",
+                                      recipients:["owner@example.invalid"],subject:"Venue for the spring meeting",sent:false,attachments:0,text:"We will use Harbor Hall.")])
+        try index.setProgress(MailIndexProgress(newest:.now,gaps:complete ? [] : [.init(low:MailIndexPass.earliest,high:.now)]),account:account,mailbox:inbox.id)
+        return (index,[NativeMailGrant(accountID:account,mailboxes:[inbox])])
+    }
+    func testAFoundSourceShowsMailsOwnDetailsAndAMissingOneIsMarkedOnlyWhenTheIndexIsComplete() throws {
+        let root=FileManager.default.temporaryDirectory.appendingPathComponent("cite-\(UUID().uuidString)",isDirectory:true); defer { try? FileManager.default.removeItem(at:root) }
+        var (index,grants)=try indexed(root,complete:true)
+        var wrong=AskDot.Source(n:1,sender:"Someone Else",subject:"A subject Dot made up",date:"2020-01-01T00:00:00Z",messageID:"venue@example.invalid",account:"mail:\(account)")
+        wrong.checked=false
+        let sources=[wrong,
+                     AskDot.Source(n:2,sender:"Priya",subject:"Catering",messageID:"<invented@example.invalid>",account:"mail:\(account)"),
+                     AskDot.Source(n:3,sender:"Priya",subject:"From Gmail",messageID:"<gm@example.invalid>",webURL:"https://mail.example.invalid/1",account:"gmail:a"),
+                     AskDot.Source(n:4,sender:"Priya",subject:"No identity",account:"mail:\(account)")]
+        var checked=AskDot.check(sources,grants:grants,index:index)
+        XCTAssertEqual(checked[0].checked,true)
+        XCTAssertEqual(checked[0].sender,"Priya Raman")
+        XCTAssertEqual(checked[0].subject,"Venue for the spring meeting")
+        XCTAssertEqual(checked[0].date,Date(timeIntervalSince1970:1_794_000_000).ISO8601Format())
+        XCTAssertEqual(checked[1].checked,false,"all of the account's mail is indexed and this message is not in it")
+        XCTAssertEqual(checked[1].subject,"Catering","what Dot wrote stays, with the mark")
+        XCTAssertNil(checked[2].checked,"a Gmail message cannot be checked on this Mac")
+        XCTAssertNil(checked[3].checked)
+        // While older mail is still being indexed, absence proves nothing.
+        try? FileManager.default.removeItem(at:root)
+        (index,grants)=try indexed(root,complete:false)
+        checked=AskDot.check(sources,grants:grants,index:index)
+        XCTAssertEqual(checked.map(\.checked),[true,nil,nil,nil])
+        // A withdrawn account answers for nothing.
+        grants[0].revokedAt=Date()
+        XCTAssertEqual(AskDot.check(sources,grants:grants,index:index).map(\.checked),[nil,nil,nil,nil])
+        XCTAssertEqual(AskDot.senderName("\"Raman, Priya\" <priya@example.invalid>"),"Raman, Priya")
+        XCTAssertEqual(AskDot.senderName("<priya@example.invalid>"),"priya@example.invalid")
+    }
+    func testSourcesGivenAsFieldsAreUsedAndTheSummaryLineStillWorks() throws {
+        let root=FileManager.default.temporaryDirectory.appendingPathComponent("cite-\(UUID().uuidString)",isDirectory:true); defer { try? FileManager.default.removeItem(at:root) }
+        try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true)
+        try MailSettingsStore(bridgeDirectory:root).transaction {
+            var first=MailConnection(id:"a",email:"owner@example.invalid",connectionID:"link"); first.observedAt=Date()
+            $0.connections=[first]
+        }
+        let (_,grants)=try indexed(root,complete:true)
+        try NativeMailStore(bridgeDirectory:root).transaction { $0.grants=grants }
+        func ask(_ report:(String) -> MailWorkflowReport) throws -> AskDot.Question {
+            let request=try MailWorkflowRequest(action:.ask,accountIDs:["gmail:a"])
+            try MailWorkflowStore(bridgeDirectory:root).transaction { try $0.enqueue(request,allowedAccountIDs:["gmail:a"]) }
+            let id=try MailTriageStore(bridgeDirectory:root).transaction { state -> String in
+                let question=try state.ask("Where is the spring meeting?",filters:nil); state.markAskSent(question.id,requestID:request.id); return question.id
+            }
+            _ = try MailWorkflowTools.call("get_mail_workflow",arguments:["request_id":.string(request.id)],bridgeDirectory:root)
+            _ = try MailWorkflowTools.call("report_mail_workflow",arguments:["report":try .encode(report(request.id))],bridgeDirectory:root)
+            return try XCTUnwrap(MailTriageStore(bridgeDirectory:root).read().askList.first{ $0.id == id })
+        }
+        // As fields: nothing of the sources is in the summary, and the message found in Mail shows Mail's details.
+        var answered=try ask { id in
+            var report=MailWorkflowReport(requestID:id,expectedRevision:0,stage:.ready,summary:"Harbor Hall [1].",items:[])
+            report.coverage=[.init(account:"gmail:a",searched:true,detail:"All mail")]
+            report.sources=[AskDot.Source(n:1,sender:"P.",subject:"venue",messageID:"<venue@example.invalid>",account:"gmail:a")]
+            return report
+        }
+        XCTAssertEqual(answered.answer,"Harbor Hall [1].")
+        XCTAssertEqual(answered.sources?.first?.subject,"Venue for the spring meeting")
+        XCTAssertEqual(answered.sources?.first?.checked,true)
+        XCTAssertNotNil(answered.sources?.first?.mailURL)
+        // On the summary's Sources line, as before: still read, still checked.
+        answered=try ask { id in
+            var report=MailWorkflowReport(requestID:id,expectedRevision:0,stage:.ready,summary:"Harbor Hall [1].\nSources: [{\"n\":1,\"subject\":\"venue\",\"message_id\":\"venue@example.invalid\"}]",items:[])
+            report.coverage=[.init(account:"gmail:a",searched:true,detail:"All mail")]
+            return report
+        }
+        XCTAssertEqual(answered.answer,"Harbor Hall [1].")
+        XCTAssertEqual(answered.sources?.map(\.sender),["Priya Raman"])
+        let tools=MailWorkflowTools.catalog
+        XCTAssertTrue(try XCTUnwrap(tools.first{ $0["name"].string == "report_mail_workflow" }).text().contains("message_id"))
+        XCTAssertTrue(AskDot.instructions.contains("as a field of the report and not in the summary"))
+    }
+}

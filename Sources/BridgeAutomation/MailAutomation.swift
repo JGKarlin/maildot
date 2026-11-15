@@ -133,6 +133,14 @@ public actor MailAutomation {
         return updated
     }
 
+    /// Open in Reply: Mail opens a reply to the inbox message with this Message-ID, as the owner's Reply would. Nothing
+    /// is typed or sent here; the reply as Mail opened it is returned.
+    public func openReply(toMessageID messageID:String) async throws -> MailDraft {
+        try requirePermission()
+        guard let id=MailMessageIdentity.normalized(messageID) else { throw BridgeFailure("Mail Dot cannot find this message in Mail.") }
+        return try decode(await invoke("replytomessage", arguments: [.init(string:id)]))
+    }
+
     public func send(_ expected: MailDraft) async throws -> Bool {
         try requirePermission()
         return try await invoke("sendreviewed", arguments: [try integer(expected.id), try descriptor(expected)]).booleanValue
@@ -364,6 +372,17 @@ public actor MailAutomation {
                 return my snapshotbyid(targetID)
             end timeout
         end applybody
+
+        on replytomessage(targetMessageID)
+            with timeout of 30 seconds
+                tell application "Mail"
+                    set found to (messages of inbox whose message id is targetMessageID)
+                    if (count of found) is 0 then error "Mail Dot could not find this message in your inbox, so no reply was opened."
+                    set newReply to reply (item 1 of found) opening window yes
+                    return my draftrecord(newReply)
+                end tell
+            end timeout
+        end replytomessage
 
         on sendreviewed(targetID, expectedRecord)
             with timeout of 15 seconds

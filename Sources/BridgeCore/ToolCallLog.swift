@@ -13,8 +13,19 @@ public struct ToolCallRecord:Codable,Sendable,Equatable {
     public let outcome:Outcome
     /// A refusal's fixed wording, kept only for tools whose refusals contain no caller-supplied text.
     public let detail:String?
-    public init(at:Date,method:String,tool:String?,outcome:Outcome,detail:String?) {
-        self.at=at; self.method=method; self.tool=tool; self.outcome=outcome; self.detail=detail
+    /// The owner's request the call belonged to (Ask Dot review, 15 November 2026), so the calls one question cost
+    /// can be counted. It is the id Mail Dot itself issued: named by the call, or the request the caller last
+    /// retrieved. Absent from calls outside any request and from records of earlier builds.
+    public let request:String?
+    /// For a search of Mail on this Mac: the account searched, one of the accounts the owner allowed. It lets Mail
+    /// Dot show "Searched" for an account only when it saw the search (review of build 170, M10).
+    public let account:String?
+    public init(at:Date,method:String,tool:String?,outcome:Outcome,detail:String?,request:String?=nil,account:String?=nil) {
+        self.at=at; self.method=method; self.tool=tool; self.outcome=outcome; self.detail=detail; self.request=request; self.account=account
+    }
+    /// The accounts in Mail that were searched for a request, as Mail Dot itself saw.
+    public static func accountsSearched(for request:String,in records:[ToolCallRecord]) -> Set<String> {
+        Set(records.filter{ $0.request == request && $0.tool == "native_mail_search" && $0.outcome == .ok }.compactMap(\.account))
     }
 }
 
@@ -26,6 +37,12 @@ public struct ToolCallLogStore:Sendable {
     public init(bridgeDirectory:URL) {directory=bridgeDirectory.appendingPathComponent("CallLog",isDirectory:true)}
 
     public func read() throws -> [ToolCallRecord] {try locked{try load()}}
+    /// What one request cost: its calls in order, how many per tool, and the time from the first to the last.
+    public func cost(of request:String) throws -> (calls:[ToolCallRecord],perTool:[String:Int],seconds:TimeInterval) {
+        let calls=try read().filter{ $0.request == request }
+        let perTool=Dictionary(calls.compactMap{ $0.tool }.map{ ($0,1) },uniquingKeysWith:+)
+        return (calls,perTool,(calls.last?.at.timeIntervalSince(calls.first?.at ?? .now)) ?? 0)
+    }
 
     public func append(_ record:ToolCallRecord) throws {
         try locked {
@@ -46,7 +63,7 @@ public struct ToolCallLogStore:Sendable {
 
     /// Appends one line per call to a private text file. Best effort: a failure here is ignored.
     public static func mirror(_ record:ToolCallRecord,to file:URL) {
-        appendLine("\(record.at.ISO8601Format()) \(record.method) \(record.tool ?? "-") \(record.outcome.rawValue) \(record.detail ?? "-")",to:file)
+        appendLine("\(record.at.ISO8601Format()) \(record.method) \(record.tool ?? "-") \(record.outcome.rawValue) \(record.detail ?? "-")"+(record.request.map{ " request=\($0)" } ?? ""),to:file)
     }
     /// Appends one line to a private text file. The caller supplies only fixed, content-free wording.
     public static func appendLine(_ text:String,to file:URL) {

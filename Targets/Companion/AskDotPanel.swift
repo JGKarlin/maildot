@@ -64,6 +64,8 @@ import BridgeCore
 
     // MARK: The panel
 
+    /// The bar is on screen: the background pass over mail waits, so typing in it never stutters.
+    var showing:Bool { panel?.isVisible == true }
     func toggle() { if panel?.isVisible == true { hide() } else { show() } }
     func show() {
         let panel=self.panel ?? makePanel()
@@ -392,11 +394,11 @@ struct AskDotView:View {
                 Text("Ask").tag(Tab.ask)
                 // A dot after History while it holds an answer not yet seen (release review, 14 November 2026: an answer
                 // that arrived after the bar was closed sat in History with no sign).
-                (unseen ? Text("History")+Text(verbatim:"  ●").foregroundStyle(MailDotStyle.tint) : Text("History")).tag(Tab.history)
+                (unseen ? Text("History")+Text(verbatim:"  ●").foregroundStyle(MailDotStyle.linkText) : Text("History")).tag(Tab.history)
             }.pickerStyle(.segmented).labelsHidden().fixedSize()
             Spacer(minLength:8)
-            Text(verbatim:"⇧⌥⌘F").font(.caption).foregroundStyle(.secondary).fixedSize().help("Shows or hides this bar while Mail is in front")
-            Button { close() } label: { Image(systemName:"xmark.circle.fill").font(.title3).foregroundStyle(.secondary) }
+            Text(verbatim:"⇧⌥⌘F").font(.caption).foregroundStyle(MailDotStyle.supporting).fixedSize().help("Shows or hides this bar while Mail is in front")
+            Button { close() } label: { Image(systemName:"xmark.circle.fill").font(.title3).foregroundStyle(MailDotStyle.supporting) }
                 .buttonStyle(.plain).help("Close").accessibilityLabel("Close").keyboardShortcut(.cancelAction)
         }
     }
@@ -421,7 +423,7 @@ struct AskDotView:View {
                 } label: { pillLabel(directionName,symbol:"arrow.left.arrow.right",active:direction != .both) }
                     .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize().focusable(false)
                 HStack(spacing:5) {
-                    Image(systemName:"person").font(.caption).foregroundStyle(person.isEmpty ? Color.secondary : MailDotStyle.tint)
+                    Image(systemName:"person").font(.caption).foregroundStyle(person.isEmpty ? MailDotStyle.supporting : MailDotStyle.tint)
                     TextField("From or to",text:$person).textFieldStyle(.plain).font(.callout).frame(minWidth:70,maxWidth:130)
                         .onChange(of:person) { _,value in Task { await suggest(value) } }
                 }
@@ -453,9 +455,9 @@ struct AskDotView:View {
         HStack(spacing:5) {
             Image(systemName:symbol).font(.caption)
             Text(title).font(.callout).lineLimit(1)
-            if showsChevron { Image(systemName:"chevron.down").font(.system(size:8,weight:.semibold)).foregroundStyle(.secondary) }
+            if showsChevron { Image(systemName:"chevron.down").font(.system(size:8,weight:.semibold)).foregroundStyle(MailDotStyle.supporting) }
         }
-        .foregroundStyle(active ? AnyShapeStyle(.tint) : AnyShapeStyle(.primary))
+        .foregroundStyle(active ? AnyShapeStyle(MailDotStyle.linkText) : AnyShapeStyle(.primary))
         .padding(.horizontal,10).frame(height:26)
         .background(Capsule().fill(active ? AnyShapeStyle(.tint.opacity(0.14)) : AnyShapeStyle(Color.primary.opacity(0.06))))
         .contentShape(Capsule())
@@ -474,7 +476,7 @@ struct AskDotView:View {
                 } label: {
                     HStack(spacing:6) {
                         Text(item.name ?? item.address).lineLimit(1)
-                        if item.name != nil { Text(item.address).font(.caption).foregroundStyle(.secondary).lineLimit(1) }
+                        if item.name != nil { Text(item.address).font(.caption).foregroundStyle(MailDotStyle.supporting).lineLimit(1) }
                         Spacer(minLength:0)
                     }.padding(.horizontal,10).padding(.vertical,5).contentShape(Rectangle())
                 }.buttonStyle(.plain)
@@ -535,10 +537,10 @@ struct AskDotView:View {
                 Spacer(minLength:6)
                 // Removing a question is offered only under the pointer, so it does not compete with Close.
                 Button { removeQuestion(question) } label: { Image(systemName:"trash").font(.caption) }
-                    .buttonStyle(.borderless).foregroundStyle(.secondary).help("Remove this question").accessibilityLabel("Remove this question")
+                    .buttonStyle(.borderless).foregroundStyle(MailDotStyle.supporting).help("Remove this question").accessibilityLabel("Remove this question")
                     .opacity(hovered == question.id ? 1 : 0)
             }
-            if let words=question.filters.flatMap(filterWords) { Text(words).font(.caption).foregroundStyle(.secondary) }
+            if let words=question.filters.flatMap(filterWords) { Text(words).font(.caption).foregroundStyle(MailDotStyle.supporting) }
             answerBody(question)
         }
         .contentShape(Rectangle())
@@ -548,9 +550,9 @@ struct AskDotView:View {
     @ViewBuilder private func answerBody(_ question:AskDot.Question) -> some View {
         switch question.state {
             case .waiting,.asked:
-                HStack(spacing:8) { ProgressView().controlSize(.small); Text("Dot is searching your mail…").foregroundStyle(.secondary) }
+                HStack(spacing:8) { ProgressView().controlSize(.small); Text("Dot is searching your mail…").foregroundStyle(MailDotStyle.supporting) }
             case .failed:
-                Label(String(localized:"Dot could not answer: \(question.failure ?? "")"),systemImage:"exclamationmark.triangle").foregroundStyle(.orange).fixedSize(horizontal:false,vertical:true)
+                Label(String(localized:"Dot could not answer: \(question.failure ?? "")"),systemImage:"exclamationmark.triangle").foregroundStyle(MailDotStyle.warningText).fixedSize(horizontal:false,vertical:true)
                 Button("Ask Again") { text=question.text; send() }.controlSize(.small)
             case .answered:
                 Text(cited(question)).textSelection(.enabled).lineSpacing(2).fixedSize(horizontal:false,vertical:true)
@@ -559,6 +561,7 @@ struct AskDotView:View {
                         return .systemAction
                     })
                 sources(question)
+                searched(question)
         }
     }
 
@@ -569,7 +572,7 @@ struct AskDotView:View {
         let past=Array(questions.reversed())
         return VStack(spacing:0) {
             if past.isEmpty {
-                Text("No past questions").foregroundStyle(.secondary).frame(maxWidth:.infinity).padding(.vertical,34)
+                Text("No past questions").foregroundStyle(MailDotStyle.supporting).frame(maxWidth:.infinity).padding(.vertical,34)
             } else {
                 HStack {
                     Spacer()
@@ -592,15 +595,15 @@ struct AskDotView:View {
         return VStack(alignment:.leading,spacing:8) {
             Button { if open { expanded.remove(question.id) } else { expanded.insert(question.id) } } label: {
                 HStack(alignment:.firstTextBaseline,spacing:8) {
-                    Image(systemName:open ? "chevron.down" : "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(.secondary).frame(width:10)
+                    Image(systemName:open ? "chevron.down" : "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting).frame(width:10)
                     VStack(alignment:.leading,spacing:2) {
                         Text(question.text).fontWeight(.medium).lineLimit(open ? nil : 1).multilineTextAlignment(.leading)
                         Text([question.askedAt.formatted(date:.abbreviated,time:.shortened),question.filters.flatMap(filterWords)].compactMap{$0}.joined(separator:" · "))
-                            .font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                            .font(.caption).foregroundStyle(MailDotStyle.supporting).lineLimit(1)
                     }
                     Spacer(minLength:6)
                     if question.unread == true { Circle().fill(MailDotStyle.tint).frame(width:7,height:7).accessibilityLabel("Not yet read") }
-                    if question.state == .failed { Image(systemName:"exclamationmark.triangle").font(.caption).foregroundStyle(.orange) }
+                    if question.state == .failed { Image(systemName:"exclamationmark.triangle").font(.caption).foregroundStyle(MailDotStyle.warningText) }
                     else if question.state != .answered { ProgressView().controlSize(.mini) }
                 }.contentShape(Rectangle())
             }.buttonStyle(.plain)
@@ -643,27 +646,49 @@ struct AskDotView:View {
         result += AttributedString(whole.substring(from:cursor))
         return result
     }
+    /// What Dot searched in each account asked about (Ask Dot review, 15 November 2026): an account it did not
+    /// search is shown as such, so "nothing found" is never mistaken for "nothing searched".
+    @ViewBuilder private func searched(_ question:AskDot.Question) -> some View {
+        if let coverage=question.coverage,!coverage.isEmpty {
+            VStack(alignment:.leading,spacing:3) {
+                Text("Searched").textCase(.uppercase).font(.caption2.weight(.semibold)).foregroundStyle(MailDotStyle.supporting).kerning(0.5).padding(.top,2)
+                ForEach(Array(coverage.enumerated()),id:\.offset) { _,entry in
+                    HStack(alignment:.firstTextBaseline,spacing:6) {
+                        // A check mark only where Mail Dot saw the search itself or, for an account reached through a
+                        // connector, has Dot's word; a claimed search of Mail that Mail Dot did not see is shown as none.
+                        let seen=entry.shownAsSearched
+                        Image(systemName:seen ? (entry.observed == true ? "checkmark.circle.fill" : "checkmark.circle") : "exclamationmark.circle").font(.caption)
+                            .foregroundStyle(seen ? MailDotStyle.supporting : MailDotStyle.warningText).accessibilityHidden(true)
+                        Text(verbatim:"\(entry.name ?? entry.account): \(seen ? (entry.detail ?? "") : (entry.searched ? String(localized:"Not searched") : (entry.detail ?? String(localized:"Not searched"))))".trimmingCharacters(in:CharacterSet(charactersIn:": ")))
+                            .font(.caption).foregroundStyle(seen ? MailDotStyle.supporting : MailDotStyle.warningText).fixedSize(horizontal:false,vertical:true)
+                    }
+                }
+            }
+        }
+    }
     @ViewBuilder private func sources(_ question:AskDot.Question) -> some View {
         let list=question.sources ?? []
         if list.isEmpty {
-            Text("Dot gave no sources for this answer.").font(.caption).foregroundStyle(.orange)
+            Text("Dot gave no sources for this answer.").font(.caption).foregroundStyle(MailDotStyle.warningText)
         } else {
             VStack(alignment:.leading,spacing:4) {
-                Text("Sources").textCase(.uppercase).font(.caption2.weight(.semibold)).foregroundStyle(.secondary).kerning(0.5).padding(.top,2)
+                Text("Sources").textCase(.uppercase).font(.caption2.weight(.semibold)).foregroundStyle(MailDotStyle.supporting).kerning(0.5).padding(.top,2)
                 ForEach(list) { source in
                     // The whole row opens the message in Mail; Gmail is offered only when Mail on this Mac cannot.
                     Button { open(source) } label: {
                         HStack(alignment:.firstTextBaseline,spacing:8) {
-                            Text("\(source.n)").font(.caption.weight(.semibold)).foregroundStyle(.tint).frame(minWidth:14,alignment:.trailing)
+                            Text("\(source.n)").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.linkText).frame(minWidth:14,alignment:.trailing)
                             VStack(alignment:.leading,spacing:1) {
                                 Text(source.subject ?? String(localized:"(no subject)")).lineLimit(1)
-                                Text([source.sender,source.date.flatMap(ThreadDates.short)].compactMap{$0}.joined(separator:" · ")).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                                Text([source.sender,source.date.flatMap(ThreadDates.short)].compactMap{$0}.joined(separator:" · ")).font(.caption).foregroundStyle(MailDotStyle.supporting).lineLimit(1)
+                                // Dot named a message that is not in this account's mail on this Mac.
+                                if source.checked == false { Text("Not found in Mail").font(.caption).foregroundStyle(MailDotStyle.warningText).lineLimit(1) }
                             }
                             Spacer(minLength:6)
                             if source.mailURL == nil,let web=source.webAddress {
                                 Button("Open in Gmail") { NSWorkspace.shared.open(web) }.buttonStyle(.link).font(.caption)
                             } else if source.mailURL != nil {
-                                Image(systemName:"arrow.up.forward.square").font(.caption).foregroundStyle(.secondary)
+                                Image(systemName:"arrow.up.forward.square").font(.caption).foregroundStyle(MailDotStyle.supporting)
                             }
                         }
                         .padding(.horizontal,8).padding(.vertical,6)
@@ -697,7 +722,7 @@ struct AskDotView:View {
                     .onSubmit { send() }
                     .frame(minHeight:session.questionHeight,alignment:.topLeading)
                 Button { dictate() } label: { Image(systemName:"mic").font(.body) }
-                    .buttonStyle(.plain).foregroundStyle(.secondary).help("Dictate your question").accessibilityLabel("Dictate")
+                    .buttonStyle(.plain).foregroundStyle(MailDotStyle.supporting).help("Dictate your question").accessibilityLabel("Dictate")
                 Button { send() } label: { Image(systemName:"arrow.up.circle.fill").font(.title2) }
                     .buttonStyle(.plain).foregroundStyle(canSend ? AnyShapeStyle(.tint) : AnyShapeStyle(.tertiary))
                     .disabled(!canSend).keyboardShortcut(.defaultAction).help("Ask Dot").accessibilityLabel("Ask Dot")
@@ -705,7 +730,7 @@ struct AskDotView:View {
             .padding(.leading,12).padding(.trailing,8).padding(.vertical,7)
             .background(RoundedRectangle(cornerRadius:10).fill(Color(nsColor:.textBackgroundColor)))
             .overlay(RoundedRectangle(cornerRadius:10).stroke(Color.primary.opacity(0.14)))
-            if let note { Text(note).font(.caption).foregroundStyle(.secondary) }
+            if let note { Text(note).font(.caption).foregroundStyle(MailDotStyle.supporting) }
         }
     }
 

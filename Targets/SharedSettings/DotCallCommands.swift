@@ -39,6 +39,18 @@ import BridgeCore
             // moment it has read the message, before the panel could look for a stored draft (owner request, 13
             // November 2026: a message whose banner said Draft ready was drafted again on every reply).
             if StoredDraft.adopt(contextID:contextID) { return nil }
+            // Dot is already drafting this message (it was offered to Dot when the owner opened it, or asked for in the
+            // Mail Dot window): the reply waits for that draft or question, and Dot is not asked again. But the owner's own
+            // words on the reply (Tell Dot, or an answer) take priority: the draft in progress is superseded, its answer is
+            // not taken, and Dot is asked at once with those words (owner decision, 15 November 2026).
+            if !context.originalMessageID.isEmpty,let triage=try? MailTriageStore.shared(),
+               (try? triage.read())?.dotIsDrafting(messageID:context.originalMessageID) == true {
+                let ownerSpoke=context.ownerRequest.map{ $0.direction != nil || !$0.answers.isEmpty } ?? false
+                guard ownerSpoke else { return nil }
+                if let superseded=(try? triage.transaction({ $0.supersedeDrafting(messageID:context.originalMessageID) })) ?? nil {
+                    _ = record { state,_,_ in try state.dismiss(superseded) }
+                }
+            }
             if let refusal=record({ state,scope,allowed in _ = try state.requestReply(accountIDs:scope,allowedAccountIDs:allowed,contextID:contextID) }) { return refusal }
             try bridge.transaction { $0.contexts[contextID]?.ownerRequest?.toldDotAt = .now }
             return nil

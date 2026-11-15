@@ -18,5 +18,7 @@ pkgbuild --analyze --root "$WORK/root" "$WORK/component.plist" >/dev/null
 pkgbuild --root "$WORK/root" --component-plist "$WORK/component.plist" --scripts "$ROOT/Tools/installer/scripts" \
     --identifier org.jgkarlin.MailBridge.pkg --version "$VERSION" --install-location / "$WORK/MailDot-component.pkg" >/dev/null
 sed "s/@VERSION@/$VERSION/g" "$ROOT/Tools/installer/distribution.xml" > "$WORK/distribution.xml"
-productbuild --distribution "$WORK/distribution.xml" --resources "$ROOT/Tools/installer/resources" --package-path "$WORK" "$OUT/Mail-Dot-$VERSION.pkg" >/dev/null
+# The welcome and closing pages, in every language the app is in.
+python3 "$ROOT/Tools/installer/make-pages.py" "$WORK/resources" >/dev/null
+productbuild --distribution "$WORK/distribution.xml" --resources "$WORK/resources" --package-path "$WORK" "$OUT/Mail-Dot-$VERSION.pkg" >/dev/null
 print "$OUT/Mail-Dot-$VERSION.pkg"

@@ -173,6 +173,17 @@ public struct MailTriageEntry:Codable,Sendable,Identifiable,Equatable {
     public var reportFailed:String?
     /// The owner asked for a report and Dot has not delivered it yet.
     public var reportPending:Bool { reportRequestedAt != nil }
+    /// Open in Reply (owner decision, 15 November 2026): the owner asked for this draft to be put in a Mail reply,
+    /// by the button or by asking for a draft in the Mail Dot window. `openReplyWhenDrafted` waits for the draft
+    /// Dot is writing; `openReplyRequestedAt` is a draft ready to open now. Automatic drafts never set either.
+    public var openReplyWhenDrafted:Bool?
+    public var openReplyRequestedAt:Date?
+    /// Why the last reply could not be opened, in plain words for the window.
+    public var openReplyFailed:String?
+    /// The draft the owner asked for came without a report: Dot is asked for it once the reply has been opened.
+    public var reportAfterReply:Bool?
+    /// Open in Reply was pressed in the Mail Dot window: the background app closes that window, so the reply can open.
+    public var openReplyClosesWindow:Bool?
     public init(messageID:String?,sender:String,senderName:String?,subject:String,receivedAt:Date?,verdict:MailTriage.Verdict,automatic:Bool) {
         self.messageID=messageID; self.sender=sender; self.senderName=senderName; self.subject=subject; self.receivedAt=receivedAt
         essential=verdict.essential; reason=verdict.reason; copied=verdict.copied ? true : nil
@@ -352,7 +363,8 @@ public struct MailTriageState:Codable,Sendable {
             // A meeting the owner already added stays added, whatever Dot's new report says about the calendar.
             // No automatic report for a sender the owner chose Never for; Ask Dot for a Report still gives one.
             if let report,reportRule(for:entries[index].sender) != .never { entries[index].report=entries[index].calendarAdded == true ? report.withMeetingAdded() : report }
-            entries[index].reportedAt=now
+            // A draft the owner asked for comes without a report (it comes first); when the report was last written stays.
+            if report != nil || entries[index].draftRequested != true { entries[index].reportedAt=now }
         }
         switch stage {
         case .failed: entries[index].outcome = .failed; entries[index].dotNote=summary
@@ -377,6 +389,12 @@ public struct MailTriageState:Codable,Sendable {
                     let done=before.filter{$0.lowercased().hasPrefix("done:")}.map{String($0.dropFirst(5)).trimmingCharacters(in:.whitespaces)}.filter{!$0.isEmpty}
                     entries[index].tasksDone=done.isEmpty ? nil : Array(done.prefix(8))
                     entries[index].dotNote=before.filter{!$0.lowercased().hasPrefix("done:")}.joined(separator:"\n").trimmingCharacters(in:.whitespacesAndNewlines)
+                    // The draft the owner asked for came first; the report follows in its own request, once the reply
+                    // has been opened, or now if no reply is waiting to open (owner decision, 15 November 2026).
+                    if entries[index].draftRequested == true,report == nil {
+                        if entries[index].openReplyWhenDrafted == true { entries[index].reportAfterReply=true }
+                        else { entries[index].reportRequestedAt=now; entries[index].reportRequestID=nil; entries[index].reportFailed=nil }
+                    }
                     return
                 }
             }
@@ -470,6 +488,9 @@ public struct MailTriageState:Codable,Sendable {
     /// Set by the extension when its Mail Dot window closes: the companion then has Mail show the visible
     /// messages again, which brings back the banner Mail took away when its button was pressed.
     public var bannerReloadRequestedAt:Date?
+    /// Set by the extension while a Mail Dot window is open in Mail. Mail keeps its other windows waiting meanwhile,
+    /// so a reply Open in Reply asked for is opened once the window has closed.
+    public var mailDotWindowOpenAt:Date?
     public static let ownerRepliedLimit=500
     public mutating func noteOwnerReplied(messageID:String,now:Date=Date()) {
         guard let id=MailMessageIdentity.normalized(messageID) else { return }
@@ -504,6 +525,7 @@ public struct MailTriageState:Codable,Sendable {
     public mutating func discardDraft(_ id:String) throws {
         guard let index=entries.firstIndex(where:{$0.id == id}) else { throw BridgeFailure("That message is no longer in Mail Dot's list.") }
         entries[index].outcome = .noDraft; entries[index].draft=nil; entries[index].dotNote="You discarded Dot’s draft."
+        entries[index].openReplyWhenDrafted=nil; entries[index].openReplyRequestedAt=nil; entries[index].openReplyFailed=nil
     }
     /// Messages whose flag in Mail is not yet what their state calls for, oldest first.
     public func flagsDue(limit:Int=3) -> [MailTriageEntry] {
@@ -532,6 +554,24 @@ public struct MailTriageState:Codable,Sendable {
     public func entry(forMessageID id:String) -> MailTriageEntry? {
         guard let wanted=MailMessageIdentity.normalized(id) else { return nil }
         return entries.last{$0.messageID == wanted}
+    }
+    /// Whether Dot is already drafting the message with this Message-ID, for as long as Dot may take to answer. Every
+    /// reply request checks this first, so that a reply opened meanwhile waits for that draft or question instead of
+    /// asking Dot a second time (owner decision, 15 November 2026: two runs on one message, 13 seconds apart).
+    public func dotIsDrafting(messageID id:String,now:Date=Date()) -> Bool {
+        guard let entry=entry(forMessageID:id),[.pending,.asked].contains(entry.outcome) else { return false }
+        return now.timeIntervalSince(entry.askedAt ?? entry.openedAt ?? entry.seenAt) < Self.answerLimit
+    }
+    /// The owner told Dot how to write the reply while Dot was still drafting the message on its own: that draft is
+    /// superseded (owner decision, 15 November 2026). Returns the request to withdraw, so that its answer is not taken;
+    /// the draft written with the owner's words is recorded on the message when it comes.
+    public mutating func supersedeDrafting(messageID id:String) -> String? {
+        guard let wanted=MailMessageIdentity.normalized(id),let index=entries.lastIndex(where:{$0.messageID == wanted}),
+              [.pending,.asked].contains(entries[index].outcome) else { return nil }
+        let request=entries[index].requestID
+        entries[index].outcome = .held; entries[index].heldAsOlder=nil; entries[index].requestID=nil
+        entries[index].dotNote=nil; entries[index].openReplyWhenDrafted=nil
+        return request
     }
     /// The draft Dot wrote for the message with this Message-ID, if it wrote one.
     public func draft(forMessageID id:String) -> MailTriageEntry? {

@@ -9,9 +9,27 @@ public struct NativeMailAccount:Codable,Equatable,Identifiable,Sendable {
     public var fullName:String?
     public init(id:String,name:String,addresses:[String],server:String) { self.id=id; self.name=name; self.addresses=addresses; self.server=server }
     public var isGmail:Bool { ["imap.gmail.com","imap.googlemail.com","smtp.gmail.com","smtp.googlemail.com"].contains(server.lowercased()) || addresses.contains { $0.lowercased().hasSuffix("@gmail.com") } }
+    /// An iCloud Mail account: Apple's mail servers, or an @icloud.com, @me.com or @mac.com address. Dot reaches it
+    /// through ChatGPT's iCloud Mail plugin, never through AppleScript (owner decision, 15 November 2026).
+    public var isICloud:Bool {
+        let host=server.lowercased()
+        return host == "mail.me.com" || host.hasSuffix(".mail.me.com") || addresses.contains { address in ["@icloud.com","@me.com","@mac.com"].contains { address.lowercased().hasSuffix($0) } }
+    }
 }
 
 public struct MailConnection:Codable,Equatable,Identifiable,Sendable {
+    /// The providers whose ChatGPT plugin Dot reads mail through: Gmail, and iCloud Mail (15 November 2026).
+    public static let connectorProviders:Set<String>=["gmail","icloud"]
+    /// Mail Dot's account id for the account this connection reaches.
+    public var accountID:String { provider == "icloud" ? "icloud:"+id : "gmail:"+id }
+    /// A connection Dot has reported and can use now.
+    public var isLiveConnector:Bool { available && observedAt != nil && Self.connectorProviders.contains(provider) }
+    /// The connection id inside one of Mail Dot's connector account ids, if it is one.
+    public static func connectionID(inAccountID id:String) -> String? {
+        if id.hasPrefix("gmail:") { return String(id.dropFirst(6)) }
+        if id.hasPrefix("icloud:") { return String(id.dropFirst(7)) }
+        return nil
+    }
     public var id:String
     public var email:String
     public var connectionID:String
@@ -83,6 +101,8 @@ public struct MailSettingsInput:Codable,Equatable,Sendable {
     public var completeInventory:Bool?
     public var inventoryScope:MailInventoryScope?
     public var verificationRequestedAt:Date?
+    /// For an activation: the plugin asked for, "gmail" or "icloud". Absent means Gmail, as before 15 November 2026.
+    public var provider:String?
     public init() {}
 }
 public struct MailSettingsFormField:Codable,Equatable,Identifiable,Sendable {
@@ -140,6 +160,24 @@ public struct MailSettings:Codable,Sendable {
     public var source = "Waiting for Dot"
     /// The layout of the Mail Dot window, chosen in Settings (owner request, 13 November 2026). Absent means Briefing.
     public var windowLayout:MailDotWindowLayout?
+    /// The owner's choice in Settings: mail of the accounts read on this Mac can also be found by its meaning, from
+    /// embeddings made and kept on this Mac (15 November 2026). Absent or false means off, which is the default.
+    public var searchByMeaning:Bool?
+    /// The accounts in Mail for which the owner ticked Search by Meaning, by their identifiers in Mail (owner's
+    /// request, 15 November 2026: one choice per account, in the row of the account). Absent means none, unless the
+    /// single switch of build 170 was on, which then stands for every account until a row is ticked or unticked.
+    public var searchByMeaningAccounts:[String]?
+    public func searchByMeaning(account id:String) -> Bool {
+        if let chosen=searchByMeaningAccounts { return chosen.contains(id) }
+        return searchByMeaning == true
+    }
+    /// Whether it is on for any account: Mail Dot then looks whether it may read the Mail folder.
+    public var searchByMeaningAnywhere:Bool { searchByMeaningAccounts.map{ !$0.isEmpty } ?? (searchByMeaning == true) }
+    public mutating func setSearchByMeaning(_ on:Bool,account id:String) {
+        var chosen=Set(searchByMeaningAccounts ?? (searchByMeaning == true ? nativeAccounts.map(\.id) : []))
+        if on { chosen.insert(id) } else { chosen.remove(id) }
+        searchByMeaningAccounts=chosen.sorted(); searchByMeaning=nil
+    }
     /// The owner's choice, made in Mail: Dot writes draft replies on its own during its scheduled reviews,
     /// for important mail that needs a reply. Absent or false means it does not. Such a draft is only ever
     /// shown to the owner; nothing enters a message, and nothing is sent, without the owner's press.
@@ -180,7 +218,7 @@ public struct MailSettings:Codable,Sendable {
         if on,wasOff,automaticReplies(account:id) { var since=automaticRepliesSince ?? [:]; since[id]=now; automaticRepliesSince=since }
     }
     /// Every account Mail Dot knows, by its account id.
-    public var knownAccountIDs:[String] { connections.map{"gmail:"+$0.id}+nativeAccounts.map{"mail:"+$0.id} }
+    public var knownAccountIDs:[String] { connections.map(\.accountID)+nativeAccounts.map{"mail:"+$0.id} }
     /// Gives each account whose Automatic replies are on, by default and never switched, its starting time:
     /// now. Returns whether anything changed.
     @discardableResult public mutating func stampAutomaticReplies(now:Date=Date()) -> Bool {
@@ -219,7 +257,7 @@ public struct MailSettings:Codable,Sendable {
     public func accountIDs(receiving addresses:[String]) -> Set<String> {
         let wanted=Set(addresses.map{$0.lowercased()})
         var ids=Set<String>()
-        for connection in connections where wanted.contains(connection.email.lowercased()) { ids.insert("gmail:"+connection.id) }
+        for connection in connections where wanted.contains(connection.email.lowercased()) { ids.insert(connection.accountID) }
         for account in nativeAccounts where account.addresses.contains(where:{wanted.contains($0.lowercased())}) { ids.insert("mail:"+account.id) }
         return ids
     }
@@ -241,7 +279,7 @@ public struct MailSettings:Codable,Sendable {
         guard ids(nativeAccounts.map(\.id)), ids(connections.map(\.id)), ids(schedules.map(\.id)), ids(requests.map(\.id)),ids(linkedScheduleIDs) else { throw BridgeFailure("Mail settings contain duplicate or invalid identifiers.") }
         for item in connections {
             guard !item.email.isEmpty, item.email.utf8.count <= 320, !item.connectionID.isEmpty, item.connectionID.utf8.count <= 512,
-                  item.provider == "gmail" || item.provider == "outlook" else { throw BridgeFailure("Invalid connected email profile.") }
+                  ["gmail","outlook","icloud"].contains(item.provider) else { throw BridgeFailure("Invalid connected email profile.") }
         }
         guard Set(connections.map { $0.provider + ":" + MailDraft.address($0.email) }).count == connections.count else { throw BridgeFailure("Conflicting profile IDs for the same email account require explicit reconciliation.") }
         for item in nativeAccounts {
@@ -357,7 +395,7 @@ public enum MailSettingsCoordinator {
                 guard accounts.contains(where:{$0.id == selected}) else { throw BridgeFailure("The native account does not match the displayed email address.") }
             } else if accounts.count == 1 { request.input?.nativeAccountID=accounts[0].id }
         }
-        if kind == .activate,let email { request.expectedProfileID=settings.connections.first(where:{ $0.provider == "gmail" && MailDraft.address($0.email) == MailDraft.address(email) })?.id }
+        if kind == .activate,let email { request.expectedProfileID=settings.connections.first(where:{ MailConnection.connectorProviders.contains($0.provider) && MailDraft.address($0.email) == MailDraft.address(email) })?.id }
         updated.requests.append(request); updated.revision += 1
         try updated.validate(); settings = updated
         return request
@@ -396,8 +434,20 @@ public enum MailSettingsCoordinator {
         if request.kind == .keepConnected {
             guard connections.isEmpty,schedules.isEmpty else { throw BridgeFailure("Confirming the connection job must not carry account or schedule inventory.") }
         }
-        if request.kind == .activate {
-            guard schedules.isEmpty,connections.count == 1,let email=request.email,connections.contains(where:{ MailDraft.address($0.email) == MailDraft.address(email) && $0.available && $0.provider == "gmail" }) else { throw BridgeFailure("Return only the authenticated Gmail profile matching the requested email account.") }
+        // iCloud's connector shows Dot the signed-in address but no stable profile or connection id, so Dot confirms it
+        // without a profile and Mail Dot records the connection for the address asked about (15 November 2026).
+        var connections=connections
+        if request.kind == .activate,request.input?.provider == "icloud",let email=request.email {
+            guard schedules.isEmpty,connections.allSatisfy({ $0.provider == "icloud" && MailDraft.address($0.email) == MailDraft.address(email) }) else {
+                throw BridgeFailure("Confirm only the iCloud Mail connection for the address asked about.")
+            }
+            if connections.isEmpty {
+                var made=MailConnection(id:"icloud-"+MailDraft.address(email),email:email,connectionID:"icloud-connector")
+                made.provider="icloud"
+                connections=[made]
+            }
+        } else if request.kind == .activate {
+            guard schedules.isEmpty,connections.count == 1,let email=request.email,connections.contains(where:{ MailDraft.address($0.email) == MailDraft.address(email) && $0.available && MailConnection.connectorProviders.contains($0.provider) }) else { throw BridgeFailure("Return only the authenticated Gmail profile matching the requested email account.") }
             if let expected=request.expectedProfileID { guard connections[0].id == expected else { throw BridgeFailure("Reconnection must preserve the account's stable provider profile ID.") } }
         }
         for profile in connections {

@@ -116,25 +116,27 @@ import BridgeCore
     }
     private var showsChoices:Bool { context != nil && request?.ignored != true && confirmation == nil && !sent }
 
-    private var header:some View {
+    @ViewBuilder private var header:some View {
+        // Over Settings: the way back to the draft, at the left, where Done was at the right.
+        if showingSettings {
+            MailDotSettingsBar(returnsTo:Text(verbatim:"Mail Dot")) { showingSettings=false }.padding(.horizontal,16).padding(.vertical,10)
+        } else { draftHeader }
+    }
+    private var draftHeader:some View {
         HStack(spacing:8) {
             Image(systemName:"at.circle.fill").foregroundStyle(MailDotStyle.brand)
             VStack(alignment:.leading,spacing:0) {
-                Text(showingSettings ? "Mail Dot Settings" : "Mail Dot").font(.headline)
-                if !showingSettings,isNew {
-                    if let who=context?.envelope.to.first { Text("New message to \(who)").font(.caption).foregroundStyle(.secondary).lineLimit(1) }
-                } else if !showingSettings,let who=recipient { Text("Reply to \(who)").font(.caption).foregroundStyle(.secondary).lineLimit(1) }
+                Text("Mail Dot").font(.headline)
+                if isNew {
+                    if let who=context?.envelope.to.first { Text("New message to \(who)").font(.caption).foregroundStyle(MailDotStyle.supporting).lineLimit(1) }
+                } else if let who=recipient { Text("Reply to \(who)").font(.caption).foregroundStyle(MailDotStyle.supporting).lineLimit(1) }
             }
             Spacer()
-            if showingSettings {
-                Button("Done") { showingSettings=false }.keyboardShortcut(.cancelAction)
-            } else {
-                if loaded,!connected { Label("Dot is not connected",systemImage:"exclamationmark.triangle.fill").font(.callout).foregroundStyle(.orange) }
-                else if let status { statusPill(status) }
-                Button { showingSettings=true } label: { Image(systemName:"gearshape") }
-                    .buttonStyle(.borderless).help("Mail Dot Settings").accessibilityLabel("Mail Dot Settings")
-                more
-            }
+            if loaded,!connected { Label("Dot is not connected",systemImage:"exclamationmark.triangle.fill").font(.callout).foregroundStyle(MailDotStyle.warningText) }
+            else if let status { statusPill(status) }
+            Button { showingSettings=true } label: { Image(systemName:"gearshape") }
+                .buttonStyle(.borderless).help("Mail Dot Settings").accessibilityLabel("Mail Dot Settings")
+            more
         }.padding(.horizontal,16).padding(.vertical,10)
     }
     /// Where this reply stands, in a few words at the top of the panel: what the owner sees on returning.
@@ -181,7 +183,7 @@ import BridgeCore
     @ViewBuilder private var content:some View {
         VStack(alignment:.leading,spacing:14) {
             if let failure { failureCard(failure) }
-            if let note { Text(note).font(.callout).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true) }
+            if let note { Text(note).font(.callout).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true) }
             if sent {
                 state("paperplane.fill",String(localized:"Sent"),String(localized:"Mail accepted the reply for sending."),.green)
             } else if let context,request?.ignored == true {
@@ -223,7 +225,7 @@ import BridgeCore
             Image(systemName:symbol).font(.title2).foregroundStyle(color)
             VStack(alignment:.leading,spacing:2) {
                 Text(title).font(.headline)
-                Text(detail).font(.callout).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
+                Text(detail).font(.callout).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true)
             }
         }
     }
@@ -232,7 +234,7 @@ import BridgeCore
             ProgressView().controlSize(.small).padding(.top,2)
             VStack(alignment:.leading,spacing:2) {
                 Text(title).font(.headline)
-                if let detail { Text(detail).font(.callout).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true).textSelection(.enabled) }
+                if let detail { Text(detail).font(.callout).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true).textSelection(.enabled) }
             }
         }
     }
@@ -243,11 +245,11 @@ import BridgeCore
             .overlay(RoundedRectangle(cornerRadius:10).stroke(Color.primary.opacity(0.10)))
     }
     private func caption(_ text:String) -> some View {
-        Text(text.uppercased()).font(.caption.weight(.semibold)).foregroundStyle(.secondary).kerning(0.5)
+        Text(text.uppercased()).font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting).kerning(0.5)
     }
     private func failureCard(_ failure:(text:String,kind:String)) -> some View {
-        card(Color.red.opacity(0.10)) {
-            Label(failureTitle(failure.kind),systemImage:"exclamationmark.triangle.fill").font(.headline).foregroundStyle(.red)
+        card(MailDotStyle.dangerText.opacity(0.10)) {
+            Label(failureTitle(failure.kind),systemImage:"exclamationmark.triangle.fill").font(.headline).foregroundStyle(MailDotStyle.dangerText)
             Text(failure.text).font(.callout).fixedSize(horizontal:false,vertical:true).textSelection(.enabled)
             Button(failure.kind == "send" ? "Read the Message Again" : "Try Again") { dismissedFailure=lastFailureID; self.failure=nil; placedRevision=0; share() }
         }
@@ -264,13 +266,13 @@ import BridgeCore
 
     /// Dot's question, with its answers one press each.
     private func questionCard(_ question:(question:String,answers:[String])) -> some View {
-        card(Color.orange.opacity(0.10)) {
+        card(MailDotStyle.warningText.opacity(0.10)) {
             caption(String(localized:"Dot needs to know"))
             Text(question.question).font(.body.weight(.semibold)).fixedSize(horizontal:false,vertical:true).textSelection(.enabled)
             ForEach(Array(question.answers.enumerated()),id:\.offset) { index,answer in
                 Button { self.answer(answer,index:index) } label: {
                     HStack(spacing:9) {
-                        Text("\(index+1)").font(.system(size:11,weight:.semibold)).foregroundStyle(.secondary)
+                        Text("\(index+1)").font(.system(size:11,weight:.semibold)).foregroundStyle(MailDotStyle.supporting)
                             .frame(width:20,height:19).background(RoundedRectangle(cornerRadius:4).fill(Color.primary.opacity(0.06)))
                             .overlay(RoundedRectangle(cornerRadius:4).stroke(Color.primary.opacity(0.22)))
                         Text(answer).fontWeight(.medium).multilineTextAlignment(.leading)
@@ -291,12 +293,12 @@ import BridgeCore
             if !question.answers.isEmpty {
             Button { otherOpen.toggle(); if otherOpen { otherFocused=true } } label: {
                 HStack(spacing:9) {
-                    Text("\(other)").font(.system(size:11,weight:.semibold)).foregroundStyle(.secondary)
+                    Text("\(other)").font(.system(size:11,weight:.semibold)).foregroundStyle(MailDotStyle.supporting)
                         .frame(width:20,height:19).background(RoundedRectangle(cornerRadius:4).fill(Color.primary.opacity(0.06)))
                         .overlay(RoundedRectangle(cornerRadius:4).stroke(Color.primary.opacity(0.22)))
                     Text("Something else…").fontWeight(.medium)
                     Spacer(minLength:0)
-                    Image(systemName:otherOpen ? "chevron.up" : "chevron.down").font(.caption).foregroundStyle(.secondary)
+                    Image(systemName:otherOpen ? "chevron.up" : "chevron.down").font(.caption).foregroundStyle(MailDotStyle.supporting)
                 }
                 .padding(.horizontal,10).padding(.vertical,7)
                 .background(RoundedRectangle(cornerRadius:8).fill(Color.primary.opacity(otherOpen ? 0.09 : 0.05)))
@@ -373,12 +375,12 @@ import BridgeCore
             HStack {
                 caption(String(localized:"Dot’s draft"))
                 Spacer()
-                Text(draftState(context)).font(.caption.weight(.semibold)).foregroundStyle(placed && editor == loadedText ? Color.green : Color.secondary)
+                Text(draftState(context)).font(.caption.weight(.semibold)).foregroundStyle(placed && editor == loadedText ? MailDotStyle.successText : MailDotStyle.supporting)
             }
             // What Dot did besides writing, and the files it finished, which go into the message with the reply.
             if let done=context.proposal?.tasksDone,!done.isEmpty {
                 VStack(alignment:.leading,spacing:3) {
-                    Text("Dot did").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                    Text("Dot did").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting)
                     ForEach(Array(done.enumerated()),id:\.offset) { _,line in
                         Label(line,systemImage:"checkmark.circle").font(.callout).fixedSize(horizontal:false,vertical:true)
                     }
@@ -386,12 +388,12 @@ import BridgeCore
             }
             if let files=context.dotFiles,!files.isEmpty {
                 VStack(alignment:.leading,spacing:3) {
-                    Text(context.filesAttachedRevision == context.proposal?.revision ? "Attached to your message" : "Attached when you insert the reply").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                    Text(context.filesAttachedRevision == context.proposal?.revision ? "Attached to your message" : "Attached when you insert the reply").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting)
                     ForEach(files) { file in
                         HStack(spacing:6) {
-                            Image(systemName:"doc").foregroundStyle(.secondary)
+                            Image(systemName:"doc").foregroundStyle(MailDotStyle.supporting)
                             Text(file.filename).lineLimit(1).truncationMode(.middle)
-                            Text(ByteCountFormatter.string(fromByteCount:Int64(file.size),countStyle:.file)).font(.caption).foregroundStyle(.secondary)
+                            Text(ByteCountFormatter.string(fromByteCount:Int64(file.size),countStyle:.file)).font(.caption).foregroundStyle(MailDotStyle.supporting)
                             Spacer(minLength:4)
                             if context.filesAttachedRevision != context.proposal?.revision {
                                 Button { removeFile(file.id) } label: { Image(systemName:"xmark.circle") }.buttonStyle(.borderless).help("Do not attach this file").accessibilityLabel("Do not attach \(file.filename)")
@@ -402,7 +404,7 @@ import BridgeCore
             }
             if context.isNewMessage,let subject=context.proposal?.subject ?? (context.snapshot?.subject.isEmpty == false ? context.snapshot?.subject : nil) {
                 HStack(alignment:.firstTextBaseline,spacing:6) {
-                    Text("Subject").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                    Text("Subject").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting)
                     Text(subject).fontWeight(.medium).textSelection(.enabled)
                 }
             }
@@ -430,13 +432,13 @@ import BridgeCore
             ScrollView { Text(summary.text).frame(maxWidth:.infinity,alignment:.leading).textSelection(.enabled) }
                 .frame(maxHeight:250).padding(8)
                 .background(RoundedRectangle(cornerRadius:6).fill(Color(nsColor:.textBackgroundColor)))
-            Text("\(summary.characterCount) characters. This is the one confirmation; Mail sends it when you press Send.").font(.callout).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
+            Text("\(summary.characterCount) characters. This is the one confirmation; Mail sends it when you press Send.").font(.callout).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true)
             HStack {
                 // Never on a bare Return: a stray key must not send mail. A click, or Command-Return.
                 Button("Send") { confirmSend(confirmation.id) }.buttonStyle(.borderedProminent).keyboardShortcut(.return,modifiers:.command)
                 Button("Don’t Send") { act { try BridgeCoordinator.ownerChooses(.save,contextID:contextID,state:&$0) } }
                 Spacer()
-                if let working { ProgressView().controlSize(.small); Text(working).font(.callout).foregroundStyle(.secondary) }
+                if let working { ProgressView().controlSize(.small); Text(working).font(.callout).foregroundStyle(MailDotStyle.supporting) }
             }
         }
     }
@@ -516,12 +518,14 @@ import BridgeCore
             }
             // A draft Dot already wrote for this message, found by the message it answers, is shown at once
             // and Dot is not asked again. Nothing enters the message.
-            // While Dot is already drafting this message because the owner opened it, the panel waits for that
-            // draft (up to three minutes) instead of starting a second request.
+            // While Dot is already drafting this message, the panel waits for that draft or question, for as long as
+            // Dot may take, instead of starting a second request (the same check every reply request passes).
             var dotAlreadyOnIt=false
-            if let current=context,current.proposal == nil,current.snapshot != nil,current.ownerRequest?.toldDotAt == nil,!current.originalMessageID.isEmpty {
-                let entry=await Task.detached { [id=current.originalMessageID] in (try? MailTriageStore.shared().read())?.entry(forMessageID:id) }.value
-                if let entry,[.pending,.asked].contains(entry.outcome),entry.openedAt.map({ Date().timeIntervalSince($0) < 180 }) ?? false {
+            // The owner's own words on the reply never wait: they go to Dot at once (see tellDotAboutReply).
+            if let current=context,current.proposal == nil,current.snapshot != nil,current.ownerRequest?.toldDotAt == nil,!current.originalMessageID.isEmpty,
+               current.ownerRequest?.direction == nil,current.ownerRequest?.answers.isEmpty ?? true {
+                let drafting=await Task.detached { [id=current.originalMessageID] in (try? MailTriageStore.shared().read())?.dotIsDrafting(messageID:id) ?? false }.value
+                if drafting {
                     dotAlreadyOnIt=true
                     preparedLooked=false
                 }

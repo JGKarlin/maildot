@@ -58,7 +58,7 @@ struct NativeMailSetupView:View {
     var body:some View {
         ScrollView { VStack(alignment:.leading,spacing:16) {
             Label("Set up \(setup.account.name)",systemImage:"envelope").font(.title2.bold())
-            Text(setup.account.addresses.joined(separator:", ")).foregroundStyle(.secondary).textSelection(.enabled)
+            Text(setup.account.addresses.joined(separator:", ")).foregroundStyle(MailDotStyle.supporting).textSelection(.enabled)
             Text("Choose the folders your existing Dot may read through Mail on this Mac.")
             if setup.loading { ProgressView("Reading folders…").frame(maxWidth:.infinity,minHeight:220) }
             else {
@@ -70,9 +70,9 @@ struct NativeMailSetupView:View {
                 }.frame(minHeight:220,maxHeight:320)
             }
             Text("This allows message headers and text in the selected folders to be shared with Dot. Attachment contents are excluded. It does not allow sending, moving, deleting or changing messages. Mail and this Mac must be available.")
-                .font(.callout).foregroundStyle(.secondary)
-            Text("You can remove this access at any time in Mail Dot settings.").font(.caption).foregroundStyle(.secondary)
-            if let error=setup.error { Text(error).foregroundStyle(.red).textSelection(.enabled) }
+                .font(.callout).foregroundStyle(MailDotStyle.supporting)
+            Text("You can remove this access at any time in Mail Dot settings.").font(.caption).foregroundStyle(MailDotStyle.supporting)
+            if let error=setup.error { Text(error).foregroundStyle(MailDotStyle.dangerText).textSelection(.enabled) }
             HStack {
                 Button("Cancel",role:.cancel) { onClose() }
                 if settings.nativeGrants.contains(where:{$0.accountID == setup.account.id && $0.revokedAt == nil}) {

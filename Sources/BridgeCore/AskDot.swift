@@ -65,8 +65,18 @@ public enum AskDot {
         public var date:String?
         public var messageID:String?
         public var webURL:String?
+        /// The account Dot found it in, as the request's reach names accounts.
+        public var account:String?
+        /// Whether Mail Dot found the message in its own index of Mail on this Mac (Ask Dot review, 15 November
+        /// 2026). True: it is there, and sender, subject and date are Mail's, not Dot's. False: Dot named an account
+        /// whose mail is all in the index, and the message is not in it. Absent: it could not be checked, as for
+        /// an account Dot reaches through Gmail.
+        public var checked:Bool?
         public var id:Int { n }
-        enum CodingKeys:String,CodingKey { case n,sender,subject,date,messageID="message_id",webURL="web_url" }
+        public init(n:Int,sender:String?=nil,subject:String?=nil,date:String?=nil,messageID:String?=nil,webURL:String?=nil,account:String?=nil) {
+            self.n=n; self.sender=sender; self.subject=subject; self.date=date; self.messageID=messageID; self.webURL=webURL; self.account=account
+        }
+        enum CodingKeys:String,CodingKey { case n,sender,subject,date,messageID="message_id",webURL="web_url",account,checked }
         /// The address that opens the message in Mail on this Mac.
         public var mailURL:URL? {
             guard let id=messageID.flatMap(MailMessageIdentity.normalized) else { return nil }
@@ -94,7 +104,44 @@ public enum AskDot {
         /// Dot's answer (or its failure) arrived and has not been shown yet. Absent from questions saved by earlier
         /// builds, which count as read.
         public var unread:Bool?
+        /// What Dot searched for this answer, one entry per account asked about. Absent from questions answered
+        /// by earlier builds.
+        public var coverage:[Coverage]?
         public init(text:String,filters:Filters?) { self.text=text; self.filters=filters }
+    }
+    /// What Dot did in one account for an answer (Ask Dot review, 15 November 2026: an account left unsearched was
+    /// indistinguishable from an account with nothing in it). `account` is the account's id as the request's reach
+    /// gives it; `name` is how the owner knows the account, filled in on the Mac.
+    public struct Coverage:Codable,Sendable,Equatable {
+        public var account:String
+        public var searched:Bool
+        public var detail:String?
+        public var name:String?
+        /// For an account in Mail on this Mac: whether Mail Dot itself saw Dot search it for this question. Absent
+        /// for an account Dot reaches through a connector, where Mail Dot sees nothing and "searched" is Dot's word.
+        public var observed:Bool?
+        public init(account:String,searched:Bool,detail:String?=nil,name:String?=nil) { self.account=account; self.searched=searched; self.detail=detail; self.name=name }
+        /// What the owner is shown: searched, when Mail Dot saw it or has only Dot's word; not searched, when Dot says
+        /// so or when Dot claims a search of Mail on this Mac that Mail Dot did not see.
+        public var shownAsSearched:Bool { searched && observed != false }
+    }
+    /// The accounts of a question that Dot's coverage does not name.
+    public static func accountsMissing(from coverage:[Coverage]?,asked:[String]) -> [String] {
+        let named=Set((coverage ?? []).map{ $0.account.lowercased() })
+        return asked.filter{ !named.contains($0.lowercased()) }
+    }
+    /// Dot's coverage in the order of the accounts asked about, each with the owner's name for the account. An
+    /// account Dot did not name is kept as not searched, with no detail.
+    public static func settled(_ coverage:[Coverage]?,asked:[(id:String,name:String)],searchedOnThisMac:Set<String>?=nil) -> [Coverage] {
+        asked.map { account in
+            var entry=(coverage ?? []).first{ $0.account.lowercased() == account.id.lowercased() } ?? Coverage(account:account.id,searched:false)
+            entry.account=account.id; entry.name=account.name
+            // Dot's word is checked against what Mail Dot saw, for the accounts it can see.
+            entry.observed=nil
+            if let searchedOnThisMac,account.id.hasPrefix("mail:") { entry.observed=searchedOnThisMac.contains(String(account.id.dropFirst(5))) }
+            entry.detail=entry.detail.map{ String($0.trimmingCharacters(in:.whitespacesAndNewlines).prefix(400)) }.flatMap{ $0.isEmpty ? nil : $0 }
+            return entry
+        }
     }
     public static let textLimit=2000
     public static let keep=20
@@ -116,8 +163,45 @@ public enum AskDot {
             if trimmed.hasPrefix("[{"),trimmed.hasSuffix("]"),let found=decode(trimmed) { if sources.isEmpty { sources=found }; continue }
             kept.append(line)
         }
-        let bounded=Array(sources.filter{$0.n > 0}.sorted{$0.n < $1.n}.prefix(30))
-        return (kept.joined(separator:"\n").trimmingCharacters(in:.whitespacesAndNewlines),bounded)
+        return (kept.joined(separator:"\n").trimmingCharacters(in:.whitespacesAndNewlines),bounded(sources))
+    }
+    /// At most 30 sources, by number, each number once.
+    static func bounded(_ sources:[Source]) -> [Source] {
+        var seen=Set<Int>()
+        return Array(sources.filter{ $0.n > 0 && seen.insert($0.n).inserted }.sorted{ $0.n < $1.n }.prefix(30))
+    }
+    /// Dot's sources for an answer: those its report carries as fields, or, from a report without them, those
+    /// written on the Sources line of its summary.
+    public static func sources(given:[Source]?,summary:String) -> [Source] {
+        if let given,!given.isEmpty { return bounded(given) }
+        return parse(summary).sources
+    }
+    /// Checks each source against Mail Dot's index of Mail on this Mac. A message found there is shown with Mail's
+    /// own sender, subject and date in place of what Dot wrote, so a citation cannot describe a message other
+    /// than the one it opens. One that should be there and is not is marked.
+    public static func check(_ sources:[Source],grants:[NativeMailGrant],index:MailSearchIndex) -> [Source] {
+        let active=grants.filter{ $0.revokedAt == nil }
+        return sources.map { given in
+            var source=given; source.checked=nil
+            guard let id=source.messageID.flatMap(MailSearchIndex.key) else { return source }
+            let named=active.first{ "mail:"+$0.accountID == source.account }
+            // The account Dot named is looked in first; the same Message-ID in another account is the same message.
+            for grant in (named.map{[$0]} ?? [])+active.filter({ $0.accountID != named?.accountID }) {
+                guard let found=try? index.texts(account:grant.accountID,mailboxes:grant.mailboxes.map(\.id),messageIDs:[id]).first else { continue }
+                source.sender=senderName(found.sender); source.subject=found.subject; source.date=found.date.ISO8601Format()
+                source.messageID=found.messageID; source.checked=true
+                return source
+            }
+            // Only where all of the account's allowed mail is in the index does absence mean anything.
+            if let named,named.mailboxes.allSatisfy({ (try? index.progress(account:named.accountID,mailbox:$0.id))??.complete == true }) { source.checked=false }
+            return source
+        }
+    }
+    /// A sender as a source shows it: the name, or the address when Mail has no name.
+    static func senderName(_ sender:String) -> String {
+        guard let open=sender.lastIndex(of:"<") else { return sender }
+        let name=sender[..<open].trimmingCharacters(in:CharacterSet(charactersIn:"\" ").union(.whitespaces))
+        return name.isEmpty ? (MailMessageIdentity.address(in:sender) ?? sender) : name
     }
     /// The citation numbers an answer uses, in order of first appearance: [1], [2, 3].
     public static func citations(in answer:String) -> [Int] {
@@ -131,7 +215,7 @@ public enum AskDot {
         }
         return seen
     }
-    public static let instructions="For action ask, the owner put a question about their mail to you from Mail Dot's ask bar; question.text is the question. It concerns the whole of the accounts in this request, not one message: answer it by searching and reading their mail with your own mail tools (your Gmail connector, and Mail Dot's native_mail tools for accounts in Mail on the owner's Mac), as a semantic search of your own and not a keyword match. Honor question.filters when present: accounts limits the accounts, from and to (ISO 8601) limit the dates of the messages, direction is received (mail sent to the owner), sent (mail the owner sent) or both, person (a name or an address) limits the search to mail exchanged with that person, as sender or recipient, and has_attachments true limits it to messages with attachments. Do not draft, send, change or file anything, and do not ask the owner a question back: answer with what you find, or say plainly that you found nothing. Report ready with a summary that is the answer itself, concise, in the owner's language named in these instructions, as plain text without Markdown. Every fact taken from mail MUST carry a citation marker such as [1] or [2] right after it, numbered from 1 in order of first use. After the answer add one line that begins with the words Sources: and continues on that same line with a single JSON array, one object per cited message: n (the citation number), sender (name), subject, date (ISO 8601), message_id (the message's RFC 822 Message-ID header, exactly, which Mail Dot needs to open the message on the Mac) and, for a Gmail message, web_url (its https link in Gmail). If you cannot give a message for a statement, write (no source found) after it instead of a marker. Cite at most 30 messages. If the search cannot be done, report failed with one sentence on why."
+    public static let instructions="For action ask, the owner put a question about their mail to you from Mail Dot's ask bar; question.text is the question. It concerns the whole of the accounts listed in reach, not one message, and you MUST search every account in reach; none may be left out silently. For an entry with route icloud_connector, search that iCloud Mail account with your iCloud Mail connector, with several searches using alternative words, as for Gmail below. For an entry with route gmail_connector, search that Gmail account with your Gmail connector: turn the question and its filters into Gmail's own search terms (from:, to:, after:, before:, in:sent, has:attachment), run several searches with alternative words, in each language the owner writes in, and read whole threads rather than single messages. For an entry with route mail_on_this_mac, search with native_mail_search and the account_id given in that entry: it searches every folder the owner allowed, in one call, and returns a passage of each message found. Search several times with alternative words, in each language the owner writes in, and with the person and date filters where the question names them. Also pass meaning: the thing sought as one plain sentence in the language the mail is likely written in; where the owner has turned on search by meaning, the tool then also finds messages that say it in other words. Cite from a passage when it settles the point; where it does not, read up to five of the messages found in one call with native_mail_read_found. If native_mail_search says index_complete is false, say in that account's coverage detail that older mail is still being indexed. Do not page through native_mail_list_messages for a question unless the search tool fails. This is a semantic search of your own and not a single keyword match. Honor question.filters when present: from and to (ISO 8601) limit the dates of the messages, direction is received (mail sent to the owner), sent (mail the owner sent) or both, person (a name or an address) limits the search to mail exchanged with that person, as sender or recipient, and has_attachments true limits it to messages with attachments. Do not draft, send, change or file anything, and do not ask the owner a question back: answer with what you find, or say plainly that you found nothing. Report ready with a summary that is the answer itself, concise, in the owner's language named in these instructions, as plain text without Markdown. The ready report MUST also carry coverage: one entry for every account in reach, with account (that entry's account value, exactly), searched (true only if you actually searched it for this question) and detail (one short sentence in the owner's language on what you searched there and over which dates, or why you could not); a report without an entry for every account is refused. Every fact taken from mail MUST carry a citation marker such as [1] or [2] right after it, numbered from 1 in order of first use. The ready report MUST also carry sources, as a field of the report and not in the summary: one entry per cited message, with n (the citation number), account (the account value of the reach entry you found it in), sender (name), subject, date (ISO 8601), message_id (the message's RFC 822 Message-ID header, exactly as the tool gave it, which Mail Dot needs to open the message on the Mac and checks against Mail) and, for a Gmail message, web_url (its https link in Gmail). Mail Dot shows Mail's own sender, subject and date for each message it finds, and marks a message it cannot find, so never cite a message_id you did not receive from a tool. If you cannot give a message for a statement, write (no source found) after it instead of a marker. Cite at most 30 messages. If the search cannot be done at all, report failed with one sentence on why."
 }
 
 extension MailTriageState {
@@ -158,12 +242,14 @@ extension MailTriageState {
         asks?[index].state = .failed; asks?[index].failure=reason; asks?[index].answeredAt=now; asks?[index].unread=true
     }
     /// Dot's answer to a question. Returns whether the request was a question's.
-    @discardableResult public mutating func acceptAsk(requestID:String,stage:MailWorkflowStage,summary:String,now:Date=Date()) -> Bool {
+    /// `sources` are the sources already settled and checked; without them they are read from the summary.
+    @discardableResult public mutating func acceptAsk(requestID:String,stage:MailWorkflowStage,summary:String,coverage:[AskDot.Coverage]?=nil,sources given:[AskDot.Source]?=nil,now:Date=Date()) -> Bool {
         guard let index=asks?.firstIndex(where:{$0.requestID == requestID}) else { return false }
         switch stage {
         case .ready:
-            let (answer,sources)=AskDot.parse(summary)
-            asks?[index].answer=answer; asks?[index].sources=sources; asks?[index].state = .answered; asks?[index].answeredAt=now; asks?[index].unread=true
+            let (answer,parsed)=AskDot.parse(summary)
+            let sources=given ?? parsed
+            asks?[index].answer=answer; asks?[index].sources=sources; asks?[index].state = .answered; asks?[index].answeredAt=now; asks?[index].unread=true; asks?[index].coverage=coverage
         case .failed,.awaitingInput:
             asks?[index].state = .failed; asks?[index].failure=summary.trimmingCharacters(in:.whitespacesAndNewlines); asks?[index].answeredAt=now; asks?[index].unread=true
         default: break

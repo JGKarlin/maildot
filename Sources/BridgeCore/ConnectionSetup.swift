@@ -56,11 +56,14 @@ public enum ConnectionSetup {
         let agentArguments: [String]
         let test: Bool
         static func current(_ environment: [String: String] = ProcessInfo.processInfo.environment) -> Target {
+            // The test target exists in debug builds only (review of build 170, L1).
+            #if DEBUG
             if let home = environment["MAILDOT_SETUP_HOME"], home.hasPrefix("/") {
                 return Target(paths: RuntimeSetup.Paths(home: URL(fileURLWithPath: home, isDirectory: true)),
                               keyService: environment["MAILDOT_KEY_SERVICE"] ?? RuntimeSetup.keyService + ".test",
                               agentArguments: environment["MAILDOT_SETUP_STORE"].map { ["--store", $0] } ?? [], test: true)
             }
+            #endif
             return Target(paths: RuntimeSetup.Paths(home: FileManager.default.homeDirectoryForCurrentUser),
                           keyService: RuntimeSetup.keyService, agentArguments: [], test: false)
         }
@@ -187,7 +190,10 @@ public enum SetupThroughDot {
     public static func connectionName(user: String = NSUserName()) -> String { "Mail Dot (\(user))" }
 
     /// Dot's reports, oldest first, from the helper's store.
-    public struct Report: Decodable, Equatable, Sendable { public let at: String; public let step: String; public let note: String }
+    public struct Report: Decodable, Equatable, Sendable {
+        public let at: String; public let step: String; public let note: String
+        public init(at: String, step: String, note: String = "") { self.at = at; self.step = step; self.note = note }
+    }
     public static func reports(in store: URL) -> [Report] {
         (try? JSONDecoder().decode([Report].self, from: Data(contentsOf: store.appendingPathComponent("setup-progress.json")))) ?? []
     }

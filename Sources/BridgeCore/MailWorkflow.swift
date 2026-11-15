@@ -111,6 +111,10 @@ public struct MailWorkflowReport:Codable,Sendable {
     public var question:String?
     public var readback:MailWorkflowReadback?
     public var composition:MailWorkflowComposition?
+    /// For an answer to the owner's question: what was searched in each account asked about.
+    public var coverage:[AskDot.Coverage]?
+    /// For an answer to the owner's question: the messages it cites.
+    public var sources:[AskDot.Source]?
     public init(requestID:String,expectedRevision:Int,stage:MailWorkflowStage,summary:String,items:[MailWorkflowItem],question:String?=nil) {
         self.requestID=requestID; self.expectedRevision=expectedRevision; self.stage=stage
         self.summary=summary; self.items=items; self.question=question

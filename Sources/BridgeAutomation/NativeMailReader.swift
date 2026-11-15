@@ -10,7 +10,7 @@ public protocol NativeMailReading:Sendable {
     func readMessage(accountID:String,mailbox:NativeMailbox,messageID:Int,expectedFingerprint:String) async throws -> NativeMailBody
 }
 
-public actor NativeMailReader:NativeMailReading {
+public actor NativeMailReader:NativeMailReading,MailIndexReading {
     private let automation=MailAutomation()
     private let authorize:@Sendable () throws -> Void
     private let operationDeadline:Date?
@@ -78,8 +78,46 @@ public actor NativeMailReader:NativeMailReading {
         let result=try await invoke("readbody",arguments:arguments)
         guard result.numberOfItems == 2,let metadata=result.atIndex(1),let text=result.atIndex(2)?.stringValue else { throw BridgeFailure("Mail returned incomplete message content.") }
         let after=try decode(metadata,mailboxID:mailbox.id)
-        guard before == after else { throw BridgeFailure("The message or read flag changed during reading. Inspect Mail; no content was shared.") }
+        // Compared without the read flag: the owner may open the message while Dot reads it.
+        guard before.fingerprint == after.fingerprint else { throw BridgeFailure("The message changed during reading. Inspect Mail; no content was shared.") }
         return try NativeMailBody(message:after,text:text,expectedFingerprint:expectedFingerprint)
+    }
+    /// Mail's ids and Message-IDs of the messages a folder received in a stretch of time, for the search index.
+    public func indexList(accountID:String,mailbox:NativeMailbox,since:Date,until:Date) async throws -> MailIndexListing {
+        try mailbox.validate()
+        guard mailbox.accountID == accountID,until > since else { throw BridgeFailure("Mailbox belongs to another account.") }
+        try await requireAvailable()
+        let result=try await invoke("indexlist",arguments:[.init(string:accountID),list(mailbox.path),.init(date:since),.init(date:until),.init(int32:Int32(Self.listLimit))])
+        guard result.numberOfItems == 3,let count=result.atIndex(1),let ids=result.atIndex(2),let headers=result.atIndex(3),
+              ids.descriptorType == typeAEList,headers.descriptorType == typeAEList else { throw BridgeFailure("Mail returned an incomplete listing.") }
+        let total=Int(count.int32Value)
+        guard total >= 0 else { throw BridgeFailure("Mail returned an incomplete listing.") }
+        if total > Self.listLimit { return MailIndexListing(count:total,entries:nil) }
+        guard ids.numberOfItems == total,headers.numberOfItems == total else { throw BridgeFailure("Mail returned an incomplete listing.") }
+        // A message without a Message-ID is listed with an empty one and left out of the index.
+        return MailIndexListing(count:total,entries:(0..<total).map { index in
+            .init(id:Int(ids.atIndex(index+1)?.int32Value ?? -1),messageID:headers.atIndex(index+1)?.stringValue ?? "")
+        })
+    }
+    /// The most messages one listing carries.
+    public static let listLimit=500
+    /// Reads a few listed messages for the search index; returns those Mail finished within about three seconds.
+    public func indexRead(accountID:String,mailbox:NativeMailbox,ids:[Int]) async throws -> [MailIndexRead] {
+        try mailbox.validate()
+        guard mailbox.accountID == accountID,(1...12).contains(ids.count),ids.allSatisfy({ $0 >= 0 && $0 <= Int32.max }) else { throw BridgeFailure("Select listed messages in the authorized mailbox.") }
+        try await requireAvailable()
+        let wanted=NSAppleEventDescriptor.list()
+        for (index,id) in ids.enumerated() { wanted.insert(.init(int32:Int32(id)),at:index+1) }
+        let result=try await invoke("indexread",arguments:[.init(string:accountID),list(mailbox.path),wanted,.init(int32:3)])
+        guard result.descriptorType == typeAEList,result.numberOfItems <= ids.count else { throw BridgeFailure("Mail returned an incomplete read.") }
+        return (0..<result.numberOfItems).compactMap { index -> MailIndexRead? in
+            guard let row=result.atIndex(index+1),row.numberOfItems == 4,let id=row.atIndex(1).map({ Int($0.int32Value) }),ids.contains(id) else { return nil }
+            // One message Mail describes oddly is passed over; it does not cost the others.
+            guard let metadata=row.atIndex(2),metadata.descriptorType == typeAEList,let message=try? decode(metadata,mailboxID:mailbox.id),message.id == id else {
+                return MailIndexRead(id:id,message:nil,text:"")
+            }
+            return MailIndexRead(id:id,message:message,text:NativeMailBody.cut(row.atIndex(3)?.stringValue ?? ""),leftOut:row.atIndex(4)?.booleanValue ?? false)
+        }
     }
     private func decode(_ row:NSAppleEventDescriptor,mailboxID:String) throws -> NativeMailMessage {
         guard row.descriptorType == typeAEList,row.numberOfItems == 11,let date=row.atIndex(5)?.dateValue else { throw BridgeFailure("Mail returned incomplete message metadata.") }
@@ -272,12 +310,84 @@ public actor NativeMailReader:NativeMailReading {
                     my checkdeadline()
                     set bodyText to content of selectedMessage as text
                     my checkdeadline()
-                    if (length of bodyText) > 65536 then error "This message's text is longer than Mail Dot can share (64 KiB). No body was read."
+                    -- Only so that a very long text is not carried whole; the limit itself is counted once, in bytes, by Mail Dot.
+                    if (length of bodyText) > 70000 then set bodyText to text 1 thru 70000 of bodyText
                 end tell
                 set finalMessage to my scopedmessage(targetID, boxPath, messageID)
                 return {my metadatarecord(finalMessage, targetID), bodyText}
             end timeout
         end readbody
+        on indexlist(targetID, boxPath, fromDate, untilDate, listLimit, deadlineValue)
+            set my readDeadline to deadlineValue
+            with timeout of 15 seconds
+                set selectedBox to my resolvebox(targetID, boxPath)
+                tell application "Mail"
+                    my checkdeadline()
+                    try
+                        set localIDs to id of (messages of selectedBox whose date received is greater than or equal to fromDate and date received is less than untilDate)
+                    on error errorText number errorNumber
+                        -- Only an empty stretch may be answered with nothing: the count is asked again the plain way.
+                        if errorNumber is -1712 or errorNumber is -128 then error errorText number errorNumber
+                        my checkdeadline()
+                        set plainCount to count of (messages of selectedBox whose date received is greater than or equal to fromDate and date received is less than untilDate)
+                        if plainCount is not 0 then error errorText number errorNumber
+                        set localIDs to {}
+                    end try
+                    if class of localIDs is not list then set localIDs to {localIDs}
+                    set matchingCount to count of localIDs
+                    if matchingCount is 0 or matchingCount > listLimit then return {matchingCount, {}, {}}
+                    my checkdeadline()
+                    set headerIDs to message id of (messages of selectedBox whose date received is greater than or equal to fromDate and date received is less than untilDate)
+                    if class of headerIDs is not list then set headerIDs to {headerIDs}
+                end tell
+                if (count of headerIDs) is not matchingCount then error "The mailbox changed while it was listed."
+                return {matchingCount, localIDs, headerIDs}
+            end timeout
+        end indexlist
+        on indexread(targetID, boxPath, wantedIDs, softSeconds, deadlineValue)
+            set my readDeadline to deadlineValue
+            set stopAt to (current date) + softSeconds
+            with timeout of 10 seconds
+                if (count of wantedIDs) < 1 or (count of wantedIDs) > 12 then error "Invalid read batch."
+                set selectedBox to my resolvebox(targetID, boxPath)
+                set rows to {}
+                repeat with wantedRef in wantedIDs
+                    -- Stops early when time is short; what is left is asked for again.
+                    if (count of rows) > 0 and (current date) > stopAt then exit repeat
+                    set wantedID to contents of wantedRef
+                    my checkdeadline()
+                    tell application "Mail" to set matches to messages of selectedBox whose id is wantedID
+                    if (count of matches) is not 1 then
+                        set end of rows to {wantedID, false, "", false}
+                    else
+                        set theMessage to item 1 of matches
+                        set metadataRow to false
+                        try
+                            set metadataRow to my metadatarecord(theMessage, targetID)
+                        on error errorText number errorNumber
+                            if errorNumber is -1712 or errorNumber is -128 then error errorText number errorNumber
+                        end try
+                        set bodyText to ""
+                        if metadataRow is not false then
+                            try
+                                tell application "Mail" to set bodyText to content of theMessage as text
+                                if (length of bodyText) > 70000 then set bodyText to text 1 thru 70000 of bodyText
+                            on error
+                                -- A message whose text Mail cannot give is indexed by its subject and people alone.
+                                set bodyText to ""
+                            end try
+                        end if
+                        -- Junk and deleted mail is reported as such and left out of the index.
+                        set leftOut to false
+                        try
+                            tell application "Mail" to set leftOut to (deleted status of theMessage) or (junk mail status of theMessage)
+                        end try
+                        set end of rows to {wantedID, metadataRow, bodyText, leftOut}
+                    end if
+                end repeat
+                return rows
+            end timeout
+        end indexread
     end using terms from
     """#
 }

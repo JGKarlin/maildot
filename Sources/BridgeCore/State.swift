@@ -92,6 +92,9 @@ public struct ReplyContext: Codable, Identifiable, Sendable {
     /// What Mail Dot last typed at the top of the message: Dot's reply and any blank space after it. A later
     /// revision replaces exactly this, and nothing else of the message.
     public var insertedTop: String?
+    /// When Dot last read this reply with the owner's request. A draft from a run that read it before the owner's latest
+    /// words (Tell Dot, or an answer) is not taken: those words take priority (owner decision, 15 November 2026).
+    public var dotReadAt: Date?
     /// The message below Dot's reply: all of it, when nothing has been inserted yet.
     public var bodyBelowReply: String? {
         guard let body = snapshot?.body else { return nil }
@@ -109,6 +112,7 @@ public struct ReplyContext: Codable, Identifiable, Sendable {
         value.answerDrafts = nil
         value.filesAttachedRevision = nil
         value.lastToCorrespondent = nil; value.lastToCorrespondentAt = nil
+        value.dotReadAt = nil
         return value
     }
 

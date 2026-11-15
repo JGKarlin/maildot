@@ -54,11 +54,20 @@ final class NativeMailReaderTests:XCTestCase {
         changed=message; changed.mailboxID=NativeMailbox(accountID:"other",path:["Inbox"]).id
         XCTAssertNotEqual(changed.fingerprint,message.fingerprint)
         changed=message; changed.isRead=true
-        XCTAssertNotEqual(changed.fingerprint,message.fingerprint)
+        XCTAssertEqual(changed.fingerprint,message.fingerprint,"opening a message does not make it another message")
     }
     func testNativeBodyLimitAndExpectedIdentityAreChecked() throws {
         let message=NativeMailMessage(id:1,mailboxID:"box",headerID:"fixture",subject:"Synthetic",sender:"sender@example.invalid",receivedAt:Date(),isRead:false,size:100,to:[],cc:[],bcc:[],attachmentCount:0)
-        XCTAssertThrowsError(try NativeMailBody(message:message,text:String(repeating:"x",count:65_537),expectedFingerprint:message.fingerprint))
+        // Text over the limit is cut at the limit and marked, in bytes, on a whole character.
+        let long=try NativeMailBody(message:message,text:String(repeating:"x",count:65_537),expectedFingerprint:message.fingerprint)
+        XCTAssertEqual(long.text.utf8.count,65_536); XCTAssertTrue(long.textTruncated)
+        let japanese=try NativeMailBody(message:message,text:String(repeating:"日本語",count:10_000),expectedFingerprint:message.fingerprint)
+        XCTAssertLessThanOrEqual(japanese.text.utf8.count,65_536); XCTAssertGreaterThan(japanese.text.utf8.count,65_530); XCTAssertTrue(japanese.textTruncated)
+        XCTAssertTrue(String(repeating:"日本語",count:10_000).hasPrefix(japanese.text))
+        // A large raw message with short text is read: its size is its attachments, not its words.
+        var heavy=message; heavy.size=9_000_000
+        let read=try NativeMailBody(message:heavy,text:"Short text.",expectedFingerprint:heavy.fingerprint)
+        XCTAssertEqual(read.text,"Short text."); XCTAssertFalse(read.textTruncated)
         XCTAssertThrowsError(try NativeMailBody(message:message,text:"Synthetic",expectedFingerprint:"stale"))
         XCTAssertNoThrow(try NativeMailBody(message:message,text:"Synthetic",expectedFingerprint:message.fingerprint))
     }

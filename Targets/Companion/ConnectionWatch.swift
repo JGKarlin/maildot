@@ -20,14 +20,17 @@ import BridgeAutomation
         // Asked only while Mail is open: the question is never allowed to start Mail.
         let mailStatus:Int32?=mailRunning ? await MailAutomation().permissionStatus() : nil
         let chatGPT=chatGPTState()
-        let tunnel=tunnelConnected(bridge)
+        let tunnel=listening(bridge)
         let accessibility=AXIsProcessTrusted()
+        // Looked at only while search by meaning is on: the look itself is what lists Mail Dot under Full Disk Access.
+        let meaning=(try? MailSettingsStore(bridgeDirectory:bridge.directory).read())?.searchByMeaningAnywhere == true
+        let diskAccess:Bool?=meaning ? MailFiles.access(home:FileManager.default.homeDirectoryForCurrentUser) == .granted : nil
         // One save: the findings, and the owner's button taken so that it is acted on once.
         guard let taken=try? store.transaction({ state -> (ConnectionState,ConnectionState.Request?) in
             var found=state.connection ?? ConnectionState()
             let before=found,request=found.request
             if mailStatus == 0 { found.mail = .allowed } else if mailStatus == -1743 || mailStatus == -1744 { found.mail = .notAllowed }
-            found.accessibility=accessibility; found.chatGPT=chatGPT; found.tunnelConnected=tunnel; found.request=nil
+            found.accessibility=accessibility; found.chatGPT=chatGPT; found.tunnelConnected=tunnel; found.fullDiskAccess=diskAccess; found.request=nil
             if found != before { state.connection=found }
             return (found,request)
         }) else { return }
@@ -42,7 +45,7 @@ import BridgeAutomation
         return NSRunningApplication.runningApplications(withBundleIdentifier:DotCallLauncher.chatGPTBundleID).contains{ !$0.isTerminated } ? .open : .closed
     }
     /// Dot in the cloud can be told of requests: the tunnel answers and Dot holds a live subscription to them.
-    private static func tunnelConnected(_ bridge:BridgeStore) -> Bool {
+    static func listening(_ bridge:BridgeStore) -> Bool {
         guard let data=try? Data(contentsOf:bridge.directory.appendingPathComponent("background-status.json")),
               let status=try? JSONSerialization.jsonObject(with:data) as? [String:Any],status["connected"] as? Bool == true,
               Date().timeIntervalSince1970-(status["updatedAt"] as? Double ?? 0) < 60,
@@ -71,6 +74,8 @@ import BridgeAutomation
         case .openChatGPT:
             guard let app=NSWorkspace.shared.urlForApplication(withBundleIdentifier:DotCallLauncher.chatGPTBundleID) else { return }
             _ = try? await NSWorkspace.shared.openApplication(at:app,configuration:NSWorkspace.OpenConfiguration())
+        case .openFullDiskAccess:
+            open(pane:"Privacy_AllFiles")
         case .askDotToListen:
             break   // no longer offered: Dot is not asked to work on this Mac
         }

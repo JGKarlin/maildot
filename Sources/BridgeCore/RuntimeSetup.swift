@@ -130,7 +130,10 @@ public enum RuntimeSetup {
         return SecItemCopyMatching(probe as CFDictionary, nil) == errSecSuccess
     }
 
-    public static func deleteKey(service: String = keyService) {
+    /// Deletes the saved key. False when a key is still there afterwards: this copy of Mail Dot may not have the
+    /// right to delete an item an earlier setup saved, and the owner is then told (review of build 170, M8).
+    @discardableResult public static func deleteKey(service: String = keyService) -> Bool {
         SecItemDelete(query(service) as CFDictionary)
+        return !hasKey(service: service)
     }
 }

@@ -4,9 +4,16 @@ import Security
 
 /// launchd supervises this process; exec preserves its PID and signal ownership.
 @main struct RuntimeMain {
-    /// The runtime folder and the Keychain item; a test of setup names others (see ConnectionSetup).
-    static let directory=option("--runtime-dir").map{ URL(fileURLWithPath:$0,isDirectory:true) } ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/Mail Dot/Runtime")
+    /// The runtime folder and the Keychain item. A test of setup names others (see ConnectionSetup), in debug builds
+    /// only: in a release the helper serves the one folder and the one key (review of build 170, L1).
+    #if DEBUG
+    static let directory=option("--runtime-dir").map{ URL(fileURLWithPath:$0,isDirectory:true) } ?? standardDirectory
     static let keyService=option("--key-service") ?? "org.jgkarlin.MailBridge.tunnel-key"
+    #else
+    static let directory=standardDirectory
+    static let keyService="org.jgkarlin.MailBridge.tunnel-key"
+    #endif
+    static let standardDirectory=FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/Mail Dot/Runtime",isDirectory:true)
     static let statusFile=directory.appendingPathComponent("runtime-status.json")
     static func option(_ name:String) -> String? {
         guard let index=CommandLine.arguments.firstIndex(of:name),CommandLine.arguments.indices.contains(index+1) else { return nil }
@@ -46,6 +53,14 @@ import Security
             let trimmed=command.trimmingCharacters(in:.whitespaces)
             let agent=trimmed.hasPrefix("\"") ? String(trimmed.dropFirst().prefix{ $0 != "\"" }) : String(trimmed.prefix{ $0 != " " })
             if agent.hasPrefix("/"),!FileManager.default.isExecutableFile(atPath:agent) { stop("moved") }
+            #if !DEBUG
+            // The key is handed only to a connection that is Mail Dot's own: OpenAI's address, and the agent that
+            // sits beside this helper. A profile that names another address or another program is refused.
+            // Where this helper really is: launchd starts it by a path relative to the app, so its first argument does not say.
+            let beside=(Bundle.main.executableURL ?? URL(fileURLWithPath:CommandLine.arguments[0])).resolvingSymlinksInPath().deletingLastPathComponent().appendingPathComponent("MailDotAgent").path
+            let address=((profile["control_plane"] as? [String:Any])?["base_url"] as? String)?.trimmingCharacters(in:CharacterSet(charactersIn:"/ "))
+            if address != "https://api.openai.com" || URL(fileURLWithPath:agent).resolvingSymlinksInPath().path != beside || commands.count != 1 { stop("configuration") }
+            #endif
         }
         unlink(statusFile.path)
         let args=[clientPath,"run","--profile-file",config.profilePath,"--control-plane.api-key",keyArgument,"--mcp.stdio-failure-policy","restart","--health.listen-addr","127.0.0.1:0","--health.url-file",directory.appendingPathComponent("health.url").path]

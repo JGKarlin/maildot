@@ -97,6 +97,30 @@ final class ToolCallLogTests: XCTestCase {
         XCTAssertEqual(mode?.intValue, 0o600)
     }
 
+    func testCallsCarryTheRequestTheyBelongToAndNothingElseACallerSupplies() async throws {
+        let root = root(), mirror = root.appendingPathComponent("Logs/tool-calls.log")
+        let router = MCPRouter(store: BridgeStore(directory: root), statelessTunnel: true, callLogMirror: mirror)
+        let id = UUID().uuidString
+        _ = try await send(router, method: "tools/call", params: ["name":"bridge_status", "arguments":[:]])
+        _ = try await send(router, method: "tools/call", params: ["name":"get_mail_workflow", "arguments":["request_id":.string(id.lowercased())]])
+        _ = try await send(router, method: "tools/call", params: ["name":"native_mail_search", "arguments":["account_id":"MARKER-ACCOUNT", "words":["MARKER-WORD"]]])
+        _ = try await send(router, method: "tools/call", params: ["name":"report_mail_workflow", "arguments":["report":["requestID":.string(id), "expectedRevision":0, "stage":"ready", "summary":"MARKER-SUMMARY", "items":[]]]])
+        _ = try await send(router, method: "tools/call", params: ["name":"bridge_status", "arguments":[:]])
+        _ = try await send(router, method: "tools/call", params: ["name":"get_mail_workflow", "arguments":["request_id":"MARKER-NOT-AN-ID"]])
+        let log = ToolCallLogStore(bridgeDirectory: root)
+        XCTAssertEqual(try log.read().map(\.request), [nil, id, id, id, nil, nil])
+        let cost = try log.cost(of: id)
+        XCTAssertEqual(cost.perTool, ["get_mail_workflow":1, "native_mail_search":1, "report_mail_workflow":1])
+        XCTAssertGreaterThanOrEqual(cost.seconds, 0)
+        let text = try String(contentsOf: mirror, encoding: .utf8)
+        XCTAssertTrue(text.contains(" request=\(id)"))
+        XCTAssertFalse(text.contains("MARKER"))
+        XCTAssertFalse(String(decoding: try Data(contentsOf: root.appendingPathComponent("CallLog/calls.json")), as: UTF8.self).contains("MARKER"))
+        // Records written before requests were noted still load.
+        let old = try JSONDecoder().decode([ToolCallRecord].self, from: Data(#"[{"at":0,"method":"tools/call","tool":"bridge_status","outcome":"ok"}]"#.utf8))
+        XCTAssertNil(old[0].request)
+    }
+
     func testLogKeepsOnlyTheNewestRecords() throws {
         let store = ToolCallLogStore(bridgeDirectory: root())
         let start = Date(timeIntervalSince1970: 1_800_000_000)

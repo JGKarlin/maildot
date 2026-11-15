@@ -6,6 +6,10 @@
     <conclusion file="conclusion.html" mime-type="text/html"/>
     <!-- Apple silicon only: the tunnel client OpenAI publishes, which Mail Dot carries, is built for arm64 alone. -->
     <options customize="never" require-scripts="false" hostArchitectures="arm64"/>
+    <!-- The app needs macOS 14. On an older system the Installer says so itself and installs nothing. -->
+    <allowed-os-versions>
+        <os-version min="14.0"/>
+    </allowed-os-versions>
     <domains enable_localSystem="true"/>
     <choices-outline>
         <line choice="default"/>

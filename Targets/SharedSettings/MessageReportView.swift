@@ -67,12 +67,14 @@ import BridgeCore
     // MARK: The list of Dot's reports
 
     /// Always at the top: the way back to the list, how many reports stand where, and Next.
-    private var topBar:some View {
+    @ViewBuilder private var topBar:some View {
+        if showingSettings {
+            MailDotSettingsBar(returnsTo:Text("Dot’s reports")) { showingSettings=false }.padding(.horizontal,14).padding(.vertical,9)
+        } else { reportsBar }
+    }
+    private var reportsBar:some View {
         HStack(spacing:7) {
-            if showingSettings {
-                Image(systemName:"at.circle.fill").foregroundStyle(MailDotStyle.brand)
-                Text("Mail Dot Settings").font(.headline)
-            } else if listing || shownID == nil {
+            if listing || shownID == nil {
                 Image(systemName:"at.circle.fill").foregroundStyle(MailDotStyle.brand)
                 Text("Dot’s reports").font(.headline)
             } else {
@@ -83,8 +85,8 @@ import BridgeCore
             ForEach([MailUpdateStatus.awaitingInstruction,.draftedQueued,.draftedSent],id:\.self) { status in
                 Pill(text:"\(count(status)) \(short(status))",color:count(status) == 0 ? .secondary : color(status)).help(status.title)
             }
-            Button { showingSettings.toggle() } label: { Image(systemName:showingSettings ? "checkmark.circle" : "gearshape") }
-                .buttonStyle(.borderless).help(showingSettings ? "Back to Dot’s reports" : "Mail Dot Settings").accessibilityLabel(showingSettings ? "Done" : "Mail Dot Settings")
+            Button { showingSettings=true } label: { Image(systemName:"gearshape") }
+                .buttonStyle(.borderless).help("Mail Dot Settings").accessibilityLabel("Mail Dot Settings")
             Button { next() } label: { Label("Next",systemImage:"chevron.right").labelStyle(.titleAndIcon) }
                 .controlSize(.small).keyboardShortcut("n",modifiers:[]).disabled(queue.isEmpty || discussing || confirming).help("The next of Dot’s reports")
         }.padding(.horizontal,14).padding(.vertical,9)
@@ -105,13 +107,13 @@ import BridgeCore
         } else {
             ScrollView {
                 VStack(alignment:.leading,spacing:14) {
-                    if recordID == nil { Text("Dot has not reported on the message you opened this from. These are its reports on other messages.").font(.callout).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true) }
+                    if recordID == nil { Text("Dot has not reported on the message you opened this from. These are its reports on other messages.").font(.callout).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true) }
                     ForEach(queue,id:\.status) { group in
                         VStack(alignment:.leading,spacing:4) {
                             HStack(spacing:6) {
                                 Circle().fill(color(group.status)).frame(width:7,height:7)
-                                Text(group.status.title.uppercased()).font(.caption.weight(.semibold)).foregroundStyle(.secondary).kerning(0.5)
-                                Text("\(group.entries.count)").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                                Text(group.status.title.uppercased()).font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting).kerning(0.5)
+                                Text("\(group.entries.count)").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting)
                             }
                             ForEach(group.entries) { item in row(item) }
                         }
@@ -129,9 +131,9 @@ import BridgeCore
                         Text(item.record.update.title).fontWeight(item.record.unread ? .semibold : .regular).lineLimit(2).multilineTextAlignment(.leading)
                         if item.id == recordID { Pill(text:String(localized:"This message"),color:MailDotStyle.tint) }
                     }
-                    Text([item.shown.sender,item.shown.gist].compactMap{$0}.joined(separator:" — ")).font(.callout).foregroundStyle(.secondary).lineLimit(2).multilineTextAlignment(.leading)
+                    Text([item.shown.sender,item.shown.gist].compactMap{$0}.joined(separator:" — ")).font(.callout).foregroundStyle(MailDotStyle.supporting).lineLimit(2).multilineTextAlignment(.leading)
                     if item.shown.needsOwner || item.pending != nil {
-                        Text(item.pending?.text ?? String(localized:"Dot needs something from you")).font(.caption.weight(.semibold)).foregroundStyle(item.pending?.failed == true ? Color.red : item.pending == nil ? Color.orange : Color.secondary)
+                        Text(item.pending?.text ?? String(localized:"Dot needs something from you")).font(.caption.weight(.semibold)).foregroundStyle(item.pending?.failed == true ? MailDotStyle.dangerText : item.pending == nil ? MailDotStyle.warningText : MailDotStyle.supporting)
                     }
                 }
                 Spacer(minLength:4)
@@ -148,15 +150,15 @@ import BridgeCore
         VStack(spacing:10) {
             Image(systemName:"at.circle.fill").font(.system(size:34)).foregroundStyle(MailDotStyle.brand)
             Text(title).font(.headline)
-            if let detail { Text(detail).font(.callout).foregroundStyle(.secondary).multilineTextAlignment(.center).fixedSize(horizontal:false,vertical:true) }
+            if let detail { Text(detail).font(.callout).foregroundStyle(MailDotStyle.supporting).multilineTextAlignment(.center).fixedSize(horizontal:false,vertical:true) }
         }.padding(28).frame(maxWidth:.infinity,maxHeight:.infinity)
     }
     private var footer:some View {
         HStack(spacing:8) {
             commands
-            if let line { Text(line.text).font(.caption).foregroundStyle(line.failed ? Color.red : Color.secondary).lineLimit(2) }
+            if let line { Text(line.text).font(.caption).foregroundStyle(line.failed ? MailDotStyle.dangerText : MailDotStyle.supporting).lineLimit(2) }
             Spacer()
-            Text(MailDotVersion.text).font(.caption).foregroundStyle(.tertiary)
+            Text(MailDotVersion.text).font(.caption).foregroundStyle(MailDotStyle.supporting)
         }.padding(.horizontal,14).padding(.vertical,10)
     }
     private func show(_ id:String) {
@@ -186,27 +188,27 @@ import BridgeCore
             VStack(alignment:.leading,spacing:5) {
                 HStack(spacing:8) {
                     Image(systemName:"at.circle.fill").foregroundStyle(MailDotStyle.brand)
-                    Text("Dot’s report").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                    Text("Dot’s report").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting)
                     Pill(text:shown.status.title,color:color(shown.status))
                     Spacer(minLength:0)
                 }
                 Text(entry.record.update.title).font(.title3.bold()).textSelection(.enabled).fixedSize(horizontal:false,vertical:true)
                 if entry.id != recordID {
                     HStack(alignment:.firstTextBaseline,spacing:8) {
-                        Text(String(localized:"On another message")+(shown.sender.map{String(localized:", from \($0)")} ?? "")+(shown.receivedAt.map{String(localized:", received \($0.formatted(date:.abbreviated,time:.shortened))")} ?? "")).font(.callout).foregroundStyle(.secondary).lineLimit(2)
+                        Text(String(localized:"On another message")+(shown.sender.map{String(localized:", from \($0)")} ?? "")+(shown.receivedAt.map{String(localized:", received \($0.formatted(date:.abbreviated,time:.shortened))")} ?? "")).font(.callout).foregroundStyle(MailDotStyle.supporting).lineLimit(2)
                         if let id=entry.messageID { Button("Open Message") { openMessage(id) }.controlSize(.small).keyboardShortcut("o",modifiers:[]).disabled(discussing || confirming).help("Open that message in Mail") }
                     }
                 }
             }
-            if entry.record.dismissedByOwner { Label("You ignored this report. The message stays in Mail.",systemImage:"nosign").foregroundStyle(.secondary) }
+            if entry.record.dismissedByOwner { Label("You ignored this report. The message stays in Mail.",systemImage:"nosign").foregroundStyle(MailDotStyle.supporting) }
             section(String(localized:"Summary")) {
                 ForEach(Array(shown.points.enumerated()),id:\.offset) { _,point in
                     if shown.points.count > 1 {
-                        HStack(alignment:.firstTextBaseline,spacing:7) { Text("•").foregroundStyle(.secondary); Text(point).textSelection(.enabled).fixedSize(horizontal:false,vertical:true) }
+                        HStack(alignment:.firstTextBaseline,spacing:7) { Text("•").foregroundStyle(MailDotStyle.supporting); Text(point).textSelection(.enabled).fixedSize(horizontal:false,vertical:true) }
                     } else { Text(point).textSelection(.enabled).fixedSize(horizontal:false,vertical:true) }
                 }
                 if !shown.unverified.isEmpty {
-                    (Text("Not verified: ").bold().foregroundStyle(.orange)+Text(shown.unverified.joined(separator:"; ")+".").foregroundStyle(.secondary)).fixedSize(horizontal:false,vertical:true)
+                    (Text("Not verified: ").bold().foregroundStyle(MailDotStyle.warningText)+Text(shown.unverified.joined(separator:"; ")+".").foregroundStyle(MailDotStyle.supporting)).fixedSize(horizontal:false,vertical:true)
                 }
             }
             if let decision=shown.decision { decisionSection(entry,decision) }
@@ -229,9 +231,9 @@ import BridgeCore
                 section(String(localized:"Reply draft")) {
                     box {
                         Text(String(localized:"To \(draft.to.joined(separator:", "))")+" · "+(shown.status == .draftedSent ? String(localized:"Sent") : draft.delivery == .send ? String(localized:"Sends after one confirmation on this Mac") : String(localized:"Saved in Mail Drafts")))
-                            .font(.caption).foregroundStyle(.secondary)
+                            .font(.caption).foregroundStyle(MailDotStyle.supporting)
                         Text(draft.preview).textSelection(.enabled).fixedSize(horizontal:false,vertical:true)
-                        if !draft.attachments.isEmpty { Text(draft.attachments.map{"📎 "+$0}.joined(separator:"   ")).font(.caption).foregroundStyle(.secondary) }
+                        if !draft.attachments.isEmpty { Text(draft.attachments.map{"📎 "+$0}.joined(separator:"   ")).font(.caption).foregroundStyle(MailDotStyle.supporting) }
                     }
                 }
             }
@@ -242,7 +244,7 @@ import BridgeCore
                             Image(systemName:item.state == .done ? "checkmark.circle.fill" : item.state == .needsOwner ? "questionmark.circle.fill" : "clock.fill").foregroundStyle(color(item.state))
                             VStack(alignment:.leading,spacing:1) {
                                 Text(item.text).textSelection(.enabled).fixedSize(horizontal:false,vertical:true)
-                                Text(item.sourceTitle).font(.caption).foregroundStyle(.secondary)
+                                Text(item.sourceTitle).font(.caption).foregroundStyle(MailDotStyle.supporting)
                             }
                         }
                     }
@@ -250,16 +252,16 @@ import BridgeCore
             }
             DisclosureGroup("How Dot checked") {
                 Text(entry.record.update.coverage+" "+String(localized:"Checked \(entry.record.update.checkedAt.formatted(date:.abbreviated,time:.shortened))."))
-                    .font(.callout).foregroundStyle(.secondary).textSelection(.enabled).frame(maxWidth:.infinity,alignment:.leading)
-            }.font(.callout).foregroundStyle(.secondary)
+                    .font(.callout).foregroundStyle(MailDotStyle.supporting).textSelection(.enabled).frame(maxWidth:.infinity,alignment:.leading)
+            }.font(.callout).foregroundStyle(MailDotStyle.supporting)
             if !shown.structured {
-                Text("Dot wrote this report as one block of text. Once Dot’s tool list is refreshed in ChatGPT, its reports arrive here with numbered options and its work listed.").font(.caption).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
+                Text("Dot wrote this report as one block of text. Once Dot’s tool list is refreshed in ChatGPT, its reports arrive here with numbered options and its work listed.").font(.caption).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true)
             }
         }
     }
     private func section(_ title:String,@ViewBuilder _ content:()->some View) -> some View {
         VStack(alignment:.leading,spacing:6) {
-            Text(title.uppercased()).font(.caption.weight(.semibold)).foregroundStyle(.secondary).kerning(0.5)
+            Text(title.uppercased()).font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting).kerning(0.5)
             content()
         }
     }
@@ -276,13 +278,13 @@ import BridgeCore
                 let chosen=entry.owner?.chosen == option.id
                 Button { choose(entry,option) } label: {
                     HStack(alignment:.top,spacing:9) {
-                        Text("\(index+1)").font(.system(size:11,weight:.semibold)).foregroundStyle(chosen ? Color.white : Color.secondary)
+                        Text("\(index+1)").font(.system(size:11,weight:.semibold)).foregroundStyle(chosen ? Color.white : MailDotStyle.supporting)
                             .frame(width:20,height:19).background(RoundedRectangle(cornerRadius:4).fill(chosen ? MailDotStyle.tint : Color.primary.opacity(0.06)))
                             .overlay(RoundedRectangle(cornerRadius:4).stroke(chosen ? Color.clear : Color.primary.opacity(0.22)))
                         VStack(alignment:.leading,spacing:1) {
                             Text(option.label).fontWeight(.semibold)
-                            if decision.recommended == option.id { Text("Dot recommends").font(.caption2.weight(.semibold)).foregroundStyle(MailDotStyle.tint) }
-                            Text(option.detail).font(.callout).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
+                            if decision.recommended == option.id { Text("Dot recommends").font(.caption2.weight(.semibold)).foregroundStyle(MailDotStyle.linkText) }
+                            Text(option.detail).font(.callout).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true)
                         }
                         Spacer(minLength:0)
                     }
@@ -320,7 +322,7 @@ import BridgeCore
         VStack(alignment:.leading,spacing:7) {
             if let line {
                 HStack {
-                    Text(line.text).font(.callout.weight(.semibold)).foregroundStyle(line.failed ? Color.red : Color.primary).fixedSize(horizontal:false,vertical:true)
+                    Text(line.text).font(.callout.weight(.semibold)).foregroundStyle(line.failed ? MailDotStyle.dangerText : Color.primary).fixedSize(horizontal:false,vertical:true)
                     if line.undo { Button("Undo") { undo(entry) }.controlSize(.small).keyboardShortcut("z",modifiers:[]) }
                     Spacer(minLength:0)
                 }
@@ -369,7 +371,7 @@ import BridgeCore
     }
     private func discussBar(_ entry:UpdateEntry) -> some View {
         VStack(alignment:.leading,spacing:7) {
-            Text("Tell Dot what to change, or ask a question. Its answer arrives as a new version of this report.").font(.caption).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
+            Text("Tell Dot what to change, or ask a question. Its answer arrives as a new version of this report.").font(.caption).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true)
             TextField("Your words to Dot",text:$words,axis:.vertical).lineLimit(2...5).textFieldStyle(.roundedBorder).focused($typing)
             HStack {
                 Spacer()
@@ -388,7 +390,7 @@ import BridgeCore
     private func confirmBar(_ entry:UpdateEntry) -> some View {
         VStack(alignment:.leading,spacing:7) {
             Text("Send this reply to \(entry.shown.draft?.to.joined(separator:", ") ?? "its recipients")?").font(.callout.weight(.semibold)).fixedSize(horizontal:false,vertical:true)
-            Text("This is the one confirmation Mail Dot requires before Mail sends. Cancel leaves the draft queued.").font(.caption).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
+            Text("This is the one confirmation Mail Dot requires before Mail sends. Cancel leaves the draft queued.").font(.caption).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true)
             HStack {
                 Spacer()
                 Button("Cancel") { confirming=false }.keyboardShortcut(.cancelAction)

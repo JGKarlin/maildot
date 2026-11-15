@@ -370,3 +370,93 @@ final class SetupThroughDotTests: XCTestCase {
     }
 }
 
+/// Installer design review, 15 November 2026: what Set Up Mail Dot shows and when the setup entry is withdrawn.
+final class SetupFlowTests: XCTestCase {
+    private let asked = Date(timeIntervalSince1970: 1_794_700_000)
+    private func report(_ step: String, after seconds: TimeInterval, _ note: String = "") -> SetupThroughDot.Report {
+        .init(at: asked.addingTimeInterval(seconds).ISO8601Format(), step: step, note: note)
+    }
+    func testTheStepThatNeedsTheUserIsTheFirstNotDone() {
+        var facts = SetupFlow.Facts()
+        XCTAssertEqual(SetupFlow.current(facts), .accessibility)
+        facts.accessibility = true; facts.extensionOn = true
+        XCTAssertEqual(SetupFlow.current(facts), .mail, "a later step being done does not skip an earlier one")
+        facts.mailAllowed = true
+        XCTAssertEqual(SetupFlow.current(facts), .connect)
+        XCTAssertNil(SetupFlow.current(facts, reports: [report("done", after: 60)]))
+        facts.connected = true
+        XCTAssertNil(SetupFlow.current(facts))
+    }
+    func testTheConnectionStepShowsProgressThenAStallAndABlock() {
+        var facts = SetupFlow.Facts()
+        XCTAssertEqual(SetupFlow.connection(facts, askedAt: nil, reports: []), .ready)
+        facts.chatGPTInstalled = false
+        XCTAssertEqual(SetupFlow.connection(facts, askedAt: nil, reports: []), .noChatGPT)
+        facts.chatGPTInstalled = true
+        XCTAssertEqual(SetupFlow.connection(facts, askedAt: asked, reports: [], now: asked.addingTimeInterval(30)), .working(reached: 0))
+        XCTAssertEqual(SetupFlow.connection(facts, askedAt: asked, reports: [], now: asked.addingTimeInterval(180)), .stalled(last: nil))
+        // Dot skipped a report: every stage up to the last one reported counts as reached.
+        let reports = [report("started", after: 20), report("key_created", after: 100)]
+        XCTAssertEqual(SetupFlow.connection(facts, askedAt: asked, reports: reports, now: asked.addingTimeInterval(200)), .working(reached: 3))
+        XCTAssertEqual(SetupFlow.connection(facts, askedAt: asked, reports: reports, now: asked.addingTimeInterval(281)), .stalled(last: "key_created"))
+        let stopped = reports + [report("blocked", after: 120, " OpenAI asks you to sign in. ")]
+        XCTAssertEqual(SetupFlow.connection(facts, askedAt: asked, reports: stopped, now: asked.addingTimeInterval(4_000)), .blocked(note: "OpenAI asks you to sign in.", last: "key_created"))
+        // Asked to continue: the block is behind, and Dot has three minutes again.
+        let again = asked.addingTimeInterval(500)
+        XCTAssertEqual(SetupFlow.connection(facts, askedAt: again, reports: stopped, now: again.addingTimeInterval(10)), .working(reached: 3))
+        XCTAssertEqual(SetupFlow.connection(facts, askedAt: again, reports: stopped + [report("done", after: 600)], now: again.addingTimeInterval(200)), .complete)
+        facts.connected = true
+        XCTAssertEqual(SetupFlow.connection(facts, askedAt: nil, reports: []), .complete)
+    }
+    func testAskingIsRememberedAndAFirstRequestStartsOver() throws {
+        let store = FileManager.default.temporaryDirectory.appendingPathComponent("setup-\(UUID().uuidString)"); defer { try? FileManager.default.removeItem(at: store) }
+        XCTAssertNil(SetupThroughDot.askedAt(in: store))
+        try SetupThroughDot.noteAsked(in: store, fresh: true, now: asked)
+        XCTAssertEqual(SetupThroughDot.askedAt(in: store), asked)
+        _ = try ConnectionSetup.recordProgress(arguments: ["step": "started"], store: store, now: asked.addingTimeInterval(5))
+        try SetupThroughDot.noteAsked(in: store, fresh: false, now: asked.addingTimeInterval(400))
+        XCTAssertEqual(SetupThroughDot.reports(in: store).map(\.step), ["started"], "asking Dot to continue keeps what it reported")
+        try SetupThroughDot.noteAsked(in: store, fresh: true, now: asked.addingTimeInterval(800))
+        XCTAssertTrue(SetupThroughDot.reports(in: store).isEmpty)
+        SetupThroughDot.forgetAsked(in: store)
+        XCTAssertNil(SetupThroughDot.askedAt(in: store))
+    }
+    func testTheContinuationNamesWhatIsDoneAndForbidsASecondTunnel() {
+        let text = SetupThroughDot.continuation(name: "Mail Dot (tester)", completed: ["started", "tunnel_created", "key_created"])
+        XCTAssertTrue(text.contains("already done: you started the task on this computer; the tunnel exists; the key exists"))
+        XCTAssertTrue(text.contains("do not create a second tunnel"))
+        XCTAssertTrue(text.contains("\"Mail Dot (tester)\""))
+        XCTAssertTrue(SetupThroughDot.continuation(name: "Mail Dot (tester)", completed: []).contains("first check on platform.openai.com"))
+    }
+    func testTheSetupEntryDoesNotOutliveItsSetup() {
+        let written = SetupThroughDot.registering(agentPath: "/Applications/Mail Dot.app/Contents/Helpers/MailDotAgent", in: "model = \"x\"\n")
+        XCTAssertTrue(SetupThroughDot.isRegisteredForSetup(in: written))
+        XCTAssertFalse(SetupThroughDot.isRegisteredForSetup(in: "[mcp_servers.maildot]\ncommand = \"/a\"\n\n[mcp_servers.other.env]\nMAILDOT_SETUP_MODE = \"1\"\n"), "an entry not written for setup is left alone")
+        XCTAssertTrue(SetupThroughDot.shouldWithdraw(complete: true, askedAt: asked, reports: [], now: asked))
+        XCTAssertTrue(SetupThroughDot.shouldWithdraw(complete: false, askedAt: nil, reports: [], now: asked), "an entry found without a setup in progress")
+        XCTAssertFalse(SetupThroughDot.shouldWithdraw(complete: false, askedAt: asked, reports: [], now: asked.addingTimeInterval(1_700)))
+        XCTAssertTrue(SetupThroughDot.shouldWithdraw(complete: false, askedAt: asked, reports: [], now: asked.addingTimeInterval(1_801)))
+        XCTAssertTrue(SetupThroughDot.shouldWithdraw(complete: false, askedAt: asked, reports: [report("key_created", after: 1_500)], now: asked.addingTimeInterval(3_000)), "a task that keeps reporting does not keep the entry: only the owner's press counts")
+        // The setup step itself: only while the window is open, within half an hour of the press, and until it has connected once.
+        let store = FileManager.default.temporaryDirectory.appendingPathComponent("setupstep-\(UUID().uuidString)"); defer { try? FileManager.default.removeItem(at: store) }
+        XCTAssertNotNil(SetupThroughDot.refusal(in: store, now: asked), "no window, no press")
+        try? SetupThroughDot.noteAsked(in: store, fresh: true, now: asked)
+        XCTAssertNotNil(SetupThroughDot.refusal(in: store, now: asked.addingTimeInterval(5)), "pressed, but the window is not open")
+        SetupThroughDot.noteWindowOpen(in: store, now: asked.addingTimeInterval(4))
+        XCTAssertNil(SetupThroughDot.refusal(in: store, now: asked.addingTimeInterval(5)))
+        SetupThroughDot.noteWindowOpen(in: store, now: asked.addingTimeInterval(1_900))
+        XCTAssertNotNil(SetupThroughDot.refusal(in: store, now: asked.addingTimeInterval(1_901)), "the press is more than half an hour old")
+        SetupThroughDot.noteConnected(in: store, now: asked.addingTimeInterval(10)); SetupThroughDot.noteWindowOpen(in: store, now: asked.addingTimeInterval(20))
+        XCTAssertNotNil(SetupThroughDot.refusal(in: store, now: asked.addingTimeInterval(21)), "it connected once already")
+        try? SetupThroughDot.noteAsked(in: store, fresh: false, now: asked.addingTimeInterval(30)); SetupThroughDot.noteWindowOpen(in: store, now: asked.addingTimeInterval(31))
+        XCTAssertNil(SetupThroughDot.refusal(in: store, now: asked.addingTimeInterval(32)), "the owner pressed again")
+    }
+    func testTheExtensionsTabIsNamedAsMailNamesIt() {
+        let table = ["en": ["r3C.title": "Extensions", "Jv7.title": "Rules", "x.label": "Extensions"], "ja": ["r3C.title": "機能拡張", "Jv7.title": "ルール"],
+                     "fr": ["r3C.title": "Extensions", "Jv7.title": "Règles"], "de": ["Jv7.title": "Regeln"]]
+        XCTAssertEqual(MailSettingsNames.extensionsTitle(table: table, languages: ["ja-JP", "en-US"]), "機能拡張")
+        XCTAssertEqual(MailSettingsNames.extensionsTitle(table: table, languages: ["fr-CA"]), "Extensions")
+        XCTAssertEqual(MailSettingsNames.extensionsTitle(table: table, languages: ["de-DE"]), "Extensions", "a language without the tab falls back to English")
+        XCTAssertNil(MailSettingsNames.extensionsTitle(table: ["en": ["Jv7.title": "Rules"]], languages: ["en"]), "a Mail without the tab: Mail Dot presses nothing")
+    }
+}

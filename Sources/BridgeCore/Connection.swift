@@ -6,7 +6,7 @@ import Foundation
 public struct ConnectionState: Codable, Sendable, Equatable {
     public enum MailAccess: String, Codable, Sendable { case unknown, allowed, notAllowed }
     public enum ChatGPT: String, Codable, Sendable { case open, closed, notInstalled }
-    public enum Request: String, Codable, Sendable { case allowMail, openAccessibility, openChatGPT, askDotToListen }
+    public enum Request: String, Codable, Sendable { case allowMail, openAccessibility, openChatGPT, askDotToListen, openFullDiskAccess }
 
     /// Whether macOS lets Mail Dot work with Mail. Unknown until Mail has been open once since Mail Dot started.
     public var mail = MailAccess.unknown
@@ -14,6 +14,9 @@ public struct ConnectionState: Codable, Sendable, Equatable {
     public var chatGPT = ChatGPT.closed
     /// Dot in the cloud can be told of requests through the tunnel, where one is set up.
     public var tunnelConnected = false
+    /// With search by meaning on: whether macOS lets Mail Dot read the Mail folder. Absent while the option is off,
+    /// when Mail Dot does not look.
+    public var fullDiskAccess: Bool?
     /// When Mail Dot last asked Dot to listen, and how many times since a listener was last present.
     public var askedToListenAt: Date?
     public var asks = 0
@@ -27,7 +30,7 @@ public struct ConnectionState: Codable, Sendable, Equatable {
     public func asking(now: Date = Date()) -> Bool { askedToListenAt.map { now.timeIntervalSince($0) < 120 } ?? false }
     /// The same findings, whatever was asked or pressed: what decides whether to save again.
     public func sameFindings(as other: ConnectionState) -> Bool {
-        mail == other.mail && accessibility == other.accessibility && chatGPT == other.chatGPT && tunnelConnected == other.tunnelConnected
+        mail == other.mail && accessibility == other.accessibility && chatGPT == other.chatGPT && tunnelConnected == other.tunnelConnected && fullDiskAccess == other.fullDiskAccess
     }
 }
 

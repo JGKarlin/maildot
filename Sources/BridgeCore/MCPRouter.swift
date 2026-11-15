@@ -73,6 +73,17 @@ public actor MCPRouter {
         case "tools/list": return complete(["tools":.array(offered)])
         case "tools/call":
             let requestedTool = params["name"].string ?? ""
+            // The request a call names, kept only if it is an id in Mail Dot's own form and rewritten in that form;
+            // calls that name none are counted to the request last retrieved.
+            let named = [params["arguments"]["request_id"].string, params["arguments"]["report"]["requestID"].string].compactMap { $0.flatMap(UUID.init(uuidString:))?.uuidString }.first
+            if let named { requestInHand = named }
+            // Which account a search searched, kept only when it is one of the accounts the owner allowed: the
+            // identifier is then Mail Dot's own, and nothing else a caller supplies reaches the log.
+            searchedAccount = nil
+            if requestedTool == "native_mail_search", let account = params["arguments"]["account_id"].string,
+               (try? NativeMailStore(bridgeDirectory: store.directory).read().grants.contains { $0.accountID == account }) == true { searchedAccount = account }
+            let finishing = requestedTool == "report_mail_workflow" && ["ready", "failed"].contains(params["arguments"]["report"]["stage"].string ?? "")
+            defer { if finishing, named == requestInHand { requestInHand = nil } }
             do {
                 guard let name = params["name"].string, let arguments = params["arguments"].object else { throw BridgeFailure("Tool name and arguments object are required.") }
                 let value = try await call(name, arguments: arguments)
@@ -90,11 +101,16 @@ public actor MCPRouter {
         }
     }
 
+    /// The owner's request this caller last retrieved and has not finished reporting on.
+    private var requestInHand: String?
+    private var searchedAccount: String?
     private static let callLogger = Logger(subsystem: "org.jgkarlin.MailBridge", category: "ToolCalls")
     private static let recordedMethods: Set<String> = ["initialize", "server/discover", "ping", "tools/list", "tools/call", "events/list", "events/subscribe", "events/unsubscribe"]
     private static let toolNames = Set(tools.compactMap { $0["name"].string }).union([ConnectionSetup.toolName, ConnectionSetup.progressToolName])
     /// The tools this helper offers: the setup step only in a helper started for setup.
-    private var offered: [JSONValue] { ConnectionSetup.enabled ? Self.tools + [ConnectionSetup.definition, ConnectionSetup.progressDefinition] : Self.tools }
+    /// A helper started for setup offers the two setup tools and nothing else (review of build 170, M9): while
+    /// setup runs, nothing a task on this Mac calls can read mail.
+    private var offered: [JSONValue] { ConnectionSetup.enabled ? [ConnectionSetup.definition, ConnectionSetup.progressDefinition] : Self.tools }
     /// Refusals from these tools are fixed wording plus field names from the tool's own schema.
     private static let toolsWithRecordedRefusals: Set<String> = ["report_scheduled_mail_update", "get_scheduled_mail_updates"]
 
@@ -112,11 +128,10 @@ public actor MCPRouter {
             detail = String(refusal.message.prefix(240))
         }
         // The log is diagnostic. Failing to write it must never fail the request it describes.
-        try? ToolCallLogStore(bridgeDirectory: store.directory)
-            .append(ToolCallRecord(at: .now, method: loggedMethod, tool: loggedTool, outcome: outcome, detail: detail))
-        if let callLogMirror {
-            ToolCallLogStore.mirror(ToolCallRecord(at: .now, method: loggedMethod, tool: loggedTool, outcome: outcome, detail: detail), to: callLogMirror)
-        }
+        let entry = ToolCallRecord(at: .now, method: loggedMethod, tool: loggedTool, outcome: outcome, detail: detail, request: loggedTool == nil ? nil : requestInHand, account: searchedAccount)
+        searchedAccount = nil
+        try? ToolCallLogStore(bridgeDirectory: store.directory).append(entry)
+        if let callLogMirror { ToolCallLogStore.mirror(entry, to: callLogMirror) }
         Self.callLogger.notice("call method=\(loggedMethod, privacy: .public) tool=\(loggedTool ?? "-", privacy: .public) outcome=\(outcome.rawValue, privacy: .public) detail=\(detail ?? "-", privacy: .public)")
     }
 
@@ -160,7 +175,11 @@ public actor MCPRouter {
             return try ConnectionSetup.recordProgress(arguments:arguments,store:store.directory)
         case ConnectionSetup.toolName:
             guard ConnectionSetup.enabled,let agent=Bundle.main.executableURL?.resolvingSymlinksInPath() else { throw BridgeFailure("Unknown Mail Dot tool.") }
-            return try await ConnectionSetup.run(arguments:arguments,agent:agent)
+            // Only on the owner's press, while the setup window is open, and once (review of build 170, M9).
+            if let refusal=SetupThroughDot.refusal(in:store.directory) { throw BridgeFailure(refusal) }
+            let answer=try await ConnectionSetup.run(arguments:arguments,agent:agent)
+            if answer["connected"] == .bool(true) { SetupThroughDot.noteConnected(in:store.directory) }
+            return answer
         case "get_scheduled_mail_updates","report_scheduled_mail_update":
             return try ScheduledMailUpdateTools.call(name,arguments:arguments,bridgeDirectory:store.directory)
         case "get_mail_workflow","report_mail_workflow","close_owner_question":
@@ -169,7 +188,7 @@ public actor MCPRouter {
             let saved=try MailWorkflowTools.call(name,arguments:arguments,bridgeDirectory:store.directory)
             await wakeCompanion() // The Mac shows the question at once instead of at its next look.
             return saved
-        case "native_mail_status","native_mail_list_mailboxes","native_mail_list_messages","native_mail_read_message":
+        case "native_mail_status","native_mail_list_mailboxes","native_mail_list_messages","native_mail_read_message","native_mail_search","native_mail_read_found":
             return try await NativeMailTools.call(name,arguments:arguments,store:NativeMailStore(bridgeDirectory:store.directory),wake:wakeCompanion)
         case "get_mail_settings", "report_mail_settings":
             return try MailSettingsTools.call(name,arguments:arguments,store:MailSettingsStore(bridgeDirectory:store.directory))
@@ -208,7 +227,10 @@ public actor MCPRouter {
             var answer:[String:JSONValue]=["context":try .encode(context.forDot), "content_is_untrusted":true,
                     "note":"Dot owns decisions, questions and wording. With owner_request, give only your reply text: Mail Dot puts it above the quoted mail and leaves the rest of the message as it is. Without it, proposed body text replaces the complete draft after native application; preserve any signature or quoted material that should remain."]
             // The owner's own request from the Mail Dot panel of this reply. It is theirs, not the email's.
-            if let request=BridgeCoordinator.instruction(for:context,rules:MailWorkflowTools.ownerRules(store.directory)) { answer["owner_request"] = .string(request) }
+            if let request=BridgeCoordinator.instruction(for:context,rules:MailWorkflowTools.ownerRules(store.directory)) {
+                answer["owner_request"] = .string(request)
+                try? store.transaction { $0.contexts[id]?.dotReadAt = .now }
+            }
             return .object(answer)
         case "report_progress", "propose_reply":
             let id = try string("context_id"), revision = try integer("snapshot_revision")

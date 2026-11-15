@@ -13,10 +13,8 @@ public struct MailWorkflowAccount:Codable,Sendable,Identifiable {
     /// selected source's current authentication and folder permissions.
     public static func available(settings:MailSettings,native:NativeMailState) throws -> [Self] {
         try settings.validate(); try native.validate()
-        var accounts=settings.connections.filter {
-            $0.available && $0.observedAt != nil && $0.provider == "gmail"
-        }.map {
-            Self(id:"gmail:"+$0.id,label:$0.email,route:"gmail",sourceID:$0.id,connectionID:$0.connectionID,senderAddresses:[$0.email])
+        var accounts=settings.connections.filter(\.isLiveConnector).map {
+            Self(id:$0.accountID,label:$0.email,route:$0.provider,sourceID:$0.id,connectionID:$0.connectionID,senderAddresses:[$0.email])
         }
         for grant in native.grants where grant.revokedAt == nil && grant.verifiedAt != nil && !grant.mailboxes.isEmpty {
             guard let account=settings.nativeAccounts.first(where:{$0.id == grant.accountID}) else { continue }

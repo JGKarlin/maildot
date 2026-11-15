@@ -208,7 +208,27 @@ private final class ArrivalHandler:NSObject,MEMessageActionHandler {
     /// an extension's own use), and with it every banner, so the request goes through the shared store.
     override func viewDidDisappear() {
         super.viewDidDisappear()
+        QuitCloser.remove(self)
         try? MailTriageStore.shared().transaction { $0.bannerReloadRequestedAt = .now }
+    }
+    override func viewDidAppear() {
+        super.viewDidAppear()
+        QuitCloser.add(self)
+    }
+}
+
+/// Whether a Mail Dot window is open in Mail, kept in the shared store. Mail shows that window as a modal dialog and
+/// keeps its other windows waiting meanwhile, so a reply Open in Reply asked for is opened once it has closed. The window
+/// cannot close itself: it can only let go of its contents, which left Mail's dialog open and empty (build 178).
+@MainActor private enum QuitCloser {
+    private static let open=NSHashTable<NSViewController>.weakObjects()
+    static func add(_ controller:NSViewController) {
+        open.add(controller)
+        try? MailTriageStore.shared().transaction { $0.mailDotWindowOpenAt = .now }
+    }
+    static func remove(_ controller:NSViewController) {
+        open.remove(controller)
+        if open.allObjects.isEmpty { try? MailTriageStore.shared().transaction { $0.mailDotWindowOpenAt=nil } }
     }
 }
 

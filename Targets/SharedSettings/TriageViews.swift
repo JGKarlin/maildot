@@ -13,9 +13,33 @@ import BridgeCore
         try MailSettingsStore.shared().transaction { $0.setMailDot(on,account:id) }
         DotCallCommands.wakeCompanion()
     }
-    static func ask(_ id:String) throws { try MailTriageStore.shared().transaction { try $0.ask(id) }; DotCallCommands.wakeCompanion() }
+    static func setSearchByMeaning(_ on:Bool,account id:String) throws {
+        try MailSettingsStore.shared().transaction { $0.setSearchByMeaning(on,account:id) }
+        DotCallCommands.wakeCompanion()
+    }
+    /// `opensReply`: asked in the Mail Dot window, so the draft opens in a Mail reply once Dot has written it.
+    static func ask(_ id:String,opensReply:Bool=false) throws {
+        try MailTriageStore.shared().transaction { state in
+            let drafting=state.entries.first{$0.id == id}?.draftRequested == true
+            try state.ask(id)
+            if opensReply,drafting { state.openReplyWhenDrafted(id) }
+        }
+        DotCallCommands.wakeCompanion()
+    }
     /// Draft a Reply, with the owner's optional words on what the reply should say.
-    static func draftReply(_ id:String,guidance:String) throws { try MailTriageStore.shared().transaction { try $0.ask(id,draft:true,guidance:guidance) }; DotCallCommands.wakeCompanion() }
+    static func draftReply(_ id:String,guidance:String,opensReply:Bool=false) throws {
+        try MailTriageStore.shared().transaction { state in
+            try state.ask(id,draft:true,guidance:guidance)
+            if opensReply { state.openReplyWhenDrafted(id) }
+        }
+        DotCallCommands.wakeCompanion()
+    }
+    /// Open in Reply: the background app opens a Mail reply with Dot's draft in it once this window has closed, since
+    /// Mail keeps the rest of its windows waiting while it is open.
+    static func openInReply(_ id:String) throws {
+        try MailTriageStore.shared().transaction { try $0.requestOpenReply(id) }
+        DotCallCommands.wakeCompanion()
+    }
     /// The Ask Dot button: the background app shows its floating ask bar, at once by a notification and, should
     /// that not arrive, within a few seconds by the note left in the shared store.
     static func showAskBar() throws {
@@ -34,7 +58,13 @@ import BridgeCore
     static func layout() async -> MailDotWindowLayout {
         await Task.detached { (try? MailSettingsStore.shared().read())?.windowLayout ?? .briefing }.value
     }
-    static func answer(_ id:String,_ text:String) throws { try MailTriageStore.shared().transaction { try $0.answer(id,with:text) }; DotCallCommands.wakeCompanion() }
+    static func answer(_ id:String,_ text:String,opensReply:Bool=false) throws {
+        try MailTriageStore.shared().transaction { state in
+            try state.answer(id,with:text)
+            if opensReply { state.openReplyWhenDrafted(id) }
+        }
+        DotCallCommands.wakeCompanion()
+    }
     static func rule(_ rule:MailTriage.Rule?,for sender:String) throws { try MailTriageStore.shared().transaction { $0.setRule(rule,for:sender) } }
     /// Check Again: a light request asks Dot to confirm it answers on this Mac.
     static func checkDot() throws { try MailSettingsStore.shared().transaction { $0.requestDotCheck() }; DotCallCommands.wakeCompanion() }
@@ -82,7 +112,7 @@ struct TriageEntryRow:View {
                 Image(systemName:icon.symbol).foregroundStyle(icon.color).frame(width:16).help(icon.words).accessibilityLabel(icon.words)
                 VStack(alignment:.leading,spacing:1) {
                     Text(entry.subject.isEmpty ? String(localized:"(no subject)") : entry.subject).fontWeight(.semibold).lineLimit(compact ? 1 : 3)
-                    Text(entry.senderName ?? entry.sender).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                    Text(entry.senderName ?? entry.sender).font(.caption).foregroundStyle(MailDotStyle.supporting).lineLimit(1)
                 }
                 Spacer(minLength:4)
                 SenderMenuButton(groups:[.init(title:String(localized:"Automatic drafts for this sender"),symbol:"square.and.pencil",rule:rule) { value in set(value) }])
@@ -90,7 +120,7 @@ struct TriageEntryRow:View {
             }
             // Dot's question is shown once, in its card below, not also as the state line.
             if !(entry.outcome == .needsGuidance && entry.dotNote != nil) {
-                Text(entry.stateLine).font(.callout).foregroundStyle(.secondary).lineLimit(compact ? 2 : 6).fixedSize(horizontal:false,vertical:true)
+                Text(entry.stateLine).font(.callout).foregroundStyle(MailDotStyle.supporting).lineLimit(compact ? 2 : 6).fixedSize(horizontal:false,vertical:true)
             }
             if entry.outcome == .drafted,let draft=entry.draft,!compact {
                 Text(draft).textSelection(.enabled).padding(8).frame(maxWidth:.infinity,alignment:.leading)
@@ -105,7 +135,7 @@ struct TriageEntryRow:View {
             } else if [.skipped,.held,.noDraft].contains(entry.outcome) {
                 DraftReplyButton { words in act { try TriageCommands.draftReply(entry.id,guidance:words) } }.controlSize(.small)
             }
-            if let failure { Text(failure).font(.caption).foregroundStyle(.red) }
+            if let failure { Text(failure).font(.caption).foregroundStyle(MailDotStyle.dangerText) }
         }
         .padding(.vertical,5)
     }
@@ -138,21 +168,41 @@ struct MailDotAccountRow:Identifiable,Equatable {
     let automatic:Bool
     /// Mail Dot works on this account; off, Mail Dot leaves it alone.
     let mailDot:Bool
+    /// Search by Meaning can be ticked: the account is read through Mail on this Mac, with folders allowed. An
+    /// account Dot reaches through a connector has no box, since Dot searches it there.
+    var meaningOffered=false
+    var meaning=false
+    /// How far its embedding has come: messages embedded, and messages in the index.
+    var embedded=0
+    var total=0
+    /// A Gmail or Google Workspace account without Dot's Gmail connector: the row offers the connector, and never AppleScript
+    /// (owner decisions, 15 November 2026). One already read through Mail keeps working until the connector is confirmed.
+    var offersConnector=false
+    /// An iCloud Mail account: the row offers ChatGPT's iCloud Mail plugin, and never AppleScript (owner decision, 15
+    /// November 2026). One already set up through AppleScript keeps working until the plugin is confirmed.
+    var offersICloudConnector=false
 
     static func load() async -> [MailDotAccountRow] {
         await Task.detached {
             guard let bridge=try? BridgeStore.shared(),let settings=try? MailSettingsStore(bridgeDirectory:bridge.directory).read() else { return [] }
             let nativeState=(try? NativeMailStore(bridgeDirectory:bridge.directory).read()) ?? NativeMailState()
-            let gmail=settings.connections.filter{$0.provider == "gmail"}
+            let gmail=settings.connections.filter{MailConnection.connectorProviders.contains($0.provider)}
+            // Counted by the background app; Settings itself never opens the index of mail.
+            let progress=MeaningProgress.read(bridgeDirectory:bridge.directory)
             var used=Set<String>()
             var rows:[MailDotAccountRow]=[]
             func row(name:String,addresses:[String],ids:[String],viaConnector:MailConnection?,native:NativeMailAccount?=nil) -> MailDotAccountRow {
                 let connectorUp=viaConnector.map{$0.available && $0.observedAt != nil} ?? false
                 let grant=native.flatMap{account in nativeState.grants.first{$0.accountID == account.id && $0.revokedAt == nil && !$0.mailboxes.isEmpty}}
                 let verified=grant?.verifiedAt != nil
-                let connection=connectorUp ? String(localized:"Gmail, through Dot’s Gmail connector")
+                let iCloud=viaConnector?.provider == "icloud" || native?.isICloud == true
+                let gmail = !iCloud && (viaConnector != nil || native?.isGmail == true)
+                // Gmail and iCloud are reached only through their plugins; AppleScript is for accounts that have none
+                // (owner decision, 15 November 2026). One already read through Mail keeps working until its plugin is confirmed.
+                let connection=connectorUp ? (iCloud ? String(localized:"iCloud, through Dot’s iCloud connector") : String(localized:"Gmail, through Dot’s Gmail connector"))
                     : verified ? String(localized:"Mail on this Mac, through AppleScript")
-                    : viaConnector != nil && native == nil ? String(localized:"Gmail connector not connected")
+                    : iCloud ? String(localized:"iCloud connector not connected")
+                    : gmail ? String(localized:"Gmail connector not connected")
                     : String(localized:"Mail on this Mac, through AppleScript: not yet connected")
                 var check:String?,failed=false,checking=false
                 if let account=native,!connectorUp {
@@ -175,17 +225,36 @@ struct MailDotAccountRow:Identifiable,Equatable {
                         }
                     }
                 }
-                return MailDotAccountRow(id:ids.joined(separator:"+"),native:connectorUp ? nil : native,allowed:grant != nil,check:check,checkFailed:failed,checking:checking,accountIDs:ids,name:name,addresses:addresses,connection:connection,
+                // Use Gmail/iCloud Connector… asks Dot to confirm the connection: the row says so until Dot answers, and gives
+                // Dot's reason if it could not confirm (owner request, 15 November 2026).
+                if !connectorUp,iCloud || gmail,let address=addresses.first.map(MailDraft.address),
+                   let asked=settings.requests.last(where:{ $0.kind == .activate && $0.email.map(MailDraft.address) == address }) {
+                    switch asked.status {
+                    case .pending,.awaitingAuthorization: check=String(localized:"Asking Dot to confirm the connection…"); checking=true; failed=false
+                    case .failed: check=String(localized:"Dot could not confirm the connection")+(asked.outcome.map{": "+$0} ?? "."); failed=true; checking=false
+                    case .question: check=String(localized:"Dot asks: ")+(asked.question ?? String(localized:"a question about this account.")); checking=false
+                    case .confirmed: break
+                    }
+                }
+                var made=MailDotAccountRow(id:ids.joined(separator:"+"),native:connectorUp ? nil : native,allowed:grant != nil,check:check,checkFailed:failed,checking:checking,accountIDs:ids,name:name,addresses:addresses,connection:connection,
                                          connected:connectorUp || verified,automatic:ids.allSatisfy(settings.automaticReplies(account:)),mailDot:ids.allSatisfy(settings.mailDot(account:)))
+                if let account=native,!connectorUp,account.isGmail { made.offersConnector=true }
+                if !connectorUp,iCloud { made.offersICloudConnector=true }
+                if let account=native,!connectorUp,grant != nil {
+                    made.meaningOffered=true
+                    made.meaning=settings.searchByMeaning(account:account.id)
+                    if made.meaning,let counts=progress[account.id] { made.embedded=counts.embedded; made.total=counts.total }
+                }
+                return made
             }
             for account in settings.nativeAccounts {
                 let lower=Set(account.addresses.map{$0.lowercased()})
                 let connector=gmail.first{lower.contains($0.email.lowercased())}
                 if let connector { used.insert(connector.id) }
-                rows.append(row(name:account.name,addresses:account.addresses,ids:["mail:"+account.id]+(connector.map{["gmail:"+$0.id]} ?? []),viaConnector:connector,native:account))
+                rows.append(row(name:account.name,addresses:account.addresses,ids:["mail:"+account.id]+(connector.map{[$0.accountID]} ?? []),viaConnector:connector,native:account))
             }
             for connection in gmail where !used.contains(connection.id) {
-                rows.append(row(name:connection.email,addresses:[connection.email],ids:["gmail:"+connection.id],viaConnector:connection))
+                rows.append(row(name:connection.email,addresses:[connection.email],ids:[connection.accountID],viaConnector:connection))
             }
             return rows
         }.value
@@ -195,7 +264,12 @@ struct MailDotAccountRow:Identifiable,Equatable {
 /// Mail Dot's settings, inside the Mail Dot panel: MailKit gives an extension no tab in Mail's Settings.
 struct MailDotSettingsView:View {
     /// The width of each switch column, so that the headings sit over the switches.
-    private static let switchColumn:CGFloat=64
+    private static let switchColumn:CGFloat=56
+    private static let columnGap:CGFloat=4
+    /// The account whose Search by Meaning box was ticked first: the popup about Full Disk Access is showing for it.
+    @State private var meaningAsked:String?
+    /// Whether macOS lets Mail Dot read the Mail folder, as the background app last found it.
+    @State private var diskAccess:Bool?
     @State private var accounts:[MailDotAccountRow]=[]
     @State private var loaded=false
     @State private var failure:String?
@@ -227,7 +301,7 @@ struct MailDotSettingsView:View {
                 Image(systemName:symbol).font(.system(size:18,weight:.regular)).frame(height:22)
                 Text(title).font(.caption)
             }
-            .foregroundStyle(selected ? AnyShapeStyle(.tint) : AnyShapeStyle(.secondary))
+            .foregroundStyle(selected ? AnyShapeStyle(MailDotStyle.linkText) : AnyShapeStyle(MailDotStyle.supporting))
             .frame(minWidth:80).padding(.horizontal,8).padding(.vertical,6)
             .background(RoundedRectangle(cornerRadius:7).fill(selected ? AnyShapeStyle(.tint.opacity(0.14)) : AnyShapeStyle(.clear)))
             .contentShape(RoundedRectangle(cornerRadius:7))
@@ -256,44 +330,71 @@ struct MailDotSettingsView:View {
                 if tab == .accounts {
                 // The section's heading carries the names of the two switch columns, above the switches.
                 HStack(alignment:.lastTextBaseline,spacing:6) {
-                    Text("ACCOUNTS").font(.caption.weight(.semibold)).foregroundStyle(.secondary).kerning(0.5)
+                    Text("ACCOUNTS").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting).kerning(0.5)
                     Button { Task { await model.refreshAccounts(); await reload() } } label: { Image(systemName:"arrow.clockwise") }
                         .buttonStyle(.borderless).controlSize(.small).disabled(model.refreshing)
                         .help("Read Accounts from Mail").accessibilityLabel("Read Accounts from Mail")
                     if model.refreshing { ProgressView().controlSize(.mini) }
                     Spacer()
                     if !accounts.isEmpty {
-                        Text("Mail Dot").font(.caption).foregroundStyle(.secondary).frame(width:Self.switchColumn)
-                        Text("Auto replies").font(.caption).foregroundStyle(.secondary).frame(width:Self.switchColumn)
+                        HStack(alignment:.lastTextBaseline,spacing:Self.columnGap) {
+                            Text("Mail Dot").font(.caption).foregroundStyle(MailDotStyle.supporting).multilineTextAlignment(.center).lineLimit(2).minimumScaleFactor(0.8).frame(width:Self.switchColumn)
+                            Text("Auto replies").font(.caption).foregroundStyle(MailDotStyle.supporting).multilineTextAlignment(.center).lineLimit(2).minimumScaleFactor(0.8).frame(width:Self.switchColumn)
+                            // The asterisk ties the footnote under the list to this column (owner's request, 15 November 2026).
+                            Text(verbatim:String(localized:"Search by Meaning")+"*").font(.caption).foregroundStyle(MailDotStyle.supporting).multilineTextAlignment(.center).lineLimit(2).minimumScaleFactor(0.8).frame(width:Self.switchColumn)
+                                .accessibilityLabel("Search by Meaning")
+                        }
                     }
                 }.padding(.horizontal,10)
+
                 if accounts.isEmpty {
-                    Text(loaded ? "No mail accounts are connected to Mail Dot." : "Loading…").font(.callout).foregroundStyle(.secondary)
+                    Text(loaded ? "No mail accounts are connected to Mail Dot." : "Loading…").font(.callout).foregroundStyle(MailDotStyle.supporting)
                 }
                 ForEach(accounts) { account in
                     HStack(alignment:.top,spacing:10) {
                         Image(systemName:account.native == nil ? "globe" : "envelope")
-                            .foregroundStyle(account.connected && account.mailDot ? MailDotStyle.tint : Color.secondary).frame(width:20).padding(.top,2)
+                            .foregroundStyle(account.connected && account.mailDot ? MailDotStyle.tint : MailDotStyle.supporting).frame(width:20).padding(.top,2)
                         VStack(alignment:.leading,spacing:2) {
                             Text(account.name).fontWeight(.semibold)
                             if account.addresses.count > 1 {
-                                Text("\(account.addresses[0]) and \(account.addresses.count-1) more").font(.callout).foregroundStyle(.secondary).lineLimit(1)
+                                Text("\(account.addresses[0]) and \(account.addresses.count-1) more").font(.callout).foregroundStyle(MailDotStyle.supporting).lineLimit(1)
                                     .help(account.addresses.joined(separator:", "))
                             } else if let only=account.addresses.first,only != account.name {
-                                Text(only).font(.callout).foregroundStyle(.secondary).lineLimit(1)
+                                Text(only).font(.callout).foregroundStyle(MailDotStyle.supporting).lineLimit(1)
                             }
                             if !account.mailDot {
-                                Text("Off: Mail Dot leaves this account alone").font(.caption).foregroundStyle(.secondary)
+                                Text("Off: Mail Dot leaves this account alone").font(.caption).foregroundStyle(MailDotStyle.supporting)
                             } else {
-                                Label(account.connection,systemImage:account.connected ? "checkmark.circle.fill" : "exclamationmark.circle")
-                                    .font(.caption).foregroundStyle(account.connected ? Color.green : Color.orange)
+                                // The icon carries the state in colour; the words stay in a grey that reads (contrast fix, 15 November 2026).
+                                Label {
+                                    Text(account.connection).foregroundStyle(account.connected ? MailDotStyle.supporting : MailDotStyle.warningText)
+                                } icon: {
+                                    Image(systemName:account.connected ? "checkmark.circle.fill" : "exclamationmark.circle").foregroundStyle(account.connected ? Color.green : Color.orange)
+                                }.font(.caption)
                                 if let check=account.check {
                                     HStack(alignment:.firstTextBaseline,spacing:5) {
                                         if account.checking { ProgressView().controlSize(.mini) }
-                                        Text(check).font(.caption).foregroundStyle(account.checkFailed ? Color.red : Color.secondary).lineLimit(3).fixedSize(horizontal:false,vertical:true)
+                                        Text(check).font(.caption).foregroundStyle(account.checkFailed ? MailDotStyle.dangerText : MailDotStyle.supporting).lineLimit(3).fixedSize(horizontal:false,vertical:true)
                                     }
                                 }
-                                if let native=account.native {
+                                if account.meaning {
+                                    HStack(spacing:8) {
+                                        ProgressView(value:account.total > 0 ? Double(account.embedded)/Double(account.total) : 0).frame(width:90)
+                                            .accessibilityLabel("Search by Meaning for \(account.name)")
+                                        Text("\(account.embedded) of \(account.total)").font(.caption).monospacedDigit().foregroundStyle(MailDotStyle.supporting).lineLimit(1).fixedSize()
+                                    }
+                                }
+                                if account.offersConnector,let address=account.addresses.first {
+                                    Button("Use Gmail Connector…") { model.activate(address,provider:"gmail"); Task { await reload() } }.controlSize(.small)
+                                        .help("Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on.")
+                                }
+                                if account.offersICloudConnector,let address=account.addresses.first {
+                                    Button("Use iCloud Connector…") { model.activate(address,provider:"icloud"); Task { await reload() } }.controlSize(.small)
+                                        .help("Dot reaches iCloud Mail through ChatGPT’s iCloud connector. An account already set up through Mail keeps working until the connector is confirmed.")
+                                }
+                                // A Gmail or iCloud account is never set up through AppleScript; one already set up keeps its folders until
+                                // its plugin is confirmed (owner decision, 15 November 2026).
+                                if let native=account.native,!((native.isICloud || native.isGmail) && !account.allowed) {
                                     if !account.allowed {
                                         Button("Connect…") { model.reload(); connecting=native }.buttonStyle(.borderedProminent).controlSize(.small)
                                     } else {
@@ -309,21 +410,47 @@ struct MailDotSettingsView:View {
                         }
                         .opacity(account.mailDot ? 1 : 0.55)
                         Spacer(minLength:8)
+                        // Three columns, so boxes and not switches (owner's request, 15 November 2026).
+                        HStack(alignment:.top,spacing:Self.columnGap) {
                         Toggle("Mail Dot",isOn:Binding(get:{account.mailDot},set:{ value in
                             do { for id in account.accountIDs { try TriageCommands.setMailDot(value,account:id) }; failure=nil; Task { await reload() } }
                             catch { failure=error.localizedDescription }
-                        })).toggleStyle(.switch).controlSize(.small).labelsHidden().frame(width:Self.switchColumn)
+                        })).toggleStyle(.checkbox).labelsHidden().frame(width:Self.switchColumn)
                         .help("Mail Dot for \(account.name)").accessibilityLabel("Mail Dot for \(account.name)")
                         Toggle("Automatic replies",isOn:Binding(get:{account.automatic && account.mailDot},set:{ value in
                             do { for id in account.accountIDs { try TriageCommands.setAutomaticReplies(value,account:id) }; failure=nil; Task { await reload() } }
                             catch { failure=error.localizedDescription }
-                        })).toggleStyle(.switch).controlSize(.small).labelsHidden().frame(width:Self.switchColumn).disabled(!account.mailDot)
+                        })).toggleStyle(.checkbox).labelsHidden().frame(width:Self.switchColumn).disabled(!account.mailDot)
                         .help("Automatic replies for \(account.name)").accessibilityLabel("Automatic replies for \(account.name)")
+                        // An account Dot reaches through a connector has no box: Dot searches it there.
+                        Group {
+                            if account.meaningOffered,let native=account.native {
+                                Toggle("Search by Meaning",isOn:Binding(get:{account.meaning && account.mailDot},set:{ value in
+                                    // The first box ticked brings the popup about Full Disk Access; later ones need none.
+                                    if value,!accounts.contains(where:{ $0.meaning }) { meaningAsked=native.id } else { setMeaning(value,native.id) }
+                                })).toggleStyle(.checkbox).labelsHidden().disabled(!account.mailDot)
+                                .help("Search by Meaning for \(account.name)").accessibilityLabel("Search by Meaning for \(account.name)")
+                            } else { Color.clear.frame(height:1).accessibilityHidden(true) }
+                        }.frame(width:Self.switchColumn)
+                        }.padding(.top,2)
                     }
                     .padding(10)
                     .background(RoundedRectangle(cornerRadius:8).fill(Color.primary.opacity(0.04)))
                 }
-                if let failure { Text(failure).font(.caption).foregroundStyle(.red) }
+                // The footnote to the third column's heading, in the owner's wording: why an account with a connector has no box there.
+                if !accounts.isEmpty {
+                    Text(verbatim:"*"+String(localized:"Not needed for Gmail or iCloud."))
+                        .font(.caption).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true).padding(.horizontal,10)
+                }
+                // With a box ticked and no leave to read the Mail folder, Mail Dot reads through Mail; one line says so.
+                if diskAccess == false,accounts.contains(where:{ $0.meaning }) {
+                    HStack(spacing:8) {
+                        Label("Full Disk Access is off",systemImage:"exclamationmark.circle").font(.caption).foregroundStyle(MailDotStyle.warningText)
+                        Spacer(minLength:8)
+                        Button("Open System Settings") { try? ConnectionCommands.press(.openFullDiskAccess) }.controlSize(.small)
+                    }.padding(.horizontal,10)
+                }
+                if let failure { Text(failure).font(.caption).foregroundStyle(MailDotStyle.dangerText) }
                 } else if tab == .rules {
                     draftingRules
                 } else if tab == .layout {
@@ -336,14 +463,24 @@ struct MailDotSettingsView:View {
         }
         }
         .task { while !Task.isCancelled { await reload(); try? await Task.sleep(for:.seconds(3)) } }
+        .alert("Search by Meaning Needs Full Disk Access",isPresented:Binding(get:{ meaningAsked != nil },set:{ if !$0 { meaningAsked=nil } })) {
+            Button("Open System Settings") { if let id=meaningAsked { setMeaning(true,id); try? ConnectionCommands.press(.openFullDiskAccess) }; meaningAsked=nil }
+            Button("Cancel",role:.cancel) { meaningAsked=nil }
+        } message: {
+            Text("Mail Dot reads your past mail from the Mail folder on this Mac to generate embeddings of it. This happens entirely on this Mac. Nothing is sent to the cloud or shared outside it. macOS grants this access for the whole disk, not for one folder; Mail Dot reads only the Mail folder.")
+        }
+    }
+    private func setMeaning(_ on:Bool,_ account:String) {
+        do { try TriageCommands.setSearchByMeaning(on,account:account); failure=nil; Task { await reload() } }
+        catch { failure=error.localizedDescription }
     }
     /// The owner's rules for how Dot drafts: each can be edited or deleted, and a new one added. They are
     /// kept on this Mac and go to Dot with the next request for a draft.
     @ViewBuilder private var draftingRules:some View {
-        Text("DRAFTING RULES").font(.caption.weight(.semibold)).foregroundStyle(.secondary).kerning(0.5).padding(.top,6)
+        Text("DRAFTING RULES").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting).kerning(0.5).padding(.top,6)
         ForEach(Array(rules.enumerated()),id:\.element.id) { index,rule in
             HStack(alignment:.top,spacing:8) {
-                Text("\(index+1)").font(.caption.weight(.semibold)).foregroundStyle(.secondary).frame(width:16,alignment:.trailing).padding(.top,2)
+                Text("\(index+1)").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting).frame(width:16,alignment:.trailing).padding(.top,2)
                 if editingRule == rule.id {
                     TextField("Rule",text:$ruleText,axis:.vertical).lineLimit(1...5).textFieldStyle(.roundedBorder).onSubmit { saveRule(rule.id) }
                     Button("Save") { saveRule(rule.id) }.controlSize(.small).disabled(blank(ruleText))
@@ -352,7 +489,7 @@ struct MailDotSettingsView:View {
                     VStack(alignment:.leading,spacing:2) {
                         Text(rule.text).fixedSize(horizontal:false,vertical:true).textSelection(.enabled)
                         if rule.tidying == true {
-                            HStack(spacing:4) { ProgressView().controlSize(.mini); Text("Dot is tidying this rule").font(.caption).foregroundStyle(.secondary) }
+                            HStack(spacing:4) { ProgressView().controlSize(.mini); Text("Dot is tidying this rule").font(.caption).foregroundStyle(MailDotStyle.supporting) }
                         }
                     }
                     Spacer(minLength:6)
@@ -379,7 +516,7 @@ struct MailDotSettingsView:View {
             }
             .controlSize(.regular).disabled(rules.count >= DraftingRules.limit)
         }
-        if let ruleFailure { Text(ruleFailure).font(.caption).foregroundStyle(.red) }
+        if let ruleFailure { Text(ruleFailure).font(.caption).foregroundStyle(MailDotStyle.dangerText) }
         SenderNotesList()
     }
     private func blank(_ text:String) -> Bool { text.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty }
@@ -407,6 +544,8 @@ struct MailDotSettingsView:View {
     private func reload() async {
         let fresh=await MailDotAccountRow.load()
         if fresh != accounts { accounts=fresh }
+        let access=await Task.detached { (try? MailTriageStore.shared().read())?.connection?.fullDiskAccess }.value
+        if access != diskAccess { diskAccess=access }
         let freshRules=await Task.detached { (try? MailSettingsStore.shared().read())?.effectiveDraftingRules ?? DraftingRules.starters }.value
         if freshRules != rules { rules=freshRules }
         loaded=true
@@ -440,17 +579,21 @@ struct TriageMessageView:View {
     var body:some View {
         VStack(spacing:0) {
             HStack(spacing:7) {
-                Image(systemName:"at.circle.fill").foregroundStyle(MailDotStyle.brand)
-                Text(settings ? "Mail Dot Settings" : "Mail Dot").font(.headline)
-                Spacer()
-                Button(settings ? "Done" : "Settings",systemImage:settings ? "checkmark" : "gearshape") { settings.toggle() }.buttonStyle(.borderless)
+                if settings {
+                    MailDotSettingsBar(returnsTo:Text(verbatim:"Mail Dot")) { settings=false }
+                } else {
+                    Image(systemName:"at.circle.fill").foregroundStyle(MailDotStyle.brand)
+                    Text("Mail Dot").font(.headline)
+                    Spacer()
+                    Button("Settings",systemImage:"gearshape") { settings=true }.buttonStyle(.borderless)
+                }
             }.padding(.horizontal,14).padding(.vertical,9)
             Divider()
             if settings { MailDotSettingsView() }
             else if let entry {
                 ScrollView { TriageEntryRow(entry:entry,rule:rule,compact:false,changed:{ Task { await reload() } }).padding(16) }
             } else {
-                Text("Mail Dot no longer lists this message.").foregroundStyle(.secondary).frame(maxWidth:.infinity,maxHeight:.infinity)
+                Text("Mail Dot no longer lists this message.").foregroundStyle(MailDotStyle.supporting).frame(maxWidth:.infinity,maxHeight:.infinity)
             }
         }
         .frame(width:Self.size.width,height:Self.size.height)
@@ -491,9 +634,9 @@ struct TriageQuestionCard:View {
     }
     var body:some View {
         VStack(alignment:.leading,spacing:8) {
-            if showsHeading { Text("Dot needs to know").font(.caption.weight(.semibold)).foregroundStyle(.secondary) }
+            if showsHeading { Text("Dot needs to know").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting) }
             Text(parsed.question).font(.body.weight(.semibold)).fixedSize(horizontal:false,vertical:true).textSelection(.enabled)
-            if let context { Text(context).font(.callout).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true) }
+            if let context { Text(context).font(.callout).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true) }
             LazyVGrid(columns:Array(repeating:GridItem(.flexible(),spacing:6,alignment:.top),count:max(1,columns)),alignment:.leading,spacing:6) {
                 ForEach(Array(parsed.answers.enumerated()),id:\.offset) { index,answer in
                     option(index+1,answer,note:index < notes.count ? notes[index] : nil) { send(answer); note=String(localized:"Sent to Dot.") }
@@ -523,28 +666,28 @@ struct TriageQuestionCard:View {
                     }
                 }
             }
-            if let note { Text(note).font(.caption).foregroundStyle(.secondary) }
+            if let note { Text(note).font(.caption).foregroundStyle(MailDotStyle.supporting) }
         }
         .padding(plain ? 0 : 12)
-        .background(RoundedRectangle(cornerRadius:10).fill(Color.orange.opacity(plain ? 0 : 0.10)))
+        .background(RoundedRectangle(cornerRadius:10).fill(MailDotStyle.warningText.opacity(plain ? 0 : 0.10)))
     }
     private func option(_ number:Int,_ title:String,note:String?=nil,open:Bool?=nil,_ action:@escaping () -> Void) -> some View {
         Button(action:action) {
             HStack(spacing:9) {
-                Text("\(number)").font(.system(size:11,weight:.semibold)).foregroundStyle(.secondary)
+                Text("\(number)").font(.system(size:11,weight:.semibold)).foregroundStyle(MailDotStyle.supporting)
                     .frame(width:20,height:19).background(RoundedRectangle(cornerRadius:4).fill(Color.primary.opacity(0.06)))
                     .overlay(RoundedRectangle(cornerRadius:4).stroke(Color.primary.opacity(0.22)))
                 if columns > 1 {
                     VStack(alignment:.leading,spacing:1) {
                         Text(title).fontWeight(.medium).multilineTextAlignment(.leading)
-                        if let note,!note.isEmpty { Text(note).font(.caption).foregroundStyle(.secondary) }
+                        if let note,!note.isEmpty { Text(note).font(.caption).foregroundStyle(MailDotStyle.supporting) }
                     }
                 } else {
                     Text(title).fontWeight(.medium).multilineTextAlignment(.leading)
                 }
                 Spacer(minLength:0)
-                if columns == 1,let note,!note.isEmpty { Text(note).font(.caption).foregroundStyle(.secondary).lineLimit(1) }
-                if let open { Image(systemName:open ? "chevron.up" : "chevron.down").font(.caption).foregroundStyle(.secondary) }
+                if columns == 1,let note,!note.isEmpty { Text(note).font(.caption).foregroundStyle(MailDotStyle.supporting).lineLimit(1) }
+                if let open { Image(systemName:open ? "chevron.up" : "chevron.down").font(.caption).foregroundStyle(MailDotStyle.supporting) }
             }
             .padding(.horizontal,10).padding(.vertical,7)
             .background(RoundedRectangle(cornerRadius:8).fill(Color.primary.opacity(open == true ? 0.09 : 0.05)))
@@ -571,16 +714,16 @@ struct LayoutChoice:View {
     @State private var chosen:MailDotWindowLayout = .briefing
     @State private var failure:String?
     var body:some View {
-        Text("MAIL DOT WINDOW").font(.caption.weight(.semibold)).foregroundStyle(.secondary).kerning(0.5).padding(.top,6)
+        Text("MAIL DOT WINDOW").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting).kerning(0.5).padding(.top,6)
         HStack(alignment:.top,spacing:10) {
             card(.briefing,"Briefing","One column. What needs you comes first.")
             card(.storyline,"Storyline","The thread as a timeline, ending at your next step.")
             card(.ledger,"Ledger","Two panes in a wider window. Each decision is a row.")
         }
         if !MailDotThreadWindow.fits(.ledger) {
-            Text("This screen is too small for Ledger, so the window shows Briefing here.").font(.caption).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
+            Text("This screen is too small for Ledger, so the window shows Briefing here.").font(.caption).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true)
         }
-        if let failure { Text(failure).font(.caption).foregroundStyle(.red) }
+        if let failure { Text(failure).font(.caption).foregroundStyle(MailDotStyle.dangerText) }
         Color.clear.frame(height:0).task { chosen=await TriageCommands.layout() }
     }
     private func card(_ layout:MailDotWindowLayout,_ name:LocalizedStringKey,_ line:LocalizedStringKey) -> some View {
@@ -591,10 +734,10 @@ struct LayoutChoice:View {
             VStack(alignment:.leading,spacing:7) {
                 LayoutSketch(layout:layout,selected:selected).frame(height:64)
                 HStack(spacing:5) {
-                    Image(systemName:selected ? "largecircle.fill.circle" : "circle").foregroundStyle(selected ? AnyShapeStyle(.tint) : AnyShapeStyle(.secondary))
+                    Image(systemName:selected ? "largecircle.fill.circle" : "circle").foregroundStyle(selected ? AnyShapeStyle(.tint) : AnyShapeStyle(MailDotStyle.supporting))
                     Text(name).fontWeight(.semibold)
                 }
-                Text(line).font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.leading).fixedSize(horizontal:false,vertical:true)
+                Text(line).font(.caption).foregroundStyle(MailDotStyle.supporting).multilineTextAlignment(.leading).fixedSize(horizontal:false,vertical:true)
                 Spacer(minLength:0)
             }
             .padding(9).frame(maxWidth:.infinity,minHeight:150,alignment:.topLeading)
@@ -613,7 +756,7 @@ private struct LayoutSketch:View {
     let layout:MailDotWindowLayout
     let selected:Bool
     var body:some View {
-        let ink=Color.primary.opacity(0.18),accent=Color.orange.opacity(0.45)
+        let ink=Color.primary.opacity(0.18),accent=MailDotStyle.warningText.opacity(0.45)
         RoundedRectangle(cornerRadius:5).fill(Color(nsColor:.controlBackgroundColor))
             .overlay(RoundedRectangle(cornerRadius:5).stroke(Color.primary.opacity(0.15)))
             .overlay(alignment:.topLeading) {
@@ -755,13 +898,13 @@ struct SenderNotesList:View {
     var body:some View {
         Group {
             if !people.isEmpty {
-                Text("NOTES FOR PARTICULAR PEOPLE").font(.caption.weight(.semibold)).foregroundStyle(.secondary).kerning(0.5).padding(.top,10)
+                Text("NOTES FOR PARTICULAR PEOPLE").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting).kerning(0.5).padding(.top,10)
                 ForEach(people,id:\.address) { person in
                     VStack(alignment:.leading,spacing:6) {
                         HStack(spacing:6) {
-                            Image(systemName:"person.crop.circle").foregroundStyle(.secondary)
+                            Image(systemName:"person.crop.circle").foregroundStyle(MailDotStyle.supporting)
                             Text(person.name ?? person.address).fontWeight(.semibold).lineLimit(1)
-                            if person.name != nil { Text(person.address).font(.caption).foregroundStyle(.secondary).lineLimit(1) }
+                            if person.name != nil { Text(person.address).font(.caption).foregroundStyle(MailDotStyle.supporting).lineLimit(1) }
                         }
                         SenderNotesEditor(address:person.address,name:person.name,polishOnSave:true)
                     }
@@ -821,7 +964,7 @@ struct SenderNotesEditor:View {
                 }
                 .disabled(items.count >= SenderNote.perPerson)
             }
-            if let failure { Text(failure).font(.caption).foregroundStyle(.red) }
+            if let failure { Text(failure).font(.caption).foregroundStyle(MailDotStyle.dangerText) }
         }
         .task {
             if let preview { items=preview; return }
@@ -855,4 +998,3 @@ struct SenderNotesEditor:View {
         if fresh != items { items=fresh }
     }
 }
-

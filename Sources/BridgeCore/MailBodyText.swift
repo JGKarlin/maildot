@@ -38,11 +38,36 @@ public enum MailBodyText {
         guard type.hasPrefix("text/") else { return "" }
         let decoded=transferDecoded(body,encoding:(headers["content-transfer-encoding"] ?? "").lowercased())
         var text=string(decoded,charset:parameter("charset",in:headers["content-type"] ?? "") ?? "utf-8")
-        if type.hasPrefix("text/html") {
-            text=text.replacingOccurrences(of:"<br[^>]*>",with:"\n",options:.regularExpression)
-                .replacingOccurrences(of:"</p>",with:"\n").replacingOccurrences(of:"<[^>]+>",with:" ",options:.regularExpression)
-        }
+        if type.hasPrefix("text/html") { text=plain(html:text) }
         return text
+    }
+    /// The words of an HTML message: what its head, style sheets and scripts hold is not text, tags are dropped,
+    /// and character references are read as the characters they stand for (review of build 170, L3).
+    static func plain(html:String) -> String {
+        var text=html
+        for block in ["head","style","script"] {
+            text=text.replacingOccurrences(of:"<\(block)\\b[^>]*>[\\s\\S]*?</\(block)\\s*>",with:" ",options:[.regularExpression,.caseInsensitive])
+        }
+        text=text.replacingOccurrences(of:"<!--[\\s\\S]*?-->",with:" ",options:.regularExpression)
+            .replacingOccurrences(of:"<br[^>]*>",with:"\n",options:[.regularExpression,.caseInsensitive])
+            .replacingOccurrences(of:"</(p|div|tr|li|h[1-6])\\s*>",with:"\n",options:[.regularExpression,.caseInsensitive])
+            .replacingOccurrences(of:"<[^>]+>",with:" ",options:.regularExpression)
+        // Character references: &#12354; &#x3042; and the few named ones mail uses.
+        guard text.contains("&"),let pattern=try? NSRegularExpression(pattern:"&(#[0-9]{1,7}|#[xX][0-9a-fA-F]{1,6}|[a-zA-Z]{2,8});") else { return text }
+        let named=["amp":"&","lt":"<","gt":">","quot":"\"","apos":"'","nbsp":" ","yen":"¥","copy":"©","reg":"®","mdash":"—","ndash":"–","hellip":"…","lsquo":"‘","rsquo":"’","ldquo":"“","rdquo":"”"]
+        let source=text as NSString
+        var result="",position=0
+        for match in pattern.matches(in:text,range:NSRange(location:0,length:source.length)) {
+            result += source.substring(with:NSRange(location:position,length:match.range.location-position))
+            let name=source.substring(with:match.range(at:1))
+            var character:String?
+            if name.hasPrefix("#x") || name.hasPrefix("#X") { character=UInt32(name.dropFirst(2),radix:16).flatMap(Unicode.Scalar.init).map{ String($0) } }
+            else if name.hasPrefix("#") { character=UInt32(name.dropFirst()).flatMap(Unicode.Scalar.init).map{ String($0) } }
+            else { character=named[name.lowercased()] }
+            result += character ?? source.substring(with:match.range)
+            position=match.range.location+match.range.length
+        }
+        return result+source.substring(from:position)
     }
 
     /// Headers (lowercased names, unfolded) and the body after the first empty line.

@@ -8,7 +8,8 @@ import BridgeCore
     @Published var inventoryStatus="Open Mail and refresh to see configured accounts."
     @Published var refreshing=false
     @Published var nativeGrants:[NativeMailGrant]=[]
-    static let gmailURL=URL(string:"https://chatgpt.com/settings/plugins-settings/plugin_connector_1p_95d39881713c8191931482a62d6edff9")!
+    static let gmailURL=URL(string:"https://chatgpt.com/plugins/plugin_connector_1p_95d39881713c8191931482a62d6edff9")!
+    static let iCloudURL=URL(string:"https://chatgpt.com/plugins/plugin_connector_6a99cb6846448190875813bf1e8e5504")!
     static func setupClient() throws -> MailSetupClient {
         try MailSetupClient(store:NativeMailStore.shared(),wake:{ await wakeHelper() })
     }
@@ -47,6 +48,17 @@ import BridgeCore
             }
             error=nil; reload()
         } catch { self.error=error.localizedDescription }
+    }
+    /// Opens ChatGPT's plugin for the account, and asks Dot to confirm the connection once the owner has added it.
+    func activate(_ email:String,provider:String) {
+        if provider == "icloud" {
+            var input=MailSettingsInput(); input.provider="icloud"
+            request(.activate,email:email,instruction:"Confirm that your iCloud Mail connector reaches the iCloud account \(email). The owner adds the connector in ChatGPT with an app-specific password. If the connector is signed in to this exact address, report this request confirmed with result_code verified and no connections: the iCloud connector gives no stable profile or connection ID, and Mail Dot records the connection itself. If it is not connected, or signed in to another address, report failed and say which. Do not change schedules or email.",input:input)
+            guard error == nil else { return }
+            NSWorkspace.shared.open(Self.iCloudURL)
+            return
+        }
+        activate(email)
     }
     func activate(_ email:String) {
         request(.activate,email:email,instruction:"Connect the Gmail account \(email) through ChatGPT's Gmail connector. The owner will complete Google sign-in and consent. Verify the authenticated profile for this exact email and report its stable profile ID and current connection ID. Do not change schedules or email.")

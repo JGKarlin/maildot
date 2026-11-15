@@ -18,23 +18,33 @@ import AppKit
         window?.makeKeyAndOrderFront(nil)
         NSApplication.shared.activate()
     }
+    /// After removal the window shows what remains on the person's OpenAI account; closing it ends Mail Dot.
+    func showRemoved(_ closing:MailDotRemover.Closing) {
+        if window == nil { show() }
+        guard let window else { return }
+        window.contentView=NSHostingView(rootView:MailDotRemovedView(closing:closing))
+        window.setContentSize(NSSize(width:MailDotRemovedView.size.width,height:MailDotRemovedView.size.height))
+        window.center(); window.makeKeyAndOrderFront(nil)
+        NSApplication.shared.activate()
+    }
 }
 
 struct MailDotAboutView:View {
-    static let size=CGSize(width:360,height:340)
+    static let size=CGSize(width:360,height:380)
     @State private var extensionOn:Bool?
     var body:some View {
         VStack(spacing:14) {
             Image(nsImage:NSApplication.shared.applicationIconImage).resizable().frame(width:96,height:96).accessibilityHidden(true)
             Text("Mail Dot").font(.title.weight(.semibold))
             HStack(spacing:8) {
-                Circle().fill(extensionOn == true ? Color.green : (extensionOn == false ? Color.orange : Color.secondary.opacity(0.4))).frame(width:9,height:9)
-                Text(extensionOn == true ? LocalizedStringKey("Extension on in Mail") : (extensionOn == false ? LocalizedStringKey("Extension off in Mail") : LocalizedStringKey("Checking…"))).foregroundStyle(.secondary)
+                Circle().fill(extensionOn == true ? Color.green : (extensionOn == false ? MailDotStyle.warningText : Color.secondary.opacity(0.4))).frame(width:9,height:9)
+                Text(extensionOn == true ? LocalizedStringKey("Extension on in Mail") : (extensionOn == false ? LocalizedStringKey("Extension off in Mail") : LocalizedStringKey("Checking…"))).foregroundStyle(MailDotStyle.supporting)
             }
             if extensionOn == false {
                 Button("Open Mail") { MailExtensionStatus.openMail() }.buttonStyle(.borderedProminent)
             }
             Spacer(minLength:0)
+            Button("Remove Mail Dot…") { MailDotRemover.start() }.controlSize(.small)
             Divider()
             MailDotCredits().frame(maxWidth:.infinity,alignment:.center).multilineTextAlignment(.center)
         }

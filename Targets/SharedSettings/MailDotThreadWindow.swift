@@ -52,7 +52,7 @@ struct MailDotThreadWindow:View {
                     DotUnavailableLine(snapshot:connection,act:act)
                     Divider()
                 }
-                if entry.dotWorking { ThreadWorkingStrip() } else if entry.reportPending { ThreadWorkingStrip(words:"Dot is writing the report…") }
+                if entry.dotWorking { ThreadWorkingStrip(words:entry.workingWords) } else if entry.reportPending { ThreadWorkingStrip(words:"Dot is writing the report…") }
                 switch shown {
                 case .briefing: ScrollView { BriefingLayout(entry:entry,act:act).padding(16) }
                 case .storyline: ScrollView { StorylineLayout(entry:entry,act:act).padding(16) }
@@ -61,7 +61,7 @@ struct MailDotThreadWindow:View {
                 Divider()
                 ThreadActionBar(entry:entry,line:line,act:act) { settings=true }
             } else {
-                Text(loaded ? "Mail Dot no longer lists this message." : "Loading…").foregroundStyle(.secondary).frame(maxWidth:.infinity,maxHeight:.infinity)
+                Text(loaded ? "Mail Dot no longer lists this message." : "Loading…").foregroundStyle(MailDotStyle.supporting).frame(maxWidth:.infinity,maxHeight:.infinity)
             }
         }
         .frame(width:size.width,height:size.height)
@@ -73,16 +73,21 @@ struct MailDotThreadWindow:View {
             while !Task.isCancelled { await reload(); try? await Task.sleep(for:.seconds(2)) }
         }
     }
-    private var topBar:some View {
+    @ViewBuilder private var topBar:some View {
+        if settings {
+            MailDotSettingsBar(returnsTo:Text(verbatim:"Mail Dot")) { settings=false }.padding(.horizontal,14).padding(.vertical,9)
+        } else { ordinaryBar }
+    }
+    private var ordinaryBar:some View {
         HStack(spacing:7) {
             Image(systemName:"at.circle.fill").foregroundStyle(MailDotStyle.brand).accessibilityHidden(true)
             if notesPage,let entry {
                 VStack(alignment:.leading,spacing:0) {
                     Text("Drafting Notes").font(.headline)
-                    Text(entry.senderName ?? entry.sender).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                    Text(entry.senderName ?? entry.sender).font(.caption).foregroundStyle(MailDotStyle.supporting).lineLimit(1)
                 }
             } else {
-                Text(settings ? "Mail Dot Settings" : "Mail Dot").font(.headline)
+                Text("Mail Dot").font(.headline)
             }
             Spacer()
             if notesPage,let entry {
@@ -99,9 +104,10 @@ struct MailDotThreadWindow:View {
                 ],note:.init(exists:hasNotes) { notesPage=true })
                 .fixedSize()
             }
-            // Settings is the gear at the bottom right (owner request, 14 November 2026); its Done stays here.
-            if settings || entry == nil {
-                Button(settings ? "Done" : "Settings",systemImage:settings ? "checkmark" : "gearshape") { settings.toggle() }.buttonStyle(.borderless)
+            // Settings is the gear at the bottom right (owner request, 14 November 2026); the way back from it is the
+            // chevron at the left of its own bar.
+            if entry == nil {
+                Button("Settings",systemImage:"gearshape") { settings=true }.buttonStyle(.borderless)
             }
         }.padding(.horizontal,14).padding(.vertical,9)
     }
@@ -177,6 +183,8 @@ extension MailTriageEntry {
     }
     /// Dot is working on this message: waiting its turn or asked and not yet answered.
     var dotWorking:Bool { outcome == .pending || outcome == .asked }
+    /// What Dot is doing, in words: a draft the owner asked for comes first (owner decision, 15 November 2026).
+    var workingWords:LocalizedStringKey { draftRequested == true || ownerAnswer != nil ? "Dot is writing the draft…" : "Dot is updating this report…" }
     /// What Dot did: the report's list, or else the Done: lines of its answer.
     var shownWork:[ThreadReport.Work] {
         if let work=report?.work,!work.isEmpty { return work.filter{!$0.needsOwner}+work.filter(\.needsOwner) }
@@ -204,7 +212,7 @@ struct ThreadPill:View {
     let text:String
     let color:Color
     var body:some View {
-        Text(text).font(.caption.weight(.semibold)).foregroundStyle(color == .secondary ? Color.secondary : color).lineLimit(1)
+        Text(text).font(.caption.weight(.semibold)).foregroundStyle(color == .secondary ? MailDotStyle.supporting : color).lineLimit(1)
             .padding(.horizontal,8).padding(.vertical,2).background(Capsule().fill((color == .secondary ? Color.primary : color).opacity(0.14)))
     }
 }
@@ -214,7 +222,7 @@ struct ThreadSection<Content:View>:View {
     @ViewBuilder let content:Content
     var body:some View {
         VStack(alignment:.leading,spacing:7) {
-            Text(title).textCase(.uppercase).font(.caption.weight(.semibold)).foregroundStyle(.secondary).kerning(0.5)
+            Text(title).textCase(.uppercase).font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting).kerning(0.5)
             content
         }
     }
@@ -245,7 +253,7 @@ struct ThreadHeader:View {
                 // The pill keeps its full width however long the subject is (a long subject squeezed it out, 13 November 2026).
                 if pill,let words=entry.stateWords { ThreadPill(text:words,color:entry.stateColor).fixedSize().layoutPriority(1) }
             }
-            Text(byline).font(.callout).foregroundStyle(.secondary).lineLimit(2)
+            Text(byline).font(.callout).foregroundStyle(MailDotStyle.supporting).lineLimit(2)
         }
     }
     private var byline:String {
@@ -274,7 +282,7 @@ struct ThreadQuestion:View {
         if entry.outcome == .needsGuidance,let question=entry.dotNote {
             TriageQuestionCard(question:question,context:entry.report?.questionContext,notes:entry.report?.answerNotes ?? [],
                                columns:columns,boxAlwaysOpen:boxAlwaysOpen,showsHeading:showsHeading,plain:plain) { words in
-                act(String(localized:"Sent to Dot. It drafts the reply with your answer.")) { try TriageCommands.answer(entry.id,words) }
+                act(String(localized:"Sent to Dot. It drafts the reply with your answer.")) { try TriageCommands.answer(entry.id,words,opensReply:true) }
             }
         }
     }
@@ -309,7 +317,7 @@ struct ThreadStatus:View {
                     }
                     if let failure=entry.reportFailed {
                         Label(String(localized:"Dot could not write the report: \(failure)"),systemImage:"exclamationmark.triangle")
-                            .font(.callout).foregroundStyle(.orange).fixedSize(horizontal:false,vertical:true)
+                            .font(.callout).foregroundStyle(MailDotStyle.warningText).fixedSize(horizontal:false,vertical:true)
                     }
                 }
             }
@@ -343,7 +351,7 @@ struct ThreadReportPlaceholder:View {
                     }
                 }
             }
-            HStack(spacing:6) { ProgressView().controlSize(.small); Text("Dot is writing the report…").font(.callout).foregroundStyle(.secondary) }
+            HStack(spacing:6) { ProgressView().controlSize(.small); Text("Dot is writing the report…").font(.callout).foregroundStyle(MailDotStyle.supporting) }
         }
         .accessibilityElement(children:.ignore).accessibilityLabel("Dot is writing the report")
     }
@@ -372,7 +380,7 @@ struct ThreadStands:View {
                     HStack(alignment:.top,spacing:14) {
                         if !decided.isEmpty {
                             VStack(alignment:.leading,spacing:8) {
-                                Text("Decided").font(.caption.weight(.semibold)).foregroundStyle(.green)
+                                Text("Decided").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.successText)
                                 ForEach(Array(decided.enumerated()),id:\.offset) { _,item in
                                     mark("checkmark.circle",.green,[item.item,item.value].compactMap{$0}.joined(separator:": "),
                                          [item.by,ThreadDates.short(item.date)].compactMap{$0}.joined(separator:", "))
@@ -381,7 +389,7 @@ struct ThreadStands:View {
                         }
                         if !open.isEmpty {
                             VStack(alignment:.leading,spacing:8) {
-                                Text("Still to decide").font(.caption.weight(.semibold)).foregroundStyle(.orange)
+                                Text("Still to decide").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.warningText)
                                 ForEach(Array(open.enumerated()),id:\.offset) { _,item in
                                     mark("circle",item.isOwners ? .orange : .secondary,item.item,ThreadOpenLine.text(item))
                                 }
@@ -397,7 +405,7 @@ struct ThreadStands:View {
             Image(systemName:symbol).foregroundStyle(color).accessibilityHidden(true)
             VStack(alignment:.leading,spacing:1) {
                 Text(title).fontWeight(.medium).fixedSize(horizontal:false,vertical:true)
-                if !detail.isEmpty { Text(detail).font(.caption).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true) }
+                if !detail.isEmpty { Text(detail).font(.caption).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true) }
             }
         }
     }
@@ -429,7 +437,7 @@ struct ThreadHistory:View {
         HStack(alignment:.top,spacing:10) {
             VStack(alignment:.leading,spacing:1) {
                 Text(title).font(.caption.weight(.semibold)).foregroundStyle(color)
-                if let date { Text(date).font(.caption).foregroundStyle(.secondary) }
+                if let date { Text(date).font(.caption).foregroundStyle(MailDotStyle.supporting) }
             }.frame(width:92,alignment:.leading)
             Text(text).textSelection(.enabled).fixedSize(horizontal:false,vertical:true)
         }
@@ -456,12 +464,12 @@ struct ThreadMeeting:View {
                     Text([meeting.title,meeting.platform].compactMap{$0}.joined(separator:" · ")).fontWeight(.semibold).lineLimit(2)
                     Text(ThreadDates.meeting(meeting)).font(.callout)
                     let details=[meeting.meetingID.map{String(localized:"ID \($0)")},meeting.location,availability(meeting)].compactMap{$0}
-                    if !details.isEmpty { Text(details.joined(separator:" · ")).font(.caption).foregroundStyle(.secondary).lineLimit(2) }
+                    if !details.isEmpty { Text(details.joined(separator:" · ")).font(.caption).foregroundStyle(MailDotStyle.supporting).lineLimit(2) }
                 }
                 Spacer(minLength:6)
                 buttons(meeting)
             }
-            if let note=entry.calendarNote { Text(note).font(.caption).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true) }
+            if let note=entry.calendarNote { Text(note).font(.caption).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true) }
         }
     }
     private func availability(_ meeting:ThreadReport.Meeting) -> String? {
@@ -474,10 +482,10 @@ struct ThreadMeeting:View {
     @ViewBuilder private func buttons(_ meeting:ThreadReport.Meeting) -> some View {
         VStack(alignment:.trailing,spacing:5) {
             if meeting.added == true || entry.calendarAdded == true {
-                Text(meeting.added == true ? "In your calendar" : "Added").font(.caption.weight(.semibold)).foregroundStyle(.green)
+                Text(meeting.added == true ? "In your calendar" : "Added").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.successText)
                 Button("Show in Calendar") { ThreadCalendar.show(meeting) }.controlSize(.small)
             } else if entry.calendarRequestedAt != nil {
-                HStack(spacing:5) { ProgressView().controlSize(.mini); Text("Adding…").font(.caption).foregroundStyle(.secondary) }
+                HStack(spacing:5) { ProgressView().controlSize(.mini); Text("Adding…").font(.caption).foregroundStyle(MailDotStyle.supporting) }
             } else {
                 Button("Add to Calendar") { act(nil) { try TriageCommands.addToCalendar(entry.id) } }.buttonStyle(.borderedProminent).controlSize(.small)
             }
@@ -513,7 +521,7 @@ struct ThreadWork:View {
         ThreadCard(spacing:8) {
             ForEach(Array(work.enumerated()),id:\.offset) { _,item in
                 HStack(alignment:.firstTextBaseline,spacing:7) {
-                    Image(systemName:item.needsOwner ? "clock" : "checkmark").foregroundStyle(item.needsOwner ? Color.orange : Color.green).accessibilityHidden(true)
+                    Image(systemName:item.needsOwner ? "clock" : "checkmark").foregroundStyle(item.needsOwner ? MailDotStyle.warningText : Color.green).accessibilityHidden(true)
                     Text(item.text).foregroundStyle(item.needsOwner ? .secondary : .primary).frame(maxWidth:.infinity,alignment:.leading).fixedSize(horizontal:false,vertical:true)
                     if let chip=item.chip { ThreadPill(text:chip,color:.secondary) }
                 }
@@ -531,15 +539,28 @@ struct ThreadActionBar:View {
     var openSettings:() -> Void = {}
     var body:some View {
         VStack(alignment:.leading,spacing:6) {
-            if let line { Text(line.text).font(.callout).foregroundStyle(line.failed ? Color.red : Color.secondary).fixedSize(horizontal:false,vertical:true) }
+            // The status line: what was just done, then when Dot last reported (moved up from the button row, owner
+            // decision, 15 November 2026, so that Open in Reply has its room). No refresh button (owner decision,
+            // 13 November 2026): asking Dot again takes minutes.
+            let shown=line ?? entry.openReplyFailed.map{ ($0,true) }
+            TimelineView(.periodic(from:.now,by:30)) { context in
+                let words=entry.dotWorking ? nil : ThreadUpdated.words(entry,now:context.date)
+                if shown != nil || words != nil {
+                    HStack(alignment:.firstTextBaseline,spacing:8) {
+                        if let shown { Text(shown.text).font(.callout).foregroundStyle(shown.failed ? MailDotStyle.dangerText : MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true) }
+                        Spacer(minLength:8)
+                        if let words { Text(words).font(.caption).foregroundStyle(MailDotStyle.supporting).lineLimit(1).fixedSize() }
+                    }
+                }
+            }
             // Four labelled buttons with icons fit on one line (owner request, 14 November 2026): tighter spacing and
             // small controls in the window's 460 points, or the wider window a longer language is given.
             HStack(spacing:6) {
-                // The buttons keep their full labels; only "Updated…" gives way when space runs short.
                 HStack(spacing:6) {
                 actions
-                // With no report, asking for one sits here with the other actions (owner request, 14 November 2026).
-                if entry.report == nil,!entry.dotWorking,!entry.reportPending {
+                // With no report, asking for one sits here with the other actions (owner request, 14 November 2026);
+                // beside a draft it gives way to Open in Reply, since Dot has read the thread to write the draft.
+                if entry.report == nil,!entry.dotWorking,!entry.reportPending,entry.outcome != .drafted {
                     Button("Get Report",systemImage:"doc.text.magnifyingglass") { act(nil) { try TriageCommands.askForReport(entry.id) } }
                         .help("Dot reads the thread and writes its report. No draft. This can take a minute or more.")
                 }
@@ -549,23 +570,13 @@ struct ThreadActionBar:View {
                     .help("Ask Dot a question about your mail (⇧⌥⌘F)")
                 }.fixedSize()
                 Spacer(minLength:6)
-                // The gear, then "Updated…" ending the bar (owner request, 14 November 2026).
                 Button(action:openSettings) { Image(systemName:"gearshape") }
                     .buttonStyle(.borderless).help("Settings").accessibilityLabel("Settings")
                 if entry.dotWorking {
-                    // While Dot works on the message (owner request, 13 November 2026): a spinner where the refresh button
-                    // was, and words saying so, until Dot's answer arrives.
-                    Text("Dot is updating this report…").font(.caption).foregroundStyle(.secondary).lineLimit(1)
-                    ProgressView().controlSize(.small).frame(width:28,height:22).accessibilityLabel("Dot is updating this report")
-                } else {
-                    // No refresh button (owner decision, 13 November 2026): asking Dot again takes minutes, so it is
-                    // not offered as a refresh. When Dot last reported stays shown.
-                    TimelineView(.periodic(from:.now,by:30)) { context in
-                        // Shown only when the buttons leave room for all of it; the buttons are never squeezed for it.
-                        if let words=ThreadUpdated.words(entry,now:context.date) {
-                            ViewThatFits(in:.horizontal) { Text(words).font(.caption).foregroundStyle(.secondary).lineLimit(1).fixedSize(); Color.clear.frame(width:0,height:0) }
-                        }
-                    }
+                    // While Dot works on the message (owner request, 13 November 2026): a spinner and words saying so,
+                    // until Dot's answer arrives.
+                    Text(entry.workingWords).font(.caption).foregroundStyle(MailDotStyle.supporting).lineLimit(1)
+                    ProgressView().controlSize(.small).frame(width:28,height:22).accessibilityLabel(Text(entry.workingWords))
                 }
             }
             .controlSize(.small)
@@ -576,12 +587,15 @@ struct ThreadActionBar:View {
         case .needsGuidance:
             Button("No Reply Needed",systemImage:"checkmark.circle") { act(String(localized:"Marked No reply needed. Dot was not asked.")) { try TriageCommands.noReplyNeeded(entry.id) } }
         case .drafted:
+            // Open in Reply first, as the main action (owner decision, 15 November 2026).
+            Button("Open in Reply",systemImage:"arrowshape.turn.up.left") { act(String(localized:"Close this window, and the reply opens with Dot’s draft in it.")) { try TriageCommands.openInReply(entry.id) } }
+                .help("Opens a reply in Mail with Dot’s draft in it. You edit it and send it from Mail.")
             Button("Discard Draft",systemImage:"trash") { act(nil) { try TriageCommands.discardDraft(entry.id) } }
         case .noDraft:
             // "Draft a Reply" in every state that offers a draft (owner decision, 14 November 2026: "Draft Anyway" did not say what it drafted).
             draftReply
         case .failed:
-            Button("Try Again",systemImage:"arrow.clockwise") { act(String(localized:"Asked Dot again.")) { try TriageCommands.ask(entry.id) } }
+            Button("Try Again",systemImage:"arrow.clockwise") { act(String(localized:"Asked Dot again.")) { try TriageCommands.ask(entry.id,opensReply:true) } }
         case .held,.skipped:
             draftReply
         case .pending,.asked,.replied:
@@ -605,14 +619,23 @@ struct ThreadActionBar:View {
             }.controlSize(.small).fixedSize()
             return NSHostingView(rootView:row).fittingSize.width
         }
-        let widest=[width("No Reply Needed","checkmark.circle"),width("Discard Draft","trash"),width("Draft a Reply","square.and.pencil"),width("Try Again","arrow.clockwise")].max() ?? 0
+        // Beside a draft: Open in Reply and Discard Draft, with Call Dot and Ask Dot (Get Report is not shown there).
+        let drafted=NSHostingView(rootView:HStack(spacing:6) {
+            Button("Open in Reply",systemImage:"arrowshape.turn.up.left") {}
+            Button("Discard Draft",systemImage:"trash") {}
+            Button { } label: { Label("Call Dot",systemImage:"phone") }
+            Button { } label: { Label("Ask Dot",systemImage:"sparkle.magnifyingglass") }
+            Spacer().frame(width:6)
+            Button { } label: { Image(systemName:"gearshape") }.buttonStyle(.borderless)
+        }.controlSize(.small).fixedSize()).fittingSize.width
+        let widest=[width("No Reply Needed","checkmark.circle"),drafted,width("Draft a Reply","square.and.pencil"),width("Try Again","arrow.clockwise")].max() ?? 0
         return ceil(widest)+28   // the bar's side padding
     }
 }
 
 extension ThreadActionBar {
     private var draftReply:some View {
-        DraftReplyButton { words in act(String(localized:"Asked Dot for a draft.")) { try TriageCommands.draftReply(entry.id,guidance:words) } }
+        DraftReplyButton { words in act(String(localized:"Asked Dot for a draft.")) { try TriageCommands.draftReply(entry.id,guidance:words,opensReply:true) } }
     }
 }
 
@@ -752,8 +775,8 @@ struct StorylineLayout:View {
             }
             if let next=report.next {
                 node(.secondary,hollow:true,last:true) {
-                    Text("After that").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
-                    Text(next).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
+                    Text("After that").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting)
+                    Text(next).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true)
                 }
             }
         }
@@ -761,15 +784,15 @@ struct StorylineLayout:View {
     private func stamp(_ title:LocalizedStringKey?,_ date:String?,color:Color = .primary) -> some View {
         HStack(spacing:4) {
             if let title { Text(title).fontWeight(.semibold).foregroundStyle(color) }
-            if title != nil,date != nil { Text(verbatim:"·").foregroundStyle(.secondary) }
-            if let date { Text(date).foregroundStyle(.secondary) }
+            if title != nil,date != nil { Text(verbatim:"·").foregroundStyle(MailDotStyle.supporting) }
+            if let date { Text(date).foregroundStyle(MailDotStyle.supporting) }
         }.font(.caption)
     }
     private func node(_ color:Color,hollow:Bool=false,dashed:Bool=false,last:Bool=false,@ViewBuilder _ content:() -> some View) -> some View {
         HStack(alignment:.top,spacing:10) {
             VStack(spacing:4) {
-                Circle().strokeBorder(color == .secondary ? Color.secondary : color,lineWidth:hollow ? 2.5 : 0)
-                    .background(Circle().fill(hollow ? Color.clear : (color == .secondary ? Color.secondary : color)))
+                Circle().strokeBorder(color == .secondary ? MailDotStyle.supporting : color,lineWidth:hollow ? 2.5 : 0)
+                    .background(Circle().fill(hollow ? Color.clear : (color == .secondary ? MailDotStyle.supporting : color)))
                     .frame(width:10,height:10).padding(.top,4)
                 if !last {
                     Rectangle().fill(Color.clear).frame(width:2).frame(maxHeight:.infinity)
@@ -789,7 +812,7 @@ struct StorylineLayout:View {
                         Text("Dot’s work").fontWeight(.medium)
                         Spacer(minLength:4)
                         ForEach(Array(Set(work.compactMap(\.chip))).sorted(),id:\.self) { ThreadPill(text:$0,color:.secondary) }
-                        Image(systemName:workOpen ? "chevron.down" : "chevron.right").font(.caption).foregroundStyle(.secondary)
+                        Image(systemName:workOpen ? "chevron.down" : "chevron.right").font(.caption).foregroundStyle(MailDotStyle.supporting)
                     }.contentShape(Rectangle())
                 }.buttonStyle(.plain).accessibilityLabel(workOpen ? "Hide Dot’s work" : "Show Dot’s work")
                 if workOpen { ThreadWork(entry:entry,titled:false) }
@@ -855,7 +878,7 @@ struct LedgerLayout:View {
         VStack(alignment:.leading,spacing:2) {
             HStack(spacing:4) {
                 Text(title).fontWeight(.semibold).foregroundStyle(color)
-                if let date { Text(verbatim:"· "+date).foregroundStyle(.secondary) }
+                if let date { Text(verbatim:"· "+date).foregroundStyle(MailDotStyle.supporting) }
             }.font(.caption)
             Text(text).textSelection(.enabled).fixedSize(horizontal:false,vertical:true)
         }
@@ -868,7 +891,7 @@ struct LedgerLayout:View {
             ThreadSection(title:"Decisions") {
                 VStack(alignment:.leading,spacing:0) {
                     // Dot's question with no matter of the report to hang it on goes first.
-                    if question,askedRow == nil { questionBlock.padding(12).background(Color.orange.opacity(0.10)) }
+                    if question,askedRow == nil { questionBlock.padding(12).background(MailDotStyle.warningText.opacity(0.10)) }
                     ForEach(Array(decided.enumerated()),id:\.offset) { index,item in
                         if index > 0 || (question && askedRow == nil) { Divider() }
                         row("checkmark.circle",.green,item.item,item.value ?? "",[item.by.map{String(localized:"Decided by \($0)")},ThreadDates.short(item.date)].compactMap{$0}.joined(separator:", "))
@@ -879,7 +902,7 @@ struct LedgerLayout:View {
                             VStack(alignment:.leading,spacing:8) {
                                 row("circle",.orange,item.item,item.isOwners ? String(localized:"Yours to decide") : (item.owner ?? ""),item.due.flatMap{ThreadDates.weekday($0)}.map{String(localized:"Due \($0)")} ?? "",strong:true,padded:false)
                                 questionBlock
-                            }.padding(12).background(Color.orange.opacity(0.10))
+                            }.padding(12).background(MailDotStyle.warningText.opacity(0.10))
                         } else {
                             row("circle",item.isOwners ? .orange : .secondary,item.item,item.isOwners ? String(localized:"Yours to decide") : (item.owner.map{String(localized:"\($0) to decide")} ?? ""),item.due.flatMap{ThreadDates.weekday($0)}.map{String(localized:"Due \($0)")} ?? item.note ?? "")
                         }
@@ -897,7 +920,7 @@ struct LedgerLayout:View {
             Image(systemName:symbol).foregroundStyle(color).accessibilityHidden(true)
             Text(title).fontWeight(.semibold).frame(width:96,alignment:.leading).lineLimit(2)
             Text(value).fontWeight(strong ? .semibold : .regular).foregroundStyle(strong ? color : .primary).frame(maxWidth:.infinity,alignment:.leading).fixedSize(horizontal:false,vertical:true)
-            if !detail.isEmpty { Text(detail).font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.trailing) }
+            if !detail.isEmpty { Text(detail).font(.caption).foregroundStyle(MailDotStyle.supporting).multilineTextAlignment(.trailing) }
         }
         .padding(.horizontal,padded ? 12 : 0).padding(.vertical,padded ? 9 : 0)
     }

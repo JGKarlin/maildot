@@ -1,0 +1,566 @@
+{
+ "ar": {
+  "welcome": [
+   "مرحباً بك في Mail Dot",
+   "يتيح Mail Dot لمساعدك في ChatGPT، Dot، قراءة بريدك وصياغة الردود داخل Apple Mail.",
+   "يضع برنامج التثبيت Mail Dot في مجلد التطبيقات. بعد ذلك يفتح Mail Dot ويكمل الإعداد معك.",
+   "يتطلب Mail Dot تطبيق ChatGPT على هذا الـ Mac وخطة ChatGPT تتضمن Dot."
+  ],
+  "conclusion": [
+   "تم تثبيت Mail Dot",
+   "سيفتح Mail Dot بعد ذلك. إذا لم يظهر، افتح Mail Dot من مجلد التطبيقات."
+  ]
+ },
+ "bn": {
+  "welcome": [
+   "Mail Dot-এ স্বাগত",
+   "Mail Dot আপনার ChatGPT সহায়ক Dot-কে Apple Mail-এর ভেতরে আপনার মেল পড়তে এবং উত্তরের খসড়া লিখতে দেয়।",
+   "ইনস্টলার Mail Dot-কে অ্যাপ্লিকেশন ফোল্ডারে রাখে। এরপর Mail Dot খোলে এবং আপনার সঙ্গে সেটআপ সম্পূর্ণ করে।",
+   "Mail Dot-এর জন্য এই Mac-এ ChatGPT অ্যাপ এবং Dot অন্তর্ভুক্ত এমন একটি ChatGPT প্ল্যান প্রয়োজন।"
+  ],
+  "conclusion": [
+   "Mail Dot ইনস্টল হয়েছে",
+   "এরপর Mail Dot খুলবে। এটি দেখা না গেলে অ্যাপ্লিকেশন ফোল্ডার থেকে Mail Dot খুলুন।"
+  ]
+ },
+ "ca": {
+  "welcome": [
+   "Et donem la benvinguda al Mail Dot",
+   "El Mail Dot permet que el Dot, el teu assistent del ChatGPT, llegeixi el teu correu i redacti respostes dins de l’Apple Mail.",
+   "L’instal·lador col·loca el Mail Dot a la carpeta Aplicacions. Després el Mail Dot s’obre i completa la configuració amb tu.",
+   "El Mail Dot requereix l’app ChatGPT en aquest Mac i un pla del ChatGPT que inclogui el Dot."
+  ],
+  "conclusion": [
+   "El Mail Dot està instal·lat",
+   "A continuació s’obre el Mail Dot. Si no apareix, obre el Mail Dot des de la carpeta Aplicacions."
+  ]
+ },
+ "cs": {
+  "welcome": [
+   "Vítá vás Mail Dot",
+   "Mail Dot umožňuje Dot, vašemu asistentovi ChatGPT, číst vaši poštu a připravovat odpovědi v Apple Mailu.",
+   "Instalátor umístí Mail Dot do složky Aplikace. Mail Dot se pak otevře a dokončí nastavení společně s vámi.",
+   "Mail Dot vyžaduje aplikaci ChatGPT na tomto Macu a tarif ChatGPT, který zahrnuje Dot."
+  ],
+  "conclusion": [
+   "Mail Dot je nainstalován",
+   "Nyní se otevře Mail Dot. Pokud se neobjeví, otevřete Mail Dot ze složky Aplikace."
+  ]
+ },
+ "da": {
+  "welcome": [
+   "Velkommen til Mail Dot",
+   "Med Mail Dot kan Dot, din ChatGPT-assistent, læse din post og skrive udkast til svar i Apple Mail.",
+   "Installeringsprogrammet anbringer Mail Dot i mappen Apps. Derefter åbner Mail Dot og gør indstillingen færdig sammen med dig.",
+   "Mail Dot kræver ChatGPT-appen på denne Mac og et ChatGPT-abonnement, der omfatter Dot."
+  ],
+  "conclusion": [
+   "Mail Dot er installeret",
+   "Mail Dot åbner nu. Hvis det ikke vises, skal du åbne Mail Dot fra mappen Apps."
+  ]
+ },
+ "de": {
+  "welcome": [
+   "Willkommen bei Mail Dot",
+   "Mit Mail Dot kann Dot, dein ChatGPT-Assistent, in Apple Mail deine E-Mails lesen und Antworten entwerfen.",
+   "Das Installationsprogramm legt Mail Dot im Ordner „Programme“ ab. Danach öffnet sich Mail Dot und schließt die Einrichtung mit dir ab.",
+   "Mail Dot benötigt die ChatGPT-App auf diesem Mac und einen ChatGPT-Tarif, der Dot enthält."
+  ],
+  "conclusion": [
+   "Mail Dot ist installiert",
+   "Als Nächstes öffnet sich Mail Dot. Falls es nicht erscheint, öffne Mail Dot im Ordner „Programme“."
+  ]
+ },
+ "el": {
+  "welcome": [
+   "Καλώς ορίσατε στο Mail Dot",
+   "Το Mail Dot επιτρέπει στο Dot, τον βοηθό σας ChatGPT, να διαβάζει την αλληλογραφία σας και να συντάσσει απαντήσεις μέσα στο Apple Mail.",
+   "Το πρόγραμμα εγκατάστασης τοποθετεί το Mail Dot στον φάκελο Εφαρμογές. Έπειτα το Mail Dot ανοίγει και ολοκληρώνει τη διαμόρφωση μαζί σας.",
+   "Το Mail Dot απαιτεί την εφαρμογή ChatGPT σε αυτό το Mac και ένα πρόγραμμα ChatGPT που περιλαμβάνει το Dot."
+  ],
+  "conclusion": [
+   "Το Mail Dot εγκαταστάθηκε",
+   "Στη συνέχεια ανοίγει το Mail Dot. Αν δεν εμφανιστεί, ανοίξτε το Mail Dot από τον φάκελο Εφαρμογές."
+  ]
+ },
+ "en": {
+  "welcome": [
+   "Welcome to Mail Dot",
+   "Mail Dot lets Dot, your ChatGPT assistant, read your mail and draft replies inside Apple Mail.",
+   "The installer places Mail Dot in the Applications folder. Mail Dot then opens and completes setup with you.",
+   "Mail Dot requires the ChatGPT app on this Mac and a ChatGPT plan that includes Dot."
+  ],
+  "conclusion": [
+   "Mail Dot is installed",
+   "Mail Dot opens next. If it does not appear, open Mail Dot from the Applications folder."
+  ]
+ },
+ "es": {
+  "welcome": [
+   "Te damos la bienvenida a Mail Dot",
+   "Mail Dot permite que Dot, tu asistente de ChatGPT, lea tu correo y redacte respuestas dentro de Apple Mail.",
+   "El instalador coloca Mail Dot en la carpeta Aplicaciones. Después, Mail Dot se abre y completa la configuración contigo.",
+   "Mail Dot requiere la app ChatGPT en este Mac y un plan de ChatGPT que incluya Dot."
+  ],
+  "conclusion": [
+   "Mail Dot está instalado",
+   "A continuación se abre Mail Dot. Si no aparece, abre Mail Dot desde la carpeta Aplicaciones."
+  ]
+ },
+ "es-419": {
+  "welcome": [
+   "Te damos la bienvenida a Mail Dot",
+   "Mail Dot permite que Dot, tu asistente de ChatGPT, lea tu correo y redacte respuestas dentro de Apple Mail.",
+   "El instalador coloca Mail Dot en la carpeta Aplicaciones. Después, Mail Dot se abre y completa la configuración contigo.",
+   "Mail Dot requiere la app ChatGPT en esta Mac y un plan de ChatGPT que incluya Dot."
+  ],
+  "conclusion": [
+   "Mail Dot está instalado",
+   "A continuación se abre Mail Dot. Si no aparece, abre Mail Dot desde la carpeta Aplicaciones."
+  ]
+ },
+ "fi": {
+  "welcome": [
+   "Tervetuloa Mail Dotiin",
+   "Mail Dotin avulla Dot, ChatGPT-avustajasi, voi lukea sähköpostejasi ja luonnostella vastauksia Apple Mailissa.",
+   "Asentaja sijoittaa Mail Dotin Apit-kansioon. Sen jälkeen Mail Dot avautuu ja viimeistelee käyttöönoton kanssasi.",
+   "Mail Dot vaatii ChatGPT-apin tällä Macilla ja ChatGPT-tilauksen, johon Dot sisältyy."
+  ],
+  "conclusion": [
+   "Mail Dot on asennettu",
+   "Mail Dot avautuu seuraavaksi. Jos se ei tule näkyviin, avaa Mail Dot Apit-kansiosta."
+  ]
+ },
+ "fr": {
+  "welcome": [
+   "Bienvenue dans Mail Dot",
+   "Mail Dot permet à Dot, votre assistant ChatGPT, de lire vos e-mails et de rédiger des réponses dans Apple Mail.",
+   "Le programme d’installation place Mail Dot dans le dossier Applications. Mail Dot s’ouvre ensuite et termine la configuration avec vous.",
+   "Mail Dot nécessite l’app ChatGPT sur ce Mac et un forfait ChatGPT qui inclut Dot."
+  ],
+  "conclusion": [
+   "Mail Dot est installé",
+   "Mail Dot s’ouvre ensuite. S’il n’apparaît pas, ouvrez Mail Dot depuis le dossier Applications."
+  ]
+ },
+ "fr-CA": {
+  "welcome": [
+   "Bienvenue dans Mail Dot",
+   "Mail Dot permet à Dot, votre assistant ChatGPT, de lire vos courriels et de rédiger des réponses dans Apple Mail.",
+   "Le programme d’installation place Mail Dot dans le dossier Applications. Mail Dot s’ouvre ensuite et termine la configuration avec vous.",
+   "Mail Dot nécessite l’app ChatGPT sur ce Mac et un forfait ChatGPT qui inclut Dot."
+  ],
+  "conclusion": [
+   "Mail Dot est installé",
+   "Mail Dot s’ouvre ensuite. S’il n’apparaît pas, ouvrez Mail Dot à partir du dossier Applications."
+  ]
+ },
+ "gu": {
+  "welcome": [
+   "Mail Dot માં સ્વાગત છે",
+   "Mail Dot તમારા ChatGPT સહાયક Dot ને Apple Mail ની અંદર તમારો મેલ વાંચવા અને જવાબોના ડ્રાફ્ટ તૈયાર કરવા દે છે.",
+   "ઇન્સ્ટૉલર Mail Dot ને ઍપ્લિકેશન ફોલ્ડરમાં મૂકે છે. પછી Mail Dot ખૂલે છે અને તમારી સાથે સેટઅપ પૂર્ણ કરે છે.",
+   "Mail Dot માટે આ Mac પર ChatGPT ઍપ અને Dot સમાવતો ChatGPT પ્લાન જરૂરી છે."
+  ],
+  "conclusion": [
+   "Mail Dot ઇન્સ્ટૉલ થયું છે",
+   "હવે Mail Dot ખૂલશે. જો તે ન દેખાય, તો ઍપ્લિકેશન ફોલ્ડરમાંથી Mail Dot ખોલો."
+  ]
+ },
+ "he": {
+  "welcome": [
+   "ברוכים הבאים אל Mail Dot",
+   "Mail Dot מאפשר ל‑Dot, העוזר שלך ב‑ChatGPT, לקרוא את הדואר שלך ולנסח תשובות בתוך Apple Mail.",
+   "תוכנית ההתקנה ממקמת את Mail Dot בתיקיית ״יישומים״. לאחר מכן Mail Dot נפתח ומשלים את ההגדרה יחד איתך.",
+   "Mail Dot דורש את היישום ChatGPT ב‑Mac זה ותוכנית ChatGPT שכוללת את Dot."
+  ],
+  "conclusion": [
+   "Mail Dot הותקן",
+   "כעת Mail Dot ייפתח. אם הוא אינו מופיע, יש לפתוח את Mail Dot מתיקיית ״יישומים״."
+  ]
+ },
+ "hi": {
+  "welcome": [
+   "Mail Dot में आपका स्वागत है",
+   "Mail Dot आपके ChatGPT सहायक Dot को Apple Mail के भीतर आपका मेल पढ़ने और उत्तरों के ड्राफ़्ट बनाने देता है।",
+   "इंस्टॉलर Mail Dot को ऐप्लिकेशन फ़ोल्डर में रखता है। फिर Mail Dot खुलता है और आपके साथ सेटअप पूरा करता है।",
+   "Mail Dot के लिए इस Mac पर ChatGPT ऐप और ऐसा ChatGPT प्लान चाहिए जिसमें Dot शामिल हो।"
+  ],
+  "conclusion": [
+   "Mail Dot इंस्टॉल हो गया",
+   "अब Mail Dot खुलेगा। यदि वह न दिखे, तो ऐप्लिकेशन फ़ोल्डर से Mail Dot खोलें।"
+  ]
+ },
+ "hr": {
+  "welcome": [
+   "Dobro došli u Mail Dot",
+   "Mail Dot omogućuje Dotu, vašem ChatGPT asistentu, da u Apple Mailu čita vašu poštu i sastavlja odgovore.",
+   "Instalacijski program smješta Mail Dot u mapu Aplikacije. Zatim se Mail Dot otvara i s vama dovršava postavljanje.",
+   "Mail Dot zahtijeva aplikaciju ChatGPT na ovom Macu i ChatGPT plan koji uključuje Dot."
+  ],
+  "conclusion": [
+   "Mail Dot je instaliran",
+   "Sada se otvara Mail Dot. Ako se ne pojavi, otvorite Mail Dot iz mape Aplikacije."
+  ]
+ },
+ "hu": {
+  "welcome": [
+   "Üdvözli a Mail Dot",
+   "A Mail Dot lehetővé teszi, hogy Dot, az Ön ChatGPT-asszisztense az Apple Mailben elolvassa leveleit és válaszokat fogalmazzon.",
+   "A telepítő a Mail Dotot az Alkalmazások mappába helyezi. Ezután a Mail Dot megnyílik, és Önnel együtt befejezi a beállítást.",
+   "A Mail Dothoz szükséges a ChatGPT alkalmazás ezen a Macen, valamint egy olyan ChatGPT-csomag, amely tartalmazza Dotot."
+  ],
+  "conclusion": [
+   "A Mail Dot telepítve van",
+   "Ezután megnyílik a Mail Dot. Ha nem jelenik meg, nyissa meg a Mail Dotot az Alkalmazások mappából."
+  ]
+ },
+ "id": {
+  "welcome": [
+   "Selamat Datang di Mail Dot",
+   "Mail Dot memungkinkan Dot, asisten ChatGPT Anda, membaca email Anda dan menyusun draf balasan di dalam Apple Mail.",
+   "Penginstal menempatkan Mail Dot di folder Aplikasi. Mail Dot kemudian terbuka dan menyelesaikan pengaturan bersama Anda.",
+   "Mail Dot memerlukan app ChatGPT di Mac ini dan paket ChatGPT yang menyertakan Dot."
+  ],
+  "conclusion": [
+   "Mail Dot telah diinstal",
+   "Mail Dot akan terbuka berikutnya. Jika tidak muncul, buka Mail Dot dari folder Aplikasi."
+  ]
+ },
+ "it": {
+  "welcome": [
+   "Benvenuto in Mail Dot",
+   "Mail Dot permette a Dot, il tuo assistente ChatGPT, di leggere la tua posta e preparare le risposte all’interno di Apple Mail.",
+   "Il programma di installazione colloca Mail Dot nella cartella Applicazioni. Mail Dot poi si apre e completa la configurazione insieme a te.",
+   "Mail Dot richiede l’app ChatGPT su questo Mac e un piano ChatGPT che includa Dot."
+  ],
+  "conclusion": [
+   "Mail Dot è installato",
+   "Ora si apre Mail Dot. Se non compare, apri Mail Dot dalla cartella Applicazioni."
+  ]
+ },
+ "ja": {
+  "welcome": [
+   "Mail Dotへようこそ",
+   "Mail Dotを使うと、ChatGPTのアシスタントであるDotが、Appleの“メール”の中であなたのメールを読み、返信を下書きできます。",
+   "インストーラはMail Dotを“アプリケーション”フォルダに入れます。そのあとMail Dotが開き、一緒に設定を完了します。",
+   "Mail Dotには、このMac上のChatGPTアプリと、Dotを含むChatGPTプランが必要です。"
+  ],
+  "conclusion": [
+   "Mail Dotがインストールされました",
+   "次にMail Dotが開きます。表示されない場合は、“アプリケーション”フォルダからMail Dotを開いてください。"
+  ]
+ },
+ "kn": {
+  "welcome": [
+   "Mail Dot ಗೆ ಸುಸ್ವಾಗತ",
+   "Mail Dot ನಿಮ್ಮ ChatGPT ಸಹಾಯಕ Dot ಗೆ Apple Mail ಒಳಗೆ ನಿಮ್ಮ ಮೇಲ್ ಓದಲು ಮತ್ತು ಉತ್ತರಗಳ ಡ್ರಾಫ್ಟ್ ಬರೆಯಲು ಅನುವು ಮಾಡಿಕೊಡುತ್ತದೆ.",
+   "ಇನ್‌ಸ್ಟಾಲರ್ Mail Dot ಅನ್ನು ಅಪ್ಲಿಕೇಶನ್‌ಗಳ ಫೋಲ್ಡರ್‌ನಲ್ಲಿ ಇರಿಸುತ್ತದೆ. ನಂತರ Mail Dot ತೆರೆದು, ನಿಮ್ಮೊಂದಿಗೆ ಸೆಟಪ್ ಪೂರ್ಣಗೊಳಿಸುತ್ತದೆ.",
+   "Mail Dot ಗೆ ಈ Mac ನಲ್ಲಿ ChatGPT ಆ್ಯಪ್ ಮತ್ತು Dot ಒಳಗೊಂಡ ChatGPT ಪ್ಲಾನ್ ಅಗತ್ಯ."
+  ],
+  "conclusion": [
+   "Mail Dot ಇನ್‌ಸ್ಟಾಲ್ ಆಗಿದೆ",
+   "ಮುಂದೆ Mail Dot ತೆರೆಯುತ್ತದೆ. ಅದು ಕಾಣಿಸದಿದ್ದರೆ, ಅಪ್ಲಿಕೇಶನ್‌ಗಳ ಫೋಲ್ಡರ್‌ನಿಂದ Mail Dot ತೆರೆಯಿರಿ."
+  ]
+ },
+ "ko": {
+  "welcome": [
+   "Mail Dot 사용을 환영합니다",
+   "Mail Dot을 사용하면 ChatGPT 어시스턴트인 Dot이 Apple Mail 안에서 사용자의 메일을 읽고 답장 초안을 작성할 수 있습니다.",
+   "설치 프로그램이 Mail Dot을 응용 프로그램 폴더에 넣습니다. 그런 다음 Mail Dot이 열려 사용자와 함께 설정을 완료합니다.",
+   "Mail Dot을 사용하려면 이 Mac에 ChatGPT 앱이 있어야 하고 Dot이 포함된 ChatGPT 요금제가 필요합니다."
+  ],
+  "conclusion": [
+   "Mail Dot이 설치되었습니다",
+   "다음으로 Mail Dot이 열립니다. 나타나지 않으면 응용 프로그램 폴더에서 Mail Dot을 여십시오."
+  ]
+ },
+ "ml": {
+  "welcome": [
+   "Mail Dot-ലേക്ക് സ്വാഗതം",
+   "Mail Dot നിങ്ങളുടെ ChatGPT സഹായിയായ Dot-നെ Apple Mail-നുള്ളിൽ നിങ്ങളുടെ മെയിൽ വായിക്കാനും മറുപടികളുടെ ഡ്രാഫ്റ്റ് തയ്യാറാക്കാനും അനുവദിക്കുന്നു.",
+   "ഇൻസ്റ്റാളർ Mail Dot-നെ ആപ്ലിക്കേഷനുകൾ ഫോൾഡറിൽ വയ്ക്കുന്നു. തുടർന്ന് Mail Dot തുറന്ന് നിങ്ങളോടൊപ്പം സജ്ജീകരണം പൂർത്തിയാക്കുന്നു.",
+   "Mail Dot-ന് ഈ Mac-ൽ ChatGPT ആപ്പും Dot ഉൾപ്പെടുന്ന ഒരു ChatGPT പ്ലാനും ആവശ്യമാണ്."
+  ],
+  "conclusion": [
+   "Mail Dot ഇൻസ്റ്റാൾ ചെയ്തു",
+   "അടുത്തതായി Mail Dot തുറക്കും. അത് ദൃശ്യമാകുന്നില്ലെങ്കിൽ, ആപ്ലിക്കേഷനുകൾ ഫോൾഡറിൽ നിന്ന് Mail Dot തുറക്കുക."
+  ]
+ },
+ "mr": {
+  "welcome": [
+   "Mail Dot मध्ये स्वागत आहे",
+   "Mail Dot तुमच्या ChatGPT सहाय्यक Dot ला Apple Mail मध्ये तुमचा मेल वाचू देतो आणि उत्तरांचे मसुदे तयार करू देतो.",
+   "इंस्टॉलर Mail Dot ला ॲप्लिकेशन्स फोल्डरमध्ये ठेवतो. त्यानंतर Mail Dot उघडतो आणि तुमच्यासोबत सेटअप पूर्ण करतो.",
+   "Mail Dot साठी या Mac वर ChatGPT ॲप आणि Dot समाविष्ट असलेला ChatGPT प्लॅन आवश्यक आहे."
+  ],
+  "conclusion": [
+   "Mail Dot इंस्टॉल झाला आहे",
+   "आता Mail Dot उघडेल. तो न दिसल्यास, ॲप्लिकेशन्स फोल्डरमधून Mail Dot उघडा."
+  ]
+ },
+ "ms": {
+  "welcome": [
+   "Selamat Datang ke Mail Dot",
+   "Mail Dot membolehkan Dot, pembantu ChatGPT anda, membaca mel anda dan mendraf balasan dalam Apple Mail.",
+   "Pemasang meletakkan Mail Dot dalam folder Aplikasi. Mail Dot kemudian dibuka dan melengkapkan persediaan bersama anda.",
+   "Mail Dot memerlukan app ChatGPT pada Mac ini dan pelan ChatGPT yang merangkumi Dot."
+  ],
+  "conclusion": [
+   "Mail Dot telah dipasang",
+   "Mail Dot akan dibuka seterusnya. Jika ia tidak muncul, buka Mail Dot daripada folder Aplikasi."
+  ]
+ },
+ "nb": {
+  "welcome": [
+   "Velkommen til Mail Dot",
+   "Med Mail Dot kan Dot, ChatGPT-assistenten din, lese e-posten din og skrive utkast til svar i Apple Mail.",
+   "Installereren legger Mail Dot i Apper-mappen. Deretter åpnes Mail Dot og fullfører konfigureringen sammen med deg.",
+   "Mail Dot krever ChatGPT-appen på denne Macen og et ChatGPT-abonnement som inkluderer Dot."
+  ],
+  "conclusion": [
+   "Mail Dot er installert",
+   "Mail Dot åpnes nå. Hvis det ikke vises, åpner du Mail Dot fra Apper-mappen."
+  ]
+ },
+ "nl": {
+  "welcome": [
+   "Welkom bij Mail Dot",
+   "Met Mail Dot kan Dot, je ChatGPT-assistent, in Apple Mail je e-mail lezen en antwoorden opstellen.",
+   "Het installatieprogramma plaatst Mail Dot in de map Apps. Daarna wordt Mail Dot geopend en rondt het de configuratie samen met je af.",
+   "Mail Dot vereist de ChatGPT-app op deze Mac en een ChatGPT-abonnement met Dot."
+  ],
+  "conclusion": [
+   "Mail Dot is geïnstalleerd",
+   "Hierna wordt Mail Dot geopend. Als het niet verschijnt, open je Mail Dot vanuit de map Apps."
+  ]
+ },
+ "or": {
+  "welcome": [
+   "Mail Dot କୁ ସ୍ୱାଗତ",
+   "Mail Dot ଆପଣଙ୍କ ChatGPT ସହାୟକ Dot କୁ Apple Mail ଭିତରେ ଆପଣଙ୍କ ମେଲ୍ ପଢ଼ିବାକୁ ଏବଂ ଉତ୍ତରର ଡ୍ରାଫ୍ଟ ଲେଖିବାକୁ ଦିଏ।",
+   "ଇନ୍‌ଷ୍ଟଲର୍ Mail Dot କୁ ଆପ୍ଲିକେସନ୍ ଫୋଲ୍ଡରରେ ରଖେ। ତା’ପରେ Mail Dot ଖୋଲେ ଏବଂ ଆପଣଙ୍କ ସହ ସେଟ୍‌ଅପ୍ ସମ୍ପୂର୍ଣ୍ଣ କରେ।",
+   "Mail Dot ପାଇଁ ଏହି Mac ରେ ChatGPT ଆପ୍ ଏବଂ Dot ଥିବା ଏକ ChatGPT ପ୍ଲାନ୍ ଆବଶ୍ୟକ।"
+  ],
+  "conclusion": [
+   "Mail Dot ଇନ୍‌ଷ୍ଟଲ୍ ହୋଇଛି",
+   "ଏବେ Mail Dot ଖୋଲିବ। ଯଦି ଏହା ନ ଦେଖାଯାଏ, ଆପ୍ଲିକେସନ୍ ଫୋଲ୍ଡରରୁ Mail Dot ଖୋଲନ୍ତୁ।"
+  ]
+ },
+ "pa": {
+  "welcome": [
+   "Mail Dot ਵਿੱਚ ਜੀ ਆਇਆਂ ਨੂੰ",
+   "Mail Dot ਤੁਹਾਡੇ ChatGPT ਸਹਾਇਕ Dot ਨੂੰ Apple Mail ਦੇ ਅੰਦਰ ਤੁਹਾਡੀ ਮੇਲ ਪੜ੍ਹਨ ਅਤੇ ਜਵਾਬਾਂ ਦੇ ਡਰਾਫਟ ਬਣਾਉਣ ਦਿੰਦਾ ਹੈ।",
+   "ਇੰਸਟਾਲਰ Mail Dot ਨੂੰ ਐਪਲੀਕੇਸ਼ਨ ਫੋਲਡਰ ਵਿੱਚ ਰੱਖਦਾ ਹੈ। ਫਿਰ Mail Dot ਖੁੱਲ੍ਹਦਾ ਹੈ ਅਤੇ ਤੁਹਾਡੇ ਨਾਲ ਸੈੱਟਅੱਪ ਪੂਰਾ ਕਰਦਾ ਹੈ।",
+   "Mail Dot ਲਈ ਇਸ Mac ’ਤੇ ChatGPT ਐਪ ਅਤੇ Dot ਵਾਲਾ ChatGPT ਪਲਾਨ ਚਾਹੀਦਾ ਹੈ।"
+  ],
+  "conclusion": [
+   "Mail Dot ਇੰਸਟਾਲ ਹੋ ਗਿਆ ਹੈ",
+   "ਹੁਣ Mail Dot ਖੁੱਲ੍ਹੇਗਾ। ਜੇ ਇਹ ਨਾ ਦਿਸੇ, ਤਾਂ ਐਪਲੀਕੇਸ਼ਨ ਫੋਲਡਰ ਤੋਂ Mail Dot ਖੋਲ੍ਹੋ।"
+  ]
+ },
+ "pl": {
+  "welcome": [
+   "Witamy w Mail Dot",
+   "Mail Dot pozwala Dot, Twojemu asystentowi ChatGPT, czytać Twoją pocztę i przygotowywać odpowiedzi w Apple Mail.",
+   "Instalator umieszcza Mail Dot w katalogu Aplikacje. Następnie Mail Dot otwiera się i kończy konfigurację razem z Tobą.",
+   "Mail Dot wymaga aplikacji ChatGPT na tym Macu oraz planu ChatGPT obejmującego Dot."
+  ],
+  "conclusion": [
+   "Mail Dot jest zainstalowany",
+   "Teraz otworzy się Mail Dot. Jeśli się nie pojawi, otwórz Mail Dot z katalogu Aplikacje."
+  ]
+ },
+ "pt-BR": {
+  "welcome": [
+   "Bem-vindo ao Mail Dot",
+   "O Mail Dot permite que o Dot, seu assistente do ChatGPT, leia seus e-mails e redija respostas dentro do Apple Mail.",
+   "O instalador coloca o Mail Dot na pasta Aplicativos. Em seguida, o Mail Dot abre e conclui a configuração com você.",
+   "O Mail Dot requer o app ChatGPT neste Mac e um plano do ChatGPT que inclua o Dot."
+  ],
+  "conclusion": [
+   "O Mail Dot está instalado",
+   "O Mail Dot abre em seguida. Se ele não aparecer, abra o Mail Dot na pasta Aplicativos."
+  ]
+ },
+ "pt-PT": {
+  "welcome": [
+   "Damos-lhe as boas-vindas ao Mail Dot",
+   "O Mail Dot permite que o Dot, o seu assistente do ChatGPT, leia o seu correio e redija respostas dentro do Apple Mail.",
+   "O instalador coloca o Mail Dot na pasta Aplicações. Em seguida, o Mail Dot abre e conclui a configuração consigo.",
+   "O Mail Dot requer a aplicação ChatGPT neste Mac e um plano do ChatGPT que inclua o Dot."
+  ],
+  "conclusion": [
+   "O Mail Dot está instalado",
+   "O Mail Dot abre a seguir. Se não aparecer, abra o Mail Dot a partir da pasta Aplicações."
+  ]
+ },
+ "ro": {
+  "welcome": [
+   "Bun venit la Mail Dot",
+   "Mail Dot îi permite lui Dot, asistentul tău ChatGPT, să îți citească e-mailurile și să redacteze răspunsuri în Apple Mail.",
+   "Programul de instalare plasează Mail Dot în dosarul Aplicații. Apoi Mail Dot se deschide și finalizează configurarea împreună cu tine.",
+   "Mail Dot necesită aplicația ChatGPT pe acest Mac și un abonament ChatGPT care include Dot."
+  ],
+  "conclusion": [
+   "Mail Dot este instalat",
+   "Mail Dot se deschide în continuare. Dacă nu apare, deschide Mail Dot din dosarul Aplicații."
+  ]
+ },
+ "ru": {
+  "welcome": [
+   "Добро пожаловать в Mail Dot",
+   "Mail Dot позволяет Dot, Вашему ассистенту ChatGPT, читать Вашу почту и готовить ответы прямо в Apple Mail.",
+   "Установщик помещает Mail Dot в папку «Программы». Затем Mail Dot откроется и завершит настройку вместе с Вами.",
+   "Для Mail Dot требуется приложение ChatGPT на этом Mac и тариф ChatGPT, включающий Dot."
+  ],
+  "conclusion": [
+   "Mail Dot установлен",
+   "Далее откроется Mail Dot. Если он не появится, откройте Mail Dot из папки «Программы»."
+  ]
+ },
+ "sk": {
+  "welcome": [
+   "Víta vás Mail Dot",
+   "Mail Dot umožňuje Dot, vášmu asistentovi ChatGPT, čítať vašu poštu a pripravovať odpovede v Apple Maile.",
+   "Inštalátor umiestni Mail Dot do priečinka Aplikácie. Mail Dot sa potom otvorí a dokončí nastavenie spolu s vami.",
+   "Mail Dot vyžaduje aplikáciu ChatGPT na tomto Macu a program ChatGPT, ktorý zahŕňa Dot."
+  ],
+  "conclusion": [
+   "Mail Dot je nainštalovaný",
+   "Teraz sa otvorí Mail Dot. Ak sa nezobrazí, otvorte Mail Dot z priečinka Aplikácie."
+  ]
+ },
+ "sl": {
+  "welcome": [
+   "Dobrodošli v Mail Dot",
+   "Mail Dot omogoča, da Dot, vaš pomočnik ChatGPT, v Apple Mailu bere vašo pošto in pripravlja odgovore.",
+   "Namestitveni program postavi Mail Dot v mapo Aplikacije. Nato se Mail Dot odpre in skupaj z vami dokonča nastavitev.",
+   "Mail Dot zahteva aplikacijo ChatGPT v tem Macu in paket ChatGPT, ki vključuje Dot."
+  ],
+  "conclusion": [
+   "Mail Dot je nameščen",
+   "Zdaj se odpre Mail Dot. Če se ne prikaže, odprite Mail Dot iz mape Aplikacije."
+  ]
+ },
+ "sv": {
+  "welcome": [
+   "Välkommen till Mail Dot",
+   "Med Mail Dot kan Dot, din ChatGPT-assistent, läsa din e-post och skriva utkast till svar i Apple Mail.",
+   "Installeraren lägger Mail Dot i mappen Appar. Därefter öppnas Mail Dot och slutför inställningen tillsammans med dig.",
+   "Mail Dot kräver ChatGPT-appen på den här datorn och ett ChatGPT-abonnemang som inkluderar Dot."
+  ],
+  "conclusion": [
+   "Mail Dot är installerat",
+   "Mail Dot öppnas härnäst. Om det inte visas öppnar du Mail Dot från mappen Appar."
+  ]
+ },
+ "ta": {
+  "welcome": [
+   "Mail Dot-க்கு வரவேற்கிறோம்",
+   "Mail Dot உங்கள் ChatGPT உதவியாளர் Dot-ஐ Apple Mail-இனுள் உங்கள் அஞ்சலைப் படிக்கவும் பதில்களை வரையவும் அனுமதிக்கிறது.",
+   "நிறுவி Mail Dot-ஐப் பயன்பாடுகள் கோப்புறையில் வைக்கிறது. பின்னர் Mail Dot திறந்து, உங்களுடன் அமைப்பை நிறைவு செய்கிறது.",
+   "Mail Dot-க்கு இந்த Mac-இல் ChatGPT செயலியும், Dot அடங்கிய ChatGPT திட்டமும் தேவை."
+  ],
+  "conclusion": [
+   "Mail Dot நிறுவப்பட்டது",
+   "அடுத்து Mail Dot திறக்கும். அது தோன்றவில்லை என்றால், பயன்பாடுகள் கோப்புறையிலிருந்து Mail Dot-ஐத் திறக்கவும்."
+  ]
+ },
+ "te": {
+  "welcome": [
+   "Mail Dot కు స్వాగతం",
+   "Mail Dot మీ ChatGPT సహాయకుడు Dot ను Apple Mail లోపల మీ మెయిల్ చదవడానికి మరియు సమాధానాల డ్రాఫ్ట్‌లు రాయడానికి అనుమతిస్తుంది.",
+   "ఇన్‌స్టాలర్ Mail Dot ను అప్లికేషన్‌ల ఫోల్డర్‌లో ఉంచుతుంది. తర్వాత Mail Dot తెరుచుకుని, మీతో కలిసి సెటప్‌ను పూర్తి చేస్తుంది.",
+   "Mail Dot కు ఈ Mac లో ChatGPT యాప్ మరియు Dot ఉన్న ChatGPT ప్లాన్ అవసరం."
+  ],
+  "conclusion": [
+   "Mail Dot ఇన్‌స్టాల్ అయింది",
+   "తర్వాత Mail Dot తెరుచుకుంటుంది. అది కనిపించకపోతే, అప్లికేషన్‌ల ఫోల్డర్ నుండి Mail Dot ను తెరవండి."
+  ]
+ },
+ "th": {
+  "welcome": [
+   "ยินดีต้อนรับสู่ Mail Dot",
+   "Mail Dot ช่วยให้ Dot ผู้ช่วย ChatGPT ของคุณ อ่านเมลและร่างคำตอบภายใน Apple Mail ได้",
+   "ตัวติดตั้งจะวาง Mail Dot ไว้ในโฟลเดอร์แอปพลิเคชัน จากนั้น Mail Dot จะเปิดขึ้นและตั้งค่าให้เสร็จพร้อมกับคุณ",
+   "Mail Dot ต้องใช้แอป ChatGPT บน Mac เครื่องนี้และแพ็กเกจ ChatGPT ที่มี Dot"
+  ],
+  "conclusion": [
+   "ติดตั้ง Mail Dot แล้ว",
+   "Mail Dot จะเปิดขึ้นถัดไป หากไม่ปรากฏ ให้เปิด Mail Dot จากโฟลเดอร์แอปพลิเคชัน"
+  ]
+ },
+ "tr": {
+  "welcome": [
+   "Mail Dot’a Hoş Geldiniz",
+   "Mail Dot, ChatGPT asistanınız Dot’un Apple Mail içinde e-postalarınızı okumasını ve yanıt taslakları hazırlamasını sağlar.",
+   "Yükleyici, Mail Dot’u Uygulamalar klasörüne yerleştirir. Ardından Mail Dot açılır ve ayarlamayı sizinle birlikte tamamlar.",
+   "Mail Dot, bu Mac’te ChatGPT uygulamasını ve Dot’u içeren bir ChatGPT planını gerektirir."
+  ],
+  "conclusion": [
+   "Mail Dot yüklendi",
+   "Şimdi Mail Dot açılır. Görünmezse Mail Dot’u Uygulamalar klasöründen açın."
+  ]
+ },
+ "uk": {
+  "welcome": [
+   "Вітаємо в Mail Dot",
+   "Mail Dot дає змогу Dot, вашому асистентові ChatGPT, читати вашу пошту й готувати відповіді в Apple Mail.",
+   "Інсталятор розміщує Mail Dot у папці «Програми». Потім Mail Dot відкриється та завершить налаштування разом із вами.",
+   "Для Mail Dot потрібна програма ChatGPT на цьому Mac і тариф ChatGPT, що містить Dot."
+  ],
+  "conclusion": [
+   "Mail Dot встановлено",
+   "Далі відкриється Mail Dot. Якщо він не з’явиться, відкрийте Mail Dot із папки «Програми»."
+  ]
+ },
+ "ur": {
+  "welcome": [
+   "Mail Dot میں خوش آمدید",
+   "Mail Dot آپ کے ChatGPT معاون Dot کو Apple Mail کے اندر آپ کی میل پڑھنے اور جوابات کے مسودے تیار کرنے دیتا ہے۔",
+   "انسٹالر Mail Dot کو ایپلیکیشنز فولڈر میں رکھتا ہے۔ پھر Mail Dot کھلتا ہے اور آپ کے ساتھ سیٹ اپ مکمل کرتا ہے۔",
+   "Mail Dot کے لیے اس Mac پر ChatGPT ایپ اور ایسا ChatGPT پلان درکار ہے جس میں Dot شامل ہو۔"
+  ],
+  "conclusion": [
+   "Mail Dot انسٹال ہو گیا",
+   "اب Mail Dot کھلے گا۔ اگر ظاہر نہ ہو تو ایپلیکیشنز فولڈر سے Mail Dot کھولیں۔"
+  ]
+ },
+ "vi": {
+  "welcome": [
+   "Chào mừng đến với Mail Dot",
+   "Mail Dot cho phép Dot, trợ lý ChatGPT của bạn, đọc thư và soạn bản nháp trả lời ngay trong Apple Mail.",
+   "Trình cài đặt đặt Mail Dot vào thư mục Ứng dụng. Sau đó Mail Dot mở ra và hoàn tất thiết lập cùng bạn.",
+   "Mail Dot yêu cầu ứng dụng ChatGPT trên máy Mac này và gói ChatGPT có bao gồm Dot."
+  ],
+  "conclusion": [
+   "Mail Dot đã được cài đặt",
+   "Mail Dot sẽ mở tiếp theo. Nếu không thấy, hãy mở Mail Dot từ thư mục Ứng dụng."
+  ]
+ },
+ "zh-Hans": {
+  "welcome": [
+   "欢迎使用 Mail Dot",
+   "Mail Dot 让你的 ChatGPT 助理 Dot 在 Apple“邮件”中读取你的邮件并起草回复。",
+   "安装器会将 Mail Dot 放入“应用程序”文件夹。随后 Mail Dot 会打开，并与你一起完成设置。",
+   "Mail Dot 需要这台 Mac 上装有 ChatGPT App，以及包含 Dot 的 ChatGPT 套餐。"
+  ],
+  "conclusion": [
+   "Mail Dot 已安装",
+   "接下来 Mail Dot 会打开。如果没有出现，请从“应用程序”文件夹打开 Mail Dot。"
+  ]
+ },
+ "zh-Hant": {
+  "welcome": [
+   "歡迎使用 Mail Dot",
+   "Mail Dot 讓你的 ChatGPT 助理 Dot 在 Apple「郵件」中讀取你的郵件並草擬回覆。",
+   "安裝程式會將 Mail Dot 放入「應用程式」檔案夾。接著 Mail Dot 會打開，並與你一起完成設定。",
+   "Mail Dot 需要這部 Mac 上裝有 ChatGPT App，以及包含 Dot 的 ChatGPT 方案。"
+  ],
+  "conclusion": [
+   "Mail Dot 已安裝",
+   "接下來 Mail Dot 會打開。如果沒有出現，請從「應用程式」檔案夾打開 Mail Dot。"
+  ]
+ }
+}

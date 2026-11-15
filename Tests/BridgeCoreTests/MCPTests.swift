@@ -34,7 +34,7 @@ import XCTest
         let response=try await request(router,method:"tools/list")
         XCTAssertNil(response["error"].object)
         XCTAssertEqual(response["result"]["resultType"],"complete")
-        XCTAssertEqual(response["result"]["tools"].array?.count,19)
+        XCTAssertEqual(response["result"]["tools"].array?.count,21)
         let names=Set(response["result"]["tools"].array?.compactMap{$0["name"].string} ?? [])
         XCTAssertTrue(names.contains("report_scheduled_mail_update"))
         XCTAssertTrue(names.contains("get_scheduled_mail_updates"))
@@ -54,7 +54,7 @@ import XCTest
         _ = try await request(router, method: "server/discover")
         let result = try await request(router, method: "tools/list")
         let names = result["result"]["tools"].array?.compactMap { $0["name"].string }
-        XCTAssertEqual(Set(names ?? []), Set(["bridge_status", "get_active_reply", "report_progress", "propose_reply", "attach_reply_file", "send_reviewed_reply", "get_send_result", "get_mail_settings", "report_mail_settings","native_mail_status","native_mail_list_mailboxes","native_mail_list_messages","native_mail_read_message","get_mail_workflow","report_mail_workflow","ask_owner","close_owner_question","get_scheduled_mail_updates","report_scheduled_mail_update"]))
+        XCTAssertEqual(Set(names ?? []), Set(["native_mail_search","native_mail_read_found","bridge_status", "get_active_reply", "report_progress", "propose_reply", "attach_reply_file", "send_reviewed_reply", "get_send_result", "get_mail_settings", "report_mail_settings","native_mail_status","native_mail_list_mailboxes","native_mail_list_messages","native_mail_read_message","get_mail_workflow","report_mail_workflow","ask_owner","close_owner_question","get_scheduled_mail_updates","report_scheduled_mail_update"]))
     }
     func testUnknownToolAndExtraArgumentsAreRefused() async throws {
         let router = try router()

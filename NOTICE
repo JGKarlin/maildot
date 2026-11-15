@@ -14,6 +14,13 @@ Copyright 2026 OpenAI
 Licensed under the Apache License, Version 2.0.
 https://github.com/openai/tunnel-client
 
+SQLCipher 4.20.0
+Copyright (c) 2025, ZETETIC LLC. All rights reserved.
+Licensed under the SQLCipher Community Edition Open Source License (BSD-style);
+the full text is in Config/Licenses/SQLCipher/LICENSE and, in the app, in
+Contents/Resources/Licenses/SQLCipher/LICENSE.
+https://www.zetetic.net/sqlcipher/
+
 Mail Dot is an independent project. It is not made or endorsed by OpenAI
 or Apple. ChatGPT and Dot are products of OpenAI. Mail and macOS
 are products of Apple.

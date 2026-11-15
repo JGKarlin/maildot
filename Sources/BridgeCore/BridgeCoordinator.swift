@@ -61,6 +61,11 @@ public enum BridgeCoordinator {
         if let eventID, context.event?.id != eventID { throw BridgeFailure("This event does not belong to the current context.") }
         if let refusal = ApplyLimits.refusal(for: body) { throw BridgeFailure(refusal) }
         if context.ownerRequest?.ignored == true { throw BridgeFailure("The owner chose to ignore this message in Mail, so no reply is wanted. Do nothing further on it.") }
+        // The owner's latest words came after this run read the reply: they take priority, and this draft is not taken.
+        if let request = context.ownerRequest, request.direction != nil || !request.answers.isEmpty,
+           let read = context.dotReadAt, read < request.askedAt {
+            throw BridgeFailure("The owner gave new instructions for this reply after you read it. Read the reply again and write it as they now ask; this draft was not taken.")
+        }
         // On the panel's request the reply is inserted above the quoted mail, so only the reply itself is
         // kept: a thread Dot repeated below it is cut off.
         var body = context.ownerRequest == nil ? body : ReplyInsertion.replyOnly(body, above: context.bodyBelowReply ?? "")
