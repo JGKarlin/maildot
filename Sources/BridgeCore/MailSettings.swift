@@ -521,7 +521,8 @@ public struct SenderNote:Codable,Sendable,Equatable {
     /// When the notes waiting for polish were sent to Dot; nil while none are out.
     public var polishAskedAt:Date?
     public init(items:[Item],name:String?) { self.items=items; self.name=name }
-    public static let textLimit=300
+    /// One note's length (raised from 300, owner's OK, 16 November 2026).
+    public static let textLimit=600
     /// People with notes, and notes for one person.
     public static let limit=100
     public static let perPerson=10

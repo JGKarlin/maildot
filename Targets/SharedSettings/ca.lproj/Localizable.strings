@@ -535,3 +535,6 @@
 "Asking Dot to confirm the connection…" = "Es demana al Dot que confirmi la connexió…";
 "Dot could not confirm the connection" = "El Dot no ha pogut confirmar la connexió";
 "Not needed for Gmail or iCloud." = "No cal per al Gmail ni l’iCloud.";
+"🔎 Checking" = "🔎 Comprovant";
+"Dot is checking this message…" = "El Dot està comprovant aquest missatge…";
+"You" = "Tu";

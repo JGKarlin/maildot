@@ -16,7 +16,8 @@ public struct DraftingRule: Codable, Equatable, Identifiable, Sendable {
 /// is fixed in Mail Dot and is not among them.
 public enum DraftingRules {
     public static let limit = 20
-    public static let textLimit = 300
+    /// One rule's length (raised from 300, owner's OK, 16 November 2026).
+    public static let textLimit = 600
 
     /// The rules a new installation starts with, the owner's to change or delete (owner request, 12 November 2026).
     public static let starters = [

@@ -9,6 +9,21 @@ final class MailTriageTests:XCTestCase {
     }
     private func essential(_ value:MailTriage.Input,correspondents:Set<String>=[],rules:[String:MailTriage.Rule]=[:]) -> Bool { MailTriage.assess(value,owner:owner,correspondents:correspondents,rules:rules).essential }
 
+    func testASubjectWordSetsAsideOnlyMailFromStrangers() {
+        let consult=input(subject:"(相談) Application receipt from an applicant")
+        XCTAssertFalse(essential(consult),"a stranger's receipt stays out")
+        XCTAssertTrue(essential(consult,correspondents:["tanaka@example.invalid"]),"someone the owner writes to is still offered to Dot")
+    }
+    func testTheBannerFollowsADraftAskedForInTheReplyPanel() {
+        var state=MailTriageState()
+        var entry=MailTriageEntry(messageID:"a@example.invalid",sender:"tanaka@example.invalid",senderName:nil,subject:"S",receivedAt:nil,verdict:MailTriage.assess(input(),owner:owner),automatic:true)
+        entry.outcome = .noDraft
+        state.record(entry)
+        state.noteReplyPanelDrafting(messageID:"<a@example.invalid>")
+        XCTAssertEqual(MailDotBanner(state.entries[0]),.drafting)
+        state.recordReplyDraft(messageID:"<a@example.invalid>",sender:"tanaka@example.invalid",senderName:nil,subject:"S",draft:"Thank you.")
+        XCTAssertEqual(MailDotBanner(state.entries[0]),.draftReady)
+    }
     func testAPersonWritingToTheOwnerDirectlyIsOfferedToDot() {
         XCTAssertTrue(essential(input()))
         XCTAssertEqual(MailTriage.assess(input(),owner:owner).reason,"田中 愛子 wrote to you directly.")
@@ -91,7 +106,7 @@ final class MailTriageTests:XCTestCase {
         let entry=MailTriageEntry(messageID:"g@example.invalid",sender:"tanaka@example.invalid",senderName:nil,subject:"FYI",receivedAt:nil,verdict:MailTriage.assess(input(),owner:owner),automatic:true)
         state.record(entry); state.markAsked(entry.id,requestID:"req-1")
         state.accept(requestID:"req-1",stage:.ready,summary:"No reply needed: it only informs.")
-        XCTAssertThrowsError(try state.ask(entry.id,draft:true,guidance:String(repeating:"x",count:2001)))
+        XCTAssertThrowsError(try state.ask(entry.id,draft:true,guidance:String(repeating:"x",count:ReplyOwnerRequest.textLimit+1)))
         try state.ask(entry.id,draft:true,guidance:"  Thank them and confirm Friday.  ")
         XCTAssertEqual(state.entries[0].outcome,.pending)
         XCTAssertEqual(state.entries[0].draftRequested,true)

@@ -52,6 +52,8 @@ import BridgeCore
                 }
             }
             if let refusal=record({ state,scope,allowed in _ = try state.requestReply(accountIDs:scope,allowedAccountIDs:allowed,contextID:contextID) }) { return refusal }
+            // The message's banner and the Mail Dot window show Drafting until the draft arrives, panel open or not.
+            if !context.originalMessageID.isEmpty { try? MailTriageStore.shared().transaction { $0.noteReplyPanelDrafting(messageID:context.originalMessageID) } }
             try bridge.transaction { $0.contexts[contextID]?.ownerRequest?.toldDotAt = .now }
             return nil
         } catch { return error.localizedDescription }

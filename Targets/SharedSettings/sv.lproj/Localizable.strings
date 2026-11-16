@@ -535,3 +535,6 @@
 "Asking Dot to confirm the connection…" = "Ber Dot bekräfta anslutningen …";
 "Dot could not confirm the connection" = "Dot kunde inte bekräfta anslutningen";
 "Not needed for Gmail or iCloud." = "Behövs inte för Gmail eller iCloud.";
+"🔎 Checking" = "🔎 Kontrollerar";
+"Dot is checking this message…" = "Dot kontrollerar meddelandet …";
+"You" = "Du";

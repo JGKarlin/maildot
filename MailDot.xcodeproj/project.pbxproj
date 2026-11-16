@@ -25,6 +25,7 @@
 		69A8D6FE627782999A91C926 /* BridgeAutomation in Frameworks */ = {isa = PBXBuildFile; productRef = 3E005AB239FA6960BB74C58E /* BridgeAutomation */; };
 		6F9C48EC493973B5DB191C20 /* ReplyPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4F3BD01CD1B7E9C0A52ECC /* ReplyPanelView.swift */; };
 		70918AF9CF20976498950C07 /* DotCallCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9496CA679577A9B36A06EEFB /* DotCallCommands.swift */; };
+		721237B2BFADBB82B659D762 /* LimitCounter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F005294568A7BD31EC37436D /* LimitCounter.swift */; };
 		75E89BD21BB36A60E733CCC2 /* TriageViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBB7789E0EAA0366D1C9B437 /* TriageViews.swift */; };
 		7653B0769220BB416B341EE6 /* AskDotPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DCE329DE8A999D4E6B8B8C8 /* AskDotPanel.swift */; };
 		7BD30682FD15B41DC64EC32C /* MailExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4747F0EEC45A8514A372E5B1 /* MailExtension.swift */; };
@@ -44,6 +45,7 @@
 		B756DB89F73EC8495A550BAF /* ConnectionWatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91CDB9B4B683F467BEC33EAA /* ConnectionWatch.swift */; };
 		B868B696AEB7F7F704454343 /* MailDotAboutWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3F3D27595C87E032BEA605 /* MailDotAboutWindow.swift */; };
 		BBB5B1EFA5EA7C2384865E76 /* MailDotRemover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 064F4A52CB7DFB7B3295BA10 /* MailDotRemover.swift */; };
+		C049318B0520E542E435C71D /* LimitCounter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F005294568A7BD31EC37436D /* LimitCounter.swift */; };
 		C89E90E6776B3D3E97DD5D68 /* MailDotThreadWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5149831378E25F1240A6B043 /* MailDotThreadWindow.swift */; };
 		CA596239658360B0A340650D /* MessageReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C8DF88D873F6C176FDADE4 /* MessageReportView.swift */; };
 		CB492A0DA4BADAA848ED5F39 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 29CA92CC90AD84429063762D /* InfoPlist.strings */; };
@@ -241,6 +243,7 @@
 		ED4F3BD01CD1B7E9C0A52ECC /* ReplyPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplyPanelView.swift; sourceTree = "<group>"; };
 		EF010DBE176B58926FB6B06D /* fr-CA */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "fr-CA"; path = "fr-CA.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		EFC0C2A9F2ADB0618F43B3DE /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F005294568A7BD31EC37436D /* LimitCounter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LimitCounter.swift; sourceTree = "<group>"; };
 		F07CB8ED00CB9F19BF7780DD /* es-419 */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-419"; path = "es-419.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		F1FAA747BAE0DF0C95E41ACA /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		F5889096BD610AB659B0C47D /* MailDotWindowCloser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailDotWindowCloser.swift; sourceTree = "<group>"; };
@@ -287,6 +290,7 @@
 			children = (
 				FC05BB45DD2FA050C9B773AB /* ConnectionViews.swift */,
 				9496CA679577A9B36A06EEFB /* DotCallCommands.swift */,
+				F005294568A7BD31EC37436D /* LimitCounter.swift */,
 				9AA4EE4E5C58160D67C425EE /* MailDotStyle.swift */,
 				5149831378E25F1240A6B043 /* MailDotThreadWindow.swift */,
 				E10F8D04A450B4130B0857E7 /* MailSettingsView.swift */,
@@ -640,6 +644,7 @@
 			files = (
 				8D8A5885EBC9C60CA246F69D /* ConnectionViews.swift in Sources */,
 				499E2DD795C6A5D5D5F92A54 /* DotCallCommands.swift in Sources */,
+				C049318B0520E542E435C71D /* LimitCounter.swift in Sources */,
 				B3E7B7FFDA76806189E00D02 /* MailDotStyle.swift in Sources */,
 				132238709EC706C0358E071E /* MailDotThreadWindow.swift in Sources */,
 				7BD30682FD15B41DC64EC32C /* MailExtension.swift in Sources */,
@@ -661,6 +666,7 @@
 				58D008CC13EF2ED63C024219 /* ConnectionViews.swift in Sources */,
 				B756DB89F73EC8495A550BAF /* ConnectionWatch.swift in Sources */,
 				70918AF9CF20976498950C07 /* DotCallCommands.swift in Sources */,
+				721237B2BFADBB82B659D762 /* LimitCounter.swift in Sources */,
 				B868B696AEB7F7F704454343 /* MailDotAboutWindow.swift in Sources */,
 				A878235DFB71578A6DE1708F /* MailDotApp.swift in Sources */,
 				5B02F8800784E5368600683C /* MailDotOutsideClick.swift in Sources */,
@@ -894,7 +900,7 @@
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 189;
+				CURRENT_PROJECT_VERSION = 199;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -1050,7 +1056,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 189;
+				CURRENT_PROJECT_VERSION = 199;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;

@@ -27,6 +27,7 @@ public struct ThreadReport:Codable,Sendable,Equatable {
         public var value:String?
         public var by:String?
         public var date:String?
+        public init(item:String,value:String?=nil,by:String?=nil,date:String?=nil) { self.item=item; self.value=value; self.by=by; self.date=date }
     }
     public struct Open:Codable,Sendable,Equatable {
         public var item:String
@@ -199,4 +200,23 @@ public struct ThreadReport:Codable,Sendable,Equatable {
 /// What Dot is asked to send with every answer about a message, for the Mail Dot window.
 public enum ThreadReportInstructions {
     public static let text="With every report about this message, whatever its stage (a draft, No reply needed, Already replied, or a question), add one more line to the summary that begins with the words Thread report: and continues on that same line with a single JSON object (no line breaks, at most 4000 characters) describing the message's thread for the owner's Mail Dot window. Write its texts in the owner's language named in these instructions, not the language of the message. State only what the thread or your own sources support; invent no decision, and if you could not read the whole thread say so in now. Every field is optional; omit what does not apply. Fields: thread {messageCount, participants (up to 8 names), first, last (dates)}, omitted for a single message; now (one sentence, at most 200 characters, on where the matter stands and what waits on whom); origin {date, text ≤300: how the thread began}; development {from, to, text ≤500: what happened between the origin and this message}, omitted for a single message; steps (0 to 6 of {date, text ≤200}: the same development as dated steps); thisMessage {date, text ≤300: what this message says or asks}; decided (0 to 6 of {item ≤40, value ≤80, by ≤60, date}: matters settled in the thread); open (0 to 6 of {item ≤40, owner: \"you\" or a name, due (date, optional), note ≤80, asked (true for the one matter your question concerns)}, the owner's first); next (≤200: what follows once the owner acts); questionContext (≤160: a fact from your own sources, such as Drive, the calendar or mail history, that bears on your question); answerNotes (up to 4 short consequences, ≤30 each, one per answer you offer, in order); meeting {title ≤80, start, end (date-times with time zone), platform ≤30, link (URL), meetingID, passcode, location, availability (free, busy or unknown, from your look at the owner's calendar), conflict ≤80, added (true only if you have already put it in the owner's calendar)} when the message sets or proposes a meeting; work (0 to 8 of {text ≤200, source (drive, calendar, mailHistory, mail, connector, schedule, dotChat), sourceLabel ≤24, state (done or needsOwner)}: what you did or checked, which replaces Done: lines); checkedAt (now, date-time). Dates are ISO 8601 (2026-11-03, or 2026-11-19T10:00:00+09:00). Mail Dot reads the marker Thread report: like the others, so write it exactly so, in English."
+}
+
+extension ThreadReport {
+    /// The report with the owner's answer to Dot's question kept in it: the matter the question concerned moves from
+    /// Still to decide to Decided, with the answer, until Dot's next report says it itself (owner decision, 16 November
+    /// 2026: an answered question is recorded in the Mail Dot window).
+    public func answered(_ answer:String?,question:String?,by you:String,on date:String?) -> ThreadReport {
+        guard let answer=answer?.trimmingCharacters(in:.whitespacesAndNewlines),!answer.isEmpty else { return self }
+        var value=self
+        var open=value.open ?? []
+        let asked=open.firstIndex{ $0.asked == true } ?? open.firstIndex(where:\.isOwners)
+        let item=asked.map{ open[$0].item } ?? String((question ?? answer).prefix(40))
+        if let asked { open.remove(at:asked) }
+        var decided=value.decided ?? []
+        if !decided.contains(where:{ $0.item == item }) { decided.append(Decided(item:item,value:String(answer.prefix(80)),by:you,date:date)) }
+        value.open=open.isEmpty ? nil : open
+        value.decided=decided
+        return value
+    }
 }

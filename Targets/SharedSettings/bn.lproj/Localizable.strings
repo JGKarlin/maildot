@@ -535,3 +535,6 @@
 "Asking Dot to confirm the connection…" = "Dot-কে সংযোগ নিশ্চিত করতে বলা হচ্ছে…";
 "Dot could not confirm the connection" = "Dot সংযোগ নিশ্চিত করতে পারেনি";
 "Not needed for Gmail or iCloud." = "Gmail বা iCloud-এর জন্য প্রয়োজন নেই।";
+"🔎 Checking" = "🔎 যাচাই চলছে";
+"Dot is checking this message…" = "Dot এই বার্তাটি যাচাই করছে…";
+"You" = "আপনি";

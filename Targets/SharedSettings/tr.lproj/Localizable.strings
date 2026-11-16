@@ -535,3 +535,6 @@
 "Asking Dot to confirm the connection…" = "Dot’tan bağlantıyı onaylaması isteniyor…";
 "Dot could not confirm the connection" = "Dot bağlantıyı onaylayamadı";
 "Not needed for Gmail or iCloud." = "Gmail veya iCloud için gerekmez.";
+"🔎 Checking" = "🔎 Kontrol ediliyor";
+"Dot is checking this message…" = "Dot bu iletiyi kontrol ediyor…";
+"You" = "Siz";

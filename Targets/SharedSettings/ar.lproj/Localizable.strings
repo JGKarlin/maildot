@@ -535,3 +535,6 @@
 "Asking Dot to confirm the connection…" = "جارٍ طلب تأكيد الاتصال من Dot…";
 "Dot could not confirm the connection" = "تعذّر على Dot تأكيد الاتصال";
 "Not needed for Gmail or iCloud." = "غير مطلوب لـ Gmail أو iCloud.";
+"🔎 Checking" = "🔎 جارٍ التحقق";
+"Dot is checking this message…" = "يتحقق Dot من هذه الرسالة…";
+"You" = "أنت";

@@ -228,6 +228,14 @@ actor MacMailUIEditingDriver:MailUIEditingDriver {
         for popover in current.popovers {
             guard AXUIElementPerformAction(popover,kAXCancelAction as CFString) == .success else { throw BridgeFailure("Close Mail Dot's panel before sending the reviewed message.") }
         }
+        // Closing the panel is not instant: Mail keeps it in the window, and keeps focus away from the message,
+        // while it animates away. Send was refused at once on 13 and 16 November because the check below ran
+        // during that moment. Wait, briefly, for the message window to be ready again before checking it.
+        let readyBy=Date().addingTimeInterval(3)
+        while let target=try? locate(pid:retained.target.pid,subject:retained.subject),
+              sendReadiness(target,retained:retained.target) != nil,Date() < readyBy {
+            try await Task.sleep(for:.milliseconds(100))
+        }
         let dispatchID=UUID().uuidString
         defer { pendingSendButtons.removeValue(forKey:dispatchID) }
         try await MailUISendDispatch.perform(review:review,token:token,verify:{
@@ -236,13 +244,10 @@ actor MacMailUIEditingDriver:MailUIEditingDriver {
             _ = try binding(contextID,token:token)
             try sameTarget(retained.target,subject:retained.subject)
             let target=try locate(pid:retained.target.pid,subject:retained.subject)
-            guard CFEqual(target.window,retained.target.window),CFEqual(target.body,retained.target.body),
-                  value(target.app,kAXFrontmostAttribute) as? Bool == true,
-                  let focused=element(target.app,kAXFocusedWindowAttribute),CFEqual(focused,target.window),
-                  target.popovers.isEmpty,target.sendButtons.count == 1,let button=target.sendButtons.first,
-                  value(button,kAXEnabledAttribute) as? Bool == true else {
-                throw BridgeFailure("Bring the reviewed message to the front with its Send button available. Nothing was sent.")
+            if let reason=sendReadiness(target,retained:retained.target) {
+                throw BridgeFailure("Bring the reviewed message to the front with its Send button available (\(reason)). Nothing was sent.")
             }
+            guard let button=target.sendButtons.first else { throw BridgeFailure("Mail's Send button is missing. Nothing was sent.") }
             guard Data(try markerText(target.body,range:bodyRange(target.body)).utf8) == Data(expected.body.utf8) else {
                 throw BridgeFailure("The message body changed before Send. Review it again.")
             }
@@ -273,6 +278,16 @@ actor MacMailUIEditingDriver:MailUIEditingDriver {
         throw BridgeFailure(sawWindowList
             ? "Mail accepted Send but the message window is still open. Mail may be waiting for you to confirm something. Check that window before doing anything else."
             : "Mail accepted Send, but Mail Dot could not confirm that the message window closed. Check Mail before doing anything else.")
+    }
+    /// Why the message window is not ready for Send, in a few words for the record, or nil when it is.
+    private func sendReadiness(_ target:Target,retained:Target) -> String? {
+        guard CFEqual(target.window,retained.window),CFEqual(target.body,retained.body) else { return "the message window changed" }
+        guard value(target.app,kAXFrontmostAttribute) as? Bool == true else { return "Mail is not in front" }
+        guard let focused=element(target.app,kAXFocusedWindowAttribute),CFEqual(focused,target.window) else { return "another window has focus" }
+        guard target.popovers.isEmpty else { return "a panel is still open" }
+        guard target.sendButtons.count == 1 else { return "\(target.sendButtons.count) Send buttons" }
+        guard value(target.sendButtons[0],kAXEnabledAttribute) as? Bool == true else { return "Send is not available" }
+        return nil
     }
     @MainActor private static func asciiCapableInputSource() -> Bool {
         guard let source=TISCopyCurrentKeyboardInputSource()?.takeRetainedValue(),

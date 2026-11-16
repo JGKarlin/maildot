@@ -15,6 +15,8 @@ public enum MailTriage {
 
     /// The reason given for a message the owner was only copied on; its banner reads Cc only.
     public static let copiedOnlyReason="You were only copied."
+    /// Mail the owner wrote. It gets no Mail Dot state: no banner, no list mark.
+    public static let sentByOwnerReason="Sent by you."
     public struct Input:Sendable,Equatable {
         public var messageID:String?
         public var senderAddress:String
@@ -60,7 +62,7 @@ public enum MailTriage {
         let spamFlag=header("x-spam-flag").lowercased(),spamStatus=header("x-spam-status").lowercased(),spam=header("x-spam").lowercased()
         let scl=Int(header("x-ms-exchange-organization-scl")) ?? -1
         if spamFlag.hasPrefix("yes") || spamStatus.hasPrefix("yes") || spam.hasPrefix("yes") || scl >= 5 { return Verdict(essential:false,reason:"Marked as spam.") }
-        if owner.contains(sender) { return Verdict(essential:false,reason:"Sent by you.") }
+        if owner.contains(sender) { return Verdict(essential:false,reason:MailTriage.sentByOwnerReason) }
         if !header("list-unsubscribe").isEmpty || !header("list-id").isEmpty || !header("list-post").isEmpty || !header("feedback-id").isEmpty {
             return Verdict(essential:false,reason:"Bulk or mailing-list mail.")
         }
@@ -74,7 +76,9 @@ public enum MailTriage {
         let subject=input.subject.lowercased()
         let hasCode=subject.range(of:"(^|[^0-9])[0-9]{4,8}([^0-9]|$)",options:.regularExpression) != nil
         if hasCode && (subject.contains("code") || subject.contains("コード") || subject.contains("pin") || subject.contains("認証")) { return Verdict(essential:false,reason:"Carries a verification or one-time code.") }
-        if let word=transactionalWords.first(where:{subject.contains($0)}) { return Verdict(essential:false,reason:"Looks like a notice, receipt or account message (“\(word)”).") }
+        // A word in the subject sets aside only mail from someone the owner has never written to: a colleague's message
+        // that happens to say "receipt" still goes to Dot (owner decision, 16 November 2026).
+        if !correspondents.contains(sender),let word=transactionalWords.first(where:{subject.contains($0)}) { return Verdict(essential:false,reason:"Looks like a notice, receipt or account message (“\(word)”).") }
         guard input.to.contains(where:owner.contains) else {
             // Copied: offered to Dot like mail sent to the owner, once it has passed the same checks for spam, lists,
             // automated mail and notices above (owner request, 13 November 2026: every message gets Dot's window and report).
@@ -184,6 +188,9 @@ public struct MailTriageEntry:Codable,Sendable,Identifiable,Equatable {
     public var reportAfterReply:Bool?
     /// Open in Reply was pressed in the Mail Dot window: the background app closes that window, so the reply can open.
     public var openReplyClosesWindow:Bool?
+    /// When the owner asked for a draft of the reply in the reply panel: the message shows Drafting until Dot's draft
+    /// arrives, for as long as Dot may take (owner decision, 16 November 2026).
+    public var replyPanelDraftingAt:Date?
     public init(messageID:String?,sender:String,senderName:String?,subject:String,receivedAt:Date?,verdict:MailTriage.Verdict,automatic:Bool) {
         self.messageID=messageID; self.sender=sender; self.senderName=senderName; self.subject=subject; self.receivedAt=receivedAt
         essential=verdict.essential; reason=verdict.reason; copied=verdict.copied ? true : nil
@@ -242,7 +249,7 @@ public struct MailTriageState:Codable,Sendable {
     /// for a draft (so no report would come with one): a report alone is asked for. Never a draft.
     public mutating func requestReportIfAlways(messageID:String?) {
         guard let messageID,let index=entries.lastIndex(where:{$0.messageID == messageID}),reportRule(for:entries[index].sender) == .always,
-              [.skipped,.held].contains(entries[index].outcome),entries[index].reason != "Sent by you.",entries[index].report == nil,entries[index].reportRequestedAt == nil else { return }
+              [.skipped,.held].contains(entries[index].outcome),entries[index].reason != MailTriage.sentByOwnerReason,entries[index].report == nil,entries[index].reportRequestedAt == nil else { return }
         entries[index].reportRequestedAt=Date(); entries[index].reportFailed=nil
     }
     public var askBarRequestedAt:Date?
@@ -301,10 +308,12 @@ public struct MailTriageState:Codable,Sendable {
     /// whatever an earlier Draft a Reply gave.
     public mutating func ask(_ id:String,draft:Bool=false,guidance:String?=nil) throws {
         let words=guidance?.trimmingCharacters(in:.whitespacesAndNewlines) ?? ""
-        guard words.count <= 2000 else { throw BridgeFailure("Write at most 2000 characters for Dot.") }
+        guard words.count <= ReplyOwnerRequest.textLimit else { throw BridgeFailure("Write at most \(ReplyOwnerRequest.textLimit) characters for Dot.") }
         guard let index=entries.firstIndex(where:{$0.id == id}) else { throw BridgeFailure("That message is no longer in Mail Dot's list.") }
         guard ![.asked,.pending].contains(entries[index].outcome) else { return }
         entries[index].outcome = .pending; entries[index].askedByOwner=true; entries[index].requestID=nil; entries[index].dotNote=nil
+        // The owner's own request starts afresh: an earlier unanswered try does not count against it.
+        entries[index].retriedUnanswered=nil
         if draft { entries[index].draftRequested=true; entries[index].draftGuidance=words.isEmpty ? nil : words }
     }
     public mutating func setRule(_ rule:MailTriage.Rule?,for sender:String) {
@@ -410,6 +419,7 @@ public struct MailTriageState:Codable,Sendable {
         if let index=entries.lastIndex(where:{$0.messageID == wanted}) {
             guard entries[index].outcome != .replied else { return }
             entries[index].outcome = .drafted; entries[index].draft=draft; entries[index].announcedAt=now
+            entries[index].replyPanelDraftingAt=nil
             return
         }
         var entry=MailTriageEntry(messageID:wanted,sender:sender.lowercased(),senderName:senderName,subject:subject,receivedAt:nil,
@@ -477,9 +487,10 @@ public struct MailTriageState:Codable,Sendable {
     /// The owner's answer to Dot's question about a message: Dot is asked again, with the answer.
     public mutating func answer(_ id:String,with text:String) throws {
         let words=text.trimmingCharacters(in:.whitespacesAndNewlines)
-        guard !words.isEmpty,words.count <= 2000 else { throw BridgeFailure("Write an answer of at most 2000 characters.") }
+        guard !words.isEmpty,words.count <= ReplyOwnerRequest.textLimit else { throw BridgeFailure("Write an answer of at most \(ReplyOwnerRequest.textLimit) characters.") }
         guard let index=entries.firstIndex(where:{$0.id == id}) else { throw BridgeFailure("That message is no longer in Mail Dot's list.") }
         entries[index].ownerAnswer=words; entries[index].outcome = .pending; entries[index].requestID=nil; entries[index].askedByOwner=true
+        entries[index].retriedUnanswered=nil
     }
     /// Messages the owner answered from this Mac's Mail, recorded by Mail Dot's extension as the reply was
     /// sent: normalized Message-ID to when. Knowing this, Mail Dot need not ask Mail through its scripting,
@@ -492,6 +503,16 @@ public struct MailTriageState:Codable,Sendable {
     /// so a reply Open in Reply asked for is opened once the window has closed.
     public var mailDotWindowOpenAt:Date?
     public static let ownerRepliedLimit=500
+    /// A message the owner wrote, as Mail shows it: sent from this Mac, a phone or the web. It has no state of its
+    /// own, and the message it answers is marked replied (owner request, 16 November 2026: a reply written by
+    /// hand in Mail left the message on Draft ready, and the reply itself said No reply needed).
+    @discardableResult public mutating func noteOwnerSent(inReplyTo parent:String?,now:Date=Date()) -> Bool {
+        guard let parent,let id=MailMessageIdentity.normalized(parent) else { return false }
+        let open=entries.contains{ $0.messageID.flatMap(MailMessageIdentity.normalized) == id && $0.outcome != .replied && $0.outcome != .skipped }
+        guard ownerReplied?[id] == nil || open else { return false }
+        noteOwnerReplied(messageID:id,now:now)
+        return true
+    }
     public mutating func noteOwnerReplied(messageID:String,now:Date=Date()) {
         guard let id=MailMessageIdentity.normalized(messageID) else { return }
         var replied=ownerReplied ?? [:]
@@ -554,6 +575,12 @@ public struct MailTriageState:Codable,Sendable {
     public func entry(forMessageID id:String) -> MailTriageEntry? {
         guard let wanted=MailMessageIdentity.normalized(id) else { return nil }
         return entries.last{$0.messageID == wanted}
+    }
+    /// The owner asked for a draft in a reply's panel: the message shows Drafting until Dot's draft arrives.
+    public mutating func noteReplyPanelDrafting(messageID id:String,now:Date=Date()) {
+        guard let wanted=MailMessageIdentity.normalized(id),let index=entries.lastIndex(where:{$0.messageID == wanted}),
+              entries[index].outcome != .replied else { return }
+        entries[index].replyPanelDraftingAt=now
     }
     /// Whether Dot is already drafting the message with this Message-ID, for as long as Dot may take to answer. Every
     /// reply request checks this first, so that a reply opened meanwhile waits for that draft or question instead of

@@ -136,8 +136,22 @@ public actor EventHub {
         } catch { /* Storage failures remain visible when the native panel reads the store. */ }
     }
 
+    /// A request ChatGPT confirmed receiving but no session started within this long is announced again, up to three
+    /// times (owner report, 16 November 2026: two drafts waited an hour on events Dot did not act on).
+    static let unreadRedelivery:TimeInterval=90
+
     private func pumpWorkflow(subscriptions:[EventSubscription]) async {
         let workflow=MailWorkflowStore(bridgeDirectory:store.directory)
+        try? workflow.transaction { state in
+            for index in state.requests.indices {
+                let request=state.requests[index]
+                guard ![.ready,.failed].contains(request.stage),request.event.reviewedAt == nil,!request.hasActiveClaim(),
+                      let received=request.event.receiptAt,Date().timeIntervalSince(received) > Self.unreadRedelivery,
+                      (request.redeliveries ?? 0) < 3 else { continue }
+                state.requests[index].event=BridgeEvent()
+                state.requests[index].redeliveries=(request.redeliveries ?? 0)+1
+            }
+        }
         guard let state=try? workflow.read() else { return }
         for request in state.requests where ![.ready,.failed].contains(request.stage) && request.needsEventDelivery && request.event.nextAttemptAt <= .now && request.event.attempts < 8 {
             // A worker already has it; or a listener on the Mac is waiting and is given twenty seconds to take it

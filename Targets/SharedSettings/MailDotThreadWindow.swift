@@ -22,6 +22,9 @@ struct MailDotThreadWindow:View {
     var resize:(CGSize) -> Void = { _ in }
     /// For rendering previews: an entry and layout given instead of read from the stores.
     var fixed:(entry:MailTriageEntry,layout:MailDotWindowLayout)?
+    /// Opened from Mail Dot's icon in the message header: Settings first, the way back leading to the message (owner
+    /// request, 15 November 2026). The banner's Open Mail Dot button opens the message as before.
+    var startsInSettings=false
     @State private var entry:MailTriageEntry?
     @State private var rule:MailTriage.Rule?
     @State private var reportRule:MailTriage.Rule?
@@ -68,6 +71,7 @@ struct MailDotThreadWindow:View {
         .background(Color(nsColor:.windowBackgroundColor))
         .tint(MailDotStyle.tint)
         .onChange(of:shown) { _,value in resize(Self.size(value)) }
+        .onAppear { if startsInSettings { settings=true } }
         .task {
             if let fixed { entry=fixed.entry; layout=fixed.layout; loaded=true; return }
             while !Task.isCancelled { await reload(); try? await Task.sleep(for:.seconds(2)) }
@@ -167,6 +171,10 @@ enum ThreadDates {
 }
 
 extension MailTriageEntry {
+    /// Dot's report as the window shows it: an answer the owner gave to Dot's question is kept under Decided.
+    var shownReport:ThreadReport? {
+        report?.answered(ownerAnswer,question:dotNote,by:String(localized:"You"),on:askedAt.map{ String($0.ISO8601Format().prefix(10)) })
+    }
     /// The banner's words without its emoji, for the state pill.
     var stateWords:String? {
         guard let title=MailDotBanner(self)?.title else { return nil }
@@ -184,7 +192,7 @@ extension MailTriageEntry {
     /// Dot is working on this message: waiting its turn or asked and not yet answered.
     var dotWorking:Bool { outcome == .pending || outcome == .asked }
     /// What Dot is doing, in words: a draft the owner asked for comes first (owner decision, 15 November 2026).
-    var workingWords:LocalizedStringKey { draftRequested == true || ownerAnswer != nil ? "Dot is writing the draft…" : "Dot is updating this report…" }
+    var workingWords:LocalizedStringKey { draftRequested == true || ownerAnswer != nil ? "Dot is writing the draft…" : "Dot is checking this message…" }
     /// What Dot did: the report's list, or else the Done: lines of its answer.
     var shownWork:[ThreadReport.Work] {
         if let work=report?.work,!work.isEmpty { return work.filter{!$0.needsOwner}+work.filter(\.needsOwner) }
@@ -258,7 +266,7 @@ struct ThreadHeader:View {
     }
     private var byline:String {
         let sender=entry.senderName ?? entry.sender
-        guard let thread=entry.report?.thread,let count=thread.messageCount,count > 1 else {
+        guard let thread=entry.shownReport?.thread,let count=thread.messageCount,count > 1 else {
             return [sender,entry.receivedAt.map{$0.formatted(date:.abbreviated,time:.shortened)}].compactMap{$0}.joined(separator:" · ")
         }
         let people=thread.participants ?? []
@@ -280,7 +288,7 @@ struct ThreadQuestion:View {
     var plain=false
     var body:some View {
         if entry.outcome == .needsGuidance,let question=entry.dotNote {
-            TriageQuestionCard(question:question,context:entry.report?.questionContext,notes:entry.report?.answerNotes ?? [],
+            TriageQuestionCard(question:question,context:entry.shownReport?.questionContext,notes:entry.shownReport?.answerNotes ?? [],
                                columns:columns,boxAlwaysOpen:boxAlwaysOpen,showsHeading:showsHeading,plain:plain) { words in
                 act(String(localized:"Sent to Dot. It drafts the reply with your answer.")) { try TriageCommands.answer(entry.id,words,opensReply:true) }
             }
@@ -293,7 +301,7 @@ struct ThreadPlainState:View {
     let entry:MailTriageEntry
     var body:some View {
         if !(entry.outcome == .needsGuidance && entry.dotNote != nil) {
-            Text(entry.report?.now ?? entry.stateLine).foregroundStyle(entry.report?.now == nil ? .secondary : .primary).fixedSize(horizontal:false,vertical:true).textSelection(.enabled)
+            Text(entry.shownReport?.now ?? entry.stateLine).foregroundStyle(entry.shownReport?.now == nil ? .secondary : .primary).fixedSize(horizontal:false,vertical:true).textSelection(.enabled)
         }
     }
 }
@@ -305,7 +313,7 @@ struct ThreadStatus:View {
     let entry:MailTriageEntry
     let act:ThreadAct
     var body:some View {
-        if entry.report != nil || entry.dotWorking {
+        if entry.shownReport != nil || entry.dotWorking {
             ThreadPlainState(entry:entry)
         } else if entry.reportPending {
             ThreadReportPlaceholder()
@@ -326,7 +334,7 @@ struct ThreadStatus:View {
     /// Why there is no report, in plain words, then the message's state.
     private var reasons:[String] {
         switch entry.outcome {
-        case .skipped where entry.reason == "Sent by you.":
+        case .skipped where entry.reason == MailTriage.sentByOwnerReason:
             return [String(localized:"You sent this message, so Dot hasn’t written a report.")]
         case .skipped,.held:
             return [entry.stateLine]
@@ -423,7 +431,7 @@ enum ThreadOpenLine {
 struct ThreadHistory:View {
     let entry:MailTriageEntry
     var body:some View {
-        if let report=entry.report,report.origin != nil || report.development != nil || report.thisMessage != nil {
+        if let report=entry.shownReport,report.origin != nil || report.development != nil || report.thisMessage != nil {
             ThreadSection(title:"How it got here") {
                 ThreadCard(spacing:10) {
                     if let origin=report.origin { row("Origin",ThreadDates.short(origin.date),origin.text,.primary) }
@@ -451,7 +459,7 @@ struct ThreadMeeting:View {
     let act:ThreadAct
     var titled=true
     var body:some View {
-        if let meeting=entry.report?.meeting {
+        if let meeting=entry.shownReport?.meeting {
             if titled { ThreadSection(title:"Meeting in this message") { card(meeting) } } else { card(meeting) }
         }
     }
@@ -560,7 +568,7 @@ struct ThreadActionBar:View {
                 actions
                 // With no report, asking for one sits here with the other actions (owner request, 14 November 2026);
                 // beside a draft it gives way to Open in Reply, since Dot has read the thread to write the draft.
-                if entry.report == nil,!entry.dotWorking,!entry.reportPending,entry.outcome != .drafted {
+                if entry.shownReport == nil,!entry.dotWorking,!entry.reportPending,entry.outcome != .drafted {
                     Button("Get Report",systemImage:"doc.text.magnifyingglass") { act(nil) { try TriageCommands.askForReport(entry.id) } }
                         .help("Dot reads the thread and writes its report. No draft. This can take a minute or more.")
                 }
@@ -662,7 +670,7 @@ struct DraftGuidanceForm:View {
     var body:some View {
         VStack(alignment:.leading,spacing:8) {
             Text("What should the reply say?").font(.headline)
-            TextField("For example: decline politely, or confirm Friday at 3",text:$words,axis:.vertical)
+            TextField("For example: decline politely, or confirm Friday at 3",text:$words,axis:.vertical).guidanceCounter(words)
                 .lineLimit(3...6).textFieldStyle(.roundedBorder).focused($focused)
             HStack {
                 Spacer()
@@ -699,7 +707,7 @@ struct BriefingLayout:View {
             ThreadQuestion(entry:entry,act:act)
             ThreadStatus(entry:entry,act:act)
             ThreadDraft(entry:entry)
-            if let report=entry.report { ThreadStands(report:report) }
+            if let report=entry.shownReport { ThreadStands(report:report) }
             ThreadHistory(entry:entry)
             ThreadMeeting(entry:entry,act:act)
             ThreadWork(entry:entry)
@@ -715,7 +723,7 @@ struct StorylineLayout:View {
     let act:ThreadAct
     @State private var workOpen=false
     var body:some View {
-        let report=entry.report
+        let report=entry.shownReport
         VStack(alignment:.leading,spacing:14) {
             ThreadHeader(entry:entry,pill:false)
             if let now=report?.now {
@@ -842,7 +850,7 @@ struct LedgerLayout:View {
     let entry:MailTriageEntry
     let act:ThreadAct
     var body:some View {
-        let report=entry.report
+        let report=entry.shownReport
         VStack(alignment:.leading,spacing:0) {
             ThreadHeader(entry:entry,fullParticipants:true).padding(.horizontal,16).padding(.vertical,14)
             HStack(alignment:.top,spacing:16) {

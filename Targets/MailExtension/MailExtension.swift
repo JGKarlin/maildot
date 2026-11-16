@@ -47,6 +47,14 @@ import BridgeCore
         if let record,let id=headers.messageID,ReportIndex.shared.linkNeeded(record.id,messageID:id) {
             try? MailTriageStore.shared().transaction { $0.linkReport(record.id,messageID:id) }
         }
+        // A message the owner wrote, shown in a conversation or in Sent: it carries no state, and the message it
+        // answers is marked replied, also for replies written before Mail Dot read the owner's own mail.
+        if ReportIndex.shared.isOwner(headers.senderAddress) {
+            if let parent=headers.inReplyTo,ReportIndex.shared.ownerReplyNeedsNoting(parent) {
+                try? MailTriageStore.shared().transaction { $0.noteOwnerSent(inReplyTo:parent) }
+            }
+            return MEDecodedMessage(data:data,securityInformation:MEMessageSecurityInformation(signers:[],isEncrypted:false,signingError:nil,encryptionError:nil),context:Data(MessageReportViewController.anyMessage.utf8))
+        }
         // A message Mail Dot saw arrive: its state in words, where the list can show only a colour.
         if record == nil,let id=headers.messageID,let entry=ReportIndex.shared.triage(forMessageID:id),let state=MailDotBanner(entry) {
             // While Dot cannot take requests, a message waiting on it says so, not "Drafting" (owner approval, 14
@@ -68,7 +76,8 @@ import BridgeCore
         return MEDecodedMessage(data:data,securityInformation:plain,context:Data(context.utf8),banner:banner)
     }
     func extensionViewController(signers messageSigners:[MEMessageSigner]) -> MEExtensionViewController? { nil }
-    func extensionViewController(messageContext context:Data) -> MEExtensionViewController? { MessageReportViewController(context:context) }
+    // Mail Dot's icon in the message header opens Settings; the banner's button opens the message (owner request, 15 November 2026).
+    func extensionViewController(messageContext context:Data) -> MEExtensionViewController? { MessageReportViewController(context:context,settingsFirst:true) }
     func primaryActionClicked(forMessageContext context:Data,completionHandler:@escaping (MEExtensionViewController?) -> Void) {
         completionHandler(MessageReportViewController(context:context))
     }
@@ -131,6 +140,24 @@ private final class ReportIndex:@unchecked Sendable {
         }
         return availability
     }
+    private var ownerCheckedAt=Date.distantPast
+    private var owner:Set<String>=[]
+    /// Whether an address is one of the owner's, read at most every 30 seconds.
+    func isOwner(_ address:String?) -> Bool {
+        guard let address else { return false }
+        lock.lock(); defer { lock.unlock() }
+        if Date().timeIntervalSince(ownerCheckedAt) > 30 {
+            owner=(try? MailSettingsStore.shared().read())?.ownerAddresses ?? owner
+            ownerCheckedAt=Date()
+        }
+        return owner.contains(address.lowercased())
+    }
+    private var notedReplies:Set<String>=[]
+    /// Whether the owner's reply to this message has not been noted yet in this run of the extension.
+    func ownerReplyNeedsNoting(_ parent:String) -> Bool {
+        lock.lock(); defer { lock.unlock() }
+        return notedReplies.insert(parent).inserted
+    }
     private var triageStamp:Date?
     private var triageState:MailTriageState?
     func triage(forMessageID id:String) -> MailTriageEntry? {
@@ -159,6 +186,12 @@ private final class ArrivalHandler:NSObject,MEMessageActionHandler {
                                    to:message.toAddresses.map{$0.addressString ?? $0.rawString},cc:message.ccAddresses.map{$0.addressString ?? $0.rawString},
                                    subject:message.subject,receivedAt:Date(),headers:headers)
         guard let settings=try? MailSettingsStore.shared().read(),let store=try? MailTriageStore.shared() else { completionHandler(nil); return }
+        // The owner's own mail, sent from here or elsewhere: it is not listed, and the message it answers is replied.
+        if settings.ownerAddresses.contains(input.senderAddress.lowercased()) {
+            let parent=headers["in-reply-to"]?.first.flatMap(MailMessageHeaders.firstMessageID)
+            try? store.transaction { $0.noteOwnerSent(inReplyTo:parent) }
+            completionHandler(nil); return
+        }
         if let body=message.rawData { input.mentionsOwner=MailBodyText.mentions(settings.effectiveOwnerNames,inRawMessage:body) }
         // Mail Dot is switched off for the account that received it: the message is not even looked at.
         guard settings.mailDot(forRecipients:input.to+input.cc) else { completionHandler(nil); return }
@@ -179,22 +212,25 @@ private final class ArrivalHandler:NSObject,MEMessageActionHandler {
 
 @MainActor private final class MessageReportViewController:MEExtensionViewController {
     private let recordID:String?
+    private let settingsFirst:Bool
     /// The context of a message Dot has not reported on and Mail Dot did not see arrive.
     nonisolated static let anyMessage="message"
-    init(context:Data) {
+    init(context:Data,settingsFirst:Bool=false) {
         let id=String(decoding:context,as:UTF8.self)
         recordID=id.isEmpty || id == Self.anyMessage ? nil : id
+        self.settingsFirst=settingsFirst
         super.init(nibName:nil,bundle:nil)
     }
     required init?(coder:NSCoder) { nil }
     override func loadView() {
-        if let id=recordID,id.hasPrefix("triage:") {
+        if settingsFirst || recordID?.hasPrefix("triage:") == true {
+            let id=recordID.flatMap{ $0.hasPrefix("triage:") ? String($0.dropFirst("triage:".count)) : nil } ?? ""
             // The layout the owner chose in Settings; the window changes size when they choose another.
             let chosen=(try? MailSettingsStore.shared().read())?.windowLayout ?? .briefing
             let layout=MailDotThreadWindow.fits(chosen) ? chosen : .briefing
-            view=NSHostingView(rootView:MailDotThreadWindow(entryID:String(id.dropFirst("triage:".count)),resize:{ [weak self] size in
+            view=NSHostingView(rootView:MailDotThreadWindow(entryID:id,resize:{ [weak self] size in
                 self?.preferredContentSize=NSSize(width:size.width,height:size.height)
-            }))
+            },startsInSettings:settingsFirst))
             let size=MailDotThreadWindow.size(layout)
             preferredContentSize=NSSize(width:size.width,height:size.height)
             return

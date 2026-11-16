@@ -89,4 +89,12 @@ final class ReplyOpeningTests: XCTestCase {
         context.dotReadAt=request.askedAt.addingTimeInterval(5)
         XCTAssertNoThrow(try BridgeCoordinator.propose("Sorry, I can't make Friday.",expectedRevision:context.snapshotRevision,eventID:nil,context:&context))
     }
+    func testAnAnsweredQuestionMovesToDecided() throws {
+        let report=try XCTUnwrap(ThreadReport.parse(#"{"open":[{"item":"Meeting place","owner":"you","asked":true},{"item":"Agenda","owner":"Sam"}],"decided":[{"item":"Time","value":"3 p.m."}]}"#))
+        let shown=report.answered("Room 401",question:"Where should we meet?",by:"You",on:"2026-11-16")
+        XCTAssertEqual(shown.open?.map(\.item),["Agenda"])
+        XCTAssertEqual(shown.decided?.last?.item,"Meeting place")
+        XCTAssertEqual(shown.decided?.last?.value,"Room 401")
+        XCTAssertEqual(report.answered(nil,question:nil,by:"You",on:nil),report)
+    }
 }

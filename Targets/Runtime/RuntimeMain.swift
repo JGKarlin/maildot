@@ -75,7 +75,11 @@ import Security
     /// launchd restarts this helper whenever it exits; the wait turns a relaunch every minute into one
     /// every three, short enough that a corrected configuration takes effect promptly. Configuration contents and credential material are never written or logged.
     static func stop(_ problem:String) -> Never {
-        let body="{\"problem\":\"\(problem)\",\"at\":\(Date().timeIntervalSince1970)}"
+        // Where this helper was started from, so Mail Dot can tell a copy macOS still starts from an old place
+        // (an earlier version left in the Trash) from a real configuration fault, and register the service again.
+        var record:[String:Any]=["problem":problem,"at":Date().timeIntervalSince1970]
+        if let from=Bundle.main.executableURL?.resolvingSymlinksInPath().path { record["from"]=from }
+        let body=(try? JSONSerialization.data(withJSONObject:record)).flatMap{ String(data:$0,encoding:.utf8) } ?? "{\"problem\":\"\(problem)\",\"at\":\(Date().timeIntervalSince1970)}"
         if let fd=Optional(open(statusFile.path,O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC|O_NOFOLLOW,0o600)),fd >= 0 {
             _ = body.withCString { write(fd,$0,strlen($0)) }
             close(fd)

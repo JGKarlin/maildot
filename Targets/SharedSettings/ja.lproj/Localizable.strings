@@ -535,3 +535,6 @@
 "Asking Dot to confirm the connection…" = "Dotに接続の確認を依頼しています…";
 "Dot could not confirm the connection" = "Dotは接続を確認できませんでした";
 "Not needed for Gmail or iCloud." = "GmailやiCloudには不要です。";
+"🔎 Checking" = "🔎 確認中";
+"Dot is checking this message…" = "Dotがこのメッセージを確認しています…";
+"You" = "あなた";

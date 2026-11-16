@@ -535,3 +535,6 @@
 "Asking Dot to confirm the connection…" = "Dot에게 연결 확인을 요청하는 중…";
 "Dot could not confirm the connection" = "Dot이 연결을 확인하지 못했습니다";
 "Not needed for Gmail or iCloud." = "Gmail이나 iCloud에는 필요하지 않습니다.";
+"🔎 Checking" = "🔎 확인 중";
+"Dot is checking this message…" = "Dot이 이 메시지를 확인하는 중…";
+"You" = "나";

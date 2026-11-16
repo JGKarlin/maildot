@@ -163,6 +163,8 @@ public struct MailWorkflowRequest:Codable,Sendable,Identifiable {
     public private(set) var report:MailWorkflowReport?
     public private(set) var observedItems:[MailWorkflowItem]=[]
     public var event=BridgeEvent()
+    /// How many times the request was announced to Dot again because no session started on it (see EventHub).
+    public var redeliveries:Int?
     /// The worker handling this request (release review, 14 November 2026). A listener on the Mac and Dot in the cloud
     /// can both take requests; the first to take one holds it for ten minutes and the other leaves it alone.
     public struct Claim:Codable,Sendable,Equatable { public var worker:String; public var at:Date }

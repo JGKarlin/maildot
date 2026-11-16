@@ -535,3 +535,6 @@
 "Asking Dot to confirm the connection…" = "正在请 Dot 确认连接…";
 "Dot could not confirm the connection" = "Dot 无法确认连接";
 "Not needed for Gmail or iCloud." = "Gmail 或 iCloud 无需开启。";
+"🔎 Checking" = "🔎 检查中";
+"Dot is checking this message…" = "Dot 正在检查这封邮件…";
+"You" = "你";

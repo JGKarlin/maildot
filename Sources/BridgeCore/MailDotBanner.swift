@@ -4,18 +4,20 @@ import Foundation
 /// button worded for it (owner request, 12 November 2026). Mail lets an extension set only the banner's text and its
 /// button's words; its icon and color are always Mail's, so the symbol is the only visual cue per state.
 public enum MailDotBanner: Equatable, Sendable {
-    case drafting, draftReady, question, noReplyNeeded, couldNotCheck, replySent, replied, ccOnly, notDrafted, note
+    case checking, drafting, draftReady, question, noReplyNeeded, couldNotCheck, replied, ccOnly, notDrafted, note
     /// Dot cannot take requests now (owner approval, 14 November 2026); the Mail Dot window names the reason.
     case dotUnavailable
 
     public var title: String {
         switch self {
+        // While Dot decides whether a message needs a reply, it says Checking; Drafting only once a reply is being
+        // written, because the owner asked for one or answered Dot (owner decision, 16 November 2026).
+        case .checking: String(localized: "🔎 Checking")
         case .drafting: String(localized: "⏳ Drafting")
         case .draftReady: String(localized: "✅ Draft ready")
         case .question: String(localized: "❓ Question for you")
         case .noReplyNeeded: String(localized: "➖ No reply needed")
         case .couldNotCheck: String(localized: "⚠️ Dot couldn’t check")
-        case .replySent: String(localized: "📤 Reply sent")
         case .replied: String(localized: "↩️ Replied")
         case .ccOnly: String(localized: "👥 Cc only")
         case .notDrafted: String(localized: "⏸ Not drafted")
@@ -30,8 +32,14 @@ public enum MailDotBanner: Equatable, Sendable {
     public var action: String { "⧉ " + String(localized: "Open Mail Dot") }
     /// For a message Mail Dot saw arrive or was opened: always a state, Replied once the owner has answered it.
     public init?(_ entry: MailTriageEntry) {
+        // A message the owner wrote has no Mail Dot state at all (owner request, 16 November 2026).
+        if entry.reason == MailTriage.sentByOwnerReason { return nil }
+        // A draft the owner asked for in the reply panel is being written: Drafting, whatever the message said before.
+        if let asked=entry.replyPanelDraftingAt,Date().timeIntervalSince(asked) < MailTriageState.answerLimit,![.drafted,.replied].contains(entry.outcome) {
+            self = .drafting; return
+        }
         switch entry.outcome {
-        case .pending, .asked: self = .drafting
+        case .pending, .asked: self = entry.draftRequested == true || entry.ownerAnswer != nil ? .drafting : .checking
         case .drafted: self = .draftReady
         case .needsGuidance: self = .question
         case .noDraft: self = .noReplyNeeded
@@ -50,7 +58,7 @@ public enum MailDotBanner: Equatable, Sendable {
         switch availability {
         case .available: self
         case .notYetAnswered: .dotUnavailable
-        case .notConnected, .silent: self == .drafting ? .dotUnavailable : self
+        case .notConnected, .silent: self == .drafting || self == .checking ? .dotUnavailable : self
         }
     }
     /// For one of Dot's scheduled reports on the message.
@@ -58,7 +66,8 @@ public enum MailDotBanner: Equatable, Sendable {
         switch status {
         case .awaitingInstruction: self = .question
         case .draftedQueued: self = .draftReady
-        case .draftedSent: self = .replySent
+        // Answered, by Dot or by hand, reads Replied (owner request, 16 November 2026: not "Reply sent").
+        case .draftedSent: self = .replied
         case .information: self = .note
         }
     }

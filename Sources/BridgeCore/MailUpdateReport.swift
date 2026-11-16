@@ -152,6 +152,8 @@ public struct MailMessageHeaders:Sendable,Equatable {
     public var senderName:String?
     public var subject:String?
     public var date:Date?
+    /// The Message-ID of the message this one answers, from its In-Reply-To header.
+    public var inReplyTo:String?
     public init(messageID:String?=nil,senderAddress:String?=nil,senderName:String?=nil,subject:String?=nil,date:Date?=nil) {
         self.messageID=messageID.flatMap(MailMessageIdentity.normalized); self.senderAddress=senderAddress?.lowercased(); self.senderName=senderName; self.subject=subject; self.date=date
     }
@@ -168,7 +170,7 @@ public struct MailMessageHeaders:Sendable,Equatable {
                 name=nil
                 guard let colon=line.firstIndex(of:":") else { continue }
                 let key=line[..<colon].lowercased()
-                guard ["message-id","from","subject","date"].contains(key),found[key] == nil else { continue }
+                guard ["message-id","from","subject","date","in-reply-to"].contains(key),found[key] == nil else { continue }
                 found[key]=String(line[line.index(after:colon)...]); name=key
             }
         }
@@ -182,6 +184,14 @@ public struct MailMessageHeaders:Sendable,Equatable {
         }
         subject=found["subject"].map{Self.decoded($0).trimmingCharacters(in:.whitespaces)}
         date=found["date"].flatMap(Self.date)
+        inReplyTo=found["in-reply-to"].flatMap(Self.firstMessageID)
+    }
+    /// The first Message-ID in a header such as In-Reply-To: the first one in angle brackets, or the whole value.
+    public static func firstMessageID(_ value:String) -> String? {
+        if let open=value.firstIndex(of:"<"),let close=value[open...].firstIndex(of:">") {
+            return MailMessageIdentity.normalized(String(value[value.index(after:open)..<close]))
+        }
+        return MailMessageIdentity.normalized(value)
     }
     /// Decodes RFC 2047 encoded words, such as =?UTF-8?B?…?=, which is how mail carries any header text
     /// that is not plain ASCII. Neighbouring words in one character set are joined before decoding, because

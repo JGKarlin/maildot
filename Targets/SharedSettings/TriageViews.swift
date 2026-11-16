@@ -482,7 +482,7 @@ struct MailDotSettingsView:View {
             HStack(alignment:.top,spacing:8) {
                 Text("\(index+1)").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting).frame(width:16,alignment:.trailing).padding(.top,2)
                 if editingRule == rule.id {
-                    TextField("Rule",text:$ruleText,axis:.vertical).lineLimit(1...5).textFieldStyle(.roundedBorder).onSubmit { saveRule(rule.id) }
+                    TextField("Rule",text:$ruleText,axis:.vertical).ruleCounter(ruleText,limit:DraftingRules.textLimit).lineLimit(1...5).textFieldStyle(.roundedBorder).onSubmit { saveRule(rule.id) }
                     Button("Save") { saveRule(rule.id) }.controlSize(.small).disabled(blank(ruleText))
                     Button("Cancel") { editingRule=nil; ruleFailure=nil }.controlSize(.small)
                 } else {
@@ -503,7 +503,7 @@ struct MailDotSettingsView:View {
             .background(RoundedRectangle(cornerRadius:8).fill(Color.primary.opacity(0.04)))
         }
         HStack(alignment:.bottom,spacing:8) {
-            TextField("Add a rule for Dot’s drafts",text:$newRule,axis:.vertical).lineLimit(1...4).textFieldStyle(.roundedBorder)
+            TextField("Add a rule for Dot’s drafts",text:$newRule,axis:.vertical).ruleCounter(newRule,limit:DraftingRules.textLimit).lineLimit(1...4).textFieldStyle(.roundedBorder)
                 .focused($newRuleFocused).onSubmit { addRule() }
             // Always a plain, full-size button, never faded: with nothing typed it only puts the cursor in the
             // box; once a rule is typed it turns blue (owner request, 13 November 2026).
@@ -650,7 +650,7 @@ struct TriageQuestionCard:View {
             }
             if otherOpen || boxAlwaysOpen || parsed.answers.isEmpty {
                 VStack(alignment:.leading,spacing:6) {
-                    TextField("Tell Dot your answer, or how to draft the reply",text:$otherText,axis:.vertical)
+                    TextField("Tell Dot your answer, or how to draft the reply",text:$otherText,axis:.vertical).guidanceCounter(otherText)
                         .lineLimit(4...10).textFieldStyle(.roundedBorder).focused($otherFocused)
                     HStack(spacing:8) {
                         Button { dictate() } label: { Label("Dictate",systemImage:"mic") }
@@ -940,7 +940,7 @@ struct SenderNotesEditor:View {
             ForEach(items) { item in
                 HStack(alignment:.top,spacing:8) {
                     if editing == item.id {
-                        TextField("Note",text:$text,axis:.vertical).lineLimit(1...5).textFieldStyle(.roundedBorder).onSubmit { save(item.id) }
+                        TextField("Note",text:$text,axis:.vertical).ruleCounter(text,limit:SenderNote.textLimit).lineLimit(1...5).textFieldStyle(.roundedBorder).onSubmit { save(item.id) }
                         Button("Save") { save(item.id) }.controlSize(.small).disabled(blank(text))
                         Button("Cancel") { editing=nil; failure=nil }.controlSize(.small)
                     } else {
@@ -957,7 +957,7 @@ struct SenderNotesEditor:View {
                 .background(RoundedRectangle(cornerRadius:8).fill(Color.primary.opacity(0.04)))
             }
             HStack(alignment:.bottom,spacing:8) {
-                TextField("Add a note",text:$newText,axis:.vertical).lineLimit(1...4).textFieldStyle(.roundedBorder).focused($adding).onSubmit { add() }
+                TextField("Add a note",text:$newText,axis:.vertical).ruleCounter(newText,limit:SenderNote.textLimit).lineLimit(1...4).textFieldStyle(.roundedBorder).focused($adding).onSubmit { add() }
                 Group {
                     if blank(newText) { Button { adding=true } label: { Label("Add",systemImage:"plus") }.buttonStyle(.bordered) }
                     else { Button { add() } label: { Label("Add",systemImage:"plus") }.buttonStyle(.borderedProminent) }

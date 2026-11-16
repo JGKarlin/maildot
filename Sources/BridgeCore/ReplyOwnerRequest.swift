@@ -9,7 +9,8 @@ public struct ReplyOwnerRequest: Codable, Sendable, Equatable {
         public var answer: String
         public var at: Date
     }
-    public static let textLimit = 2000
+    /// How much the owner may write to Dot about one reply (raised from 2000, owner's OK, 16 November 2026).
+    public static let textLimit = 5000
     /// The owner set this message aside: no reply is wanted.
     public var ignored = false
     /// Draft and save, or draft and send, as pressed on the panel. Nil until the owner chooses.

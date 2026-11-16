@@ -535,3 +535,6 @@
 "Asking Dot to confirm the connection…" = "Pyydetään Dotia vahvistamaan yhteys…";
 "Dot could not confirm the connection" = "Dot ei voinut vahvistaa yhteyttä";
 "Not needed for Gmail or iCloud." = "Ei tarvita Gmailille tai iCloudille.";
+"🔎 Checking" = "🔎 Tarkistetaan";
+"Dot is checking this message…" = "Dot tarkistaa tätä viestiä…";
+"You" = "Sinä";

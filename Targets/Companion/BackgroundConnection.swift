@@ -23,6 +23,7 @@ import UserNotifications
             if let (_,response)=try? await session.data(for:request) { connected=(response as? HTTPURLResponse)?.statusCode == 200 }
         }
         let problem=runtimeProblem() ?? tunnelProblem()
+        if problem == "configuration" || problem == "moved" { await reregisterIfStartedElsewhere() }
         var value:[String:Any] = ["enabled":service.status == .enabled || service.status == .requiresApproval,"needsApproval":service.status == .requiresApproval,
                                   "connected":connected && problem == nil,"error":lastError,"updatedAt":Date().timeIntervalSince1970]
         if let problem { value["problem"]=problem }
@@ -99,6 +100,46 @@ import UserNotifications
         guard FileManager.default.createFile(atPath:temporary,contents:updated,attributes:[.posixPermissions:0o600]),
               rename(temporary,profilePath) == 0 else { return false }
         return true
+    }
+
+    private static var lastReregistration=Date.distantPast
+
+    /// macOS remembers where the background helper lives when it is registered, and after an update it can go on
+    /// starting the helper of an earlier copy (one moved to the Trash, say). That helper refuses to hand the key
+    /// to this copy's agent and stops. When the helper reports it was started from somewhere other than this app,
+    /// and this app's agent is the one the connection names, the service is registered again from here, which
+    /// points macOS at this copy. At most once every ten minutes, so a real fault never becomes a loop.
+    static func reregisterIfStartedElsewhere(now:Date = .now) async {
+        guard now.timeIntervalSince(lastReregistration) >= 600,service.status == .enabled,
+              let data=try? Data(contentsOf:runtime.appendingPathComponent("runtime-status.json")),
+              let status=try? JSONSerialization.jsonObject(with:data) as? [String:Any] else { return }
+        let mine=Bundle.main.bundleURL.appendingPathComponent("Contents/Helpers/MailDotRuntime").resolvingSymlinksInPath().path
+        let from=status["from"] as? String
+        // A helper from before this record carried its origin says nothing of where it ran; one retry settles it.
+        guard from == nil || URL(fileURLWithPath:from!).resolvingSymlinksInPath().path != mine else { return }
+        repairAgentPathIfMoved()
+        guard let named=namedAgent(),
+              URL(fileURLWithPath:named).resolvingSymlinksInPath().path == Bundle.main.bundleURL.appendingPathComponent("Contents/Helpers/MailDotAgent").resolvingSymlinksInPath().path else { return }
+        lastReregistration=now
+        do {
+            try await service.unregister()
+            try service.register()
+            try? FileManager.default.removeItem(at:runtime.appendingPathComponent("runtime-status.json"))
+            lastError=""
+        } catch { lastError=error.localizedDescription }
+        lastProbe = .distantPast
+    }
+
+    /// The agent program the private tunnel profile names, by absolute path.
+    private static func namedAgent() -> String? {
+        guard let configuration=try? Data(contentsOf:runtime.appendingPathComponent("configuration.json")),
+              let paths=try? JSONSerialization.jsonObject(with:configuration) as? [String:Any],let profilePath=paths["profilePath"] as? String,
+              let data=try? Data(contentsOf:URL(fileURLWithPath:profilePath)),
+              let profile=try? JSONSerialization.jsonObject(with:data) as? [String:Any],
+              let command=((profile["mcp"] as? [String:Any])?["commands"] as? [[String:Any]])?.first?["command"] as? String else { return nil }
+        let trimmed=command.trimmingCharacters(in:.whitespaces)
+        let agent=trimmed.hasPrefix("\"") ? String(trimmed.dropFirst().prefix{ $0 != "\"" }) : String(trimmed.prefix{ $0 != " " })
+        return agent.hasPrefix("/") ? agent : nil
     }
 
     static func setEnabled(_ enabled:Bool) async throws {

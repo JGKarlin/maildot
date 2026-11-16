@@ -535,3 +535,6 @@
 "Asking Dot to confirm the connection…" = "Dot megerősítést kap a kapcsolatról…";
 "Dot could not confirm the connection" = "Dot nem tudta megerősíteni a kapcsolatot";
 "Not needed for Gmail or iCloud." = "Gmailhez vagy iCloudhoz nem szükséges.";
+"🔎 Checking" = "🔎 Ellenőrzés";
+"Dot is checking this message…" = "Dot ellenőrzi ezt az üzenetet…";
+"You" = "Te";

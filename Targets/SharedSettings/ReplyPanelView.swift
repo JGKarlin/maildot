@@ -311,7 +311,7 @@ import BridgeCore
             }
             if otherOpen || question.answers.isEmpty {
                 VStack(alignment:.leading,spacing:6) {
-                    TextField("Tell Dot your answer, or how to draft the reply",text:$otherText,axis:.vertical)
+                    TextField("Tell Dot your answer, or how to draft the reply",text:$otherText,axis:.vertical).guidanceCounter(otherText)
                         .lineLimit(3...6).textFieldStyle(.roundedBorder).focused($otherFocused)
                     HStack(spacing:8) {
                         Button { dictate() } label: { Label("Dictate",systemImage:"mic") }
@@ -346,7 +346,7 @@ import BridgeCore
             card {
                 caption(String(localized:"What should this message say?"))
                 // As tall as the fixed panel allows; longer text scrolls inside the box.
-                TextField("Tell Dot what to write",text:$newText,axis:.vertical)
+                TextField("Tell Dot what to write",text:$newText,axis:.vertical).guidanceCounter(newText)
                     .lineLimit(23...23).textFieldStyle(.roundedBorder).focused($newFocused)
                 HStack(spacing:8) {
                     Button { dictate(intoNew:true) } label: { Label("Dictate",systemImage:"mic") }
@@ -451,10 +451,14 @@ import BridgeCore
                     .help("Put Dot’s reply at the top of your message, above the quoted mail. Nothing is sent.")
                 choice("Save Draft","tray.and.arrow.down",chosen:request?.delivery == .save && request?.saveToDrafts == true) { saveDraft() }
                     .help("Put Dot’s reply at the top of your message and save it in Drafts. Nothing is sent.")
+                // Command-Return chooses Send (owner request, 16 November 2026); it still sends only after the one
+                // confirmation, whose own Send button takes Command-Return while it is shown.
                 choice("Send","paperplane",chosen:request?.delivery == .send) { choose(.send) }
                     .help("Put Dot’s reply in your message and send it, after you confirm once.")
-                Spacer(minLength:4)
+                    .keyboardShortcut(confirmation == nil ? KeyboardShortcut(.return,modifiers:.command) : nil)
+                // No Reply sits with the other choices for this reply (owner decision, 16 November 2026).
                 Button("No Reply",systemImage:"nosign") { act { try BridgeCoordinator.ownerIgnores(contextID:contextID,state:&$0) } }
+                Spacer(minLength:0)
             }
             // While Dot is asking, the answer box is "Something else…" in the question itself; a new message
             // not yet described is described in its own card above.
@@ -462,15 +466,16 @@ import BridgeCore
             HStack(alignment:.bottom,spacing:8) {
                 // Revising needs a draft: until Dot's draft is shown, the box and Tell Dot stay greyed.
                 // Three lines from the start, growing to six (owner request, 14 November 2026), like the answer box.
-                TextField("Tell Dot how to revise this reply",text:$words,axis:.vertical)
+                TextField("Tell Dot how to revise this reply",text:$words,axis:.vertical).guidanceCounter(words)
                     .lineLimit(3...6).textFieldStyle(.roundedBorder).focused($typing).onSubmit { if context?.proposal != nil { say() } }
                     .disabled(context?.proposal == nil)
-                Button("Tell Dot") { say() }
-                    .disabled(context?.proposal == nil || words.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || words.count > ReplyOwnerRequest.textLimit)
-                // Two rows (owner decision, 14 November 2026): the top row is what becomes of this draft; this row changes
-                // it, by words or by a call.
-                Button("Call Dot",systemImage:"phone") { note=DotCallCommands.call(contextID:contextID) ?? String(localized:"Opening a call with Dot about this message.") }
-                    .help("Talk this reply over with Dot on a voice call")
+                // Call Dot right above Tell Dot, the box to their left (owner decision, 16 November 2026).
+                VStack(alignment:.trailing,spacing:8) {
+                    Button("Call Dot",systemImage:"phone") { note=DotCallCommands.call(contextID:contextID) ?? String(localized:"Opening a call with Dot about this message.") }
+                        .help("Talk this reply over with Dot on a voice call")
+                    Button("Tell Dot",systemImage:"text.bubble") { say() }
+                        .disabled(context?.proposal == nil || words.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || words.count > ReplyOwnerRequest.textLimit)
+                }.fixedSize()
             }
             }
         }.padding(.horizontal,16).padding(.vertical,10)
@@ -671,7 +676,6 @@ import BridgeCore
             Button("Insert",systemImage:"text.insert") {}
             Button("Save Draft",systemImage:"tray.and.arrow.down") {}
             Button("Send",systemImage:"paperplane") {}
-            Color.clear.frame(width:4,height:1)
             Button("No Reply",systemImage:"nosign") {}
         }.fixedSize()
         return ceil(NSHostingView(rootView:row).fittingSize.width)

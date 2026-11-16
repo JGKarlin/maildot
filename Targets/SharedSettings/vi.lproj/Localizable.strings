@@ -535,3 +535,6 @@
 "Asking Dot to confirm the connection…" = "Đang nhờ Dot xác nhận kết nối…";
 "Dot could not confirm the connection" = "Dot không thể xác nhận kết nối";
 "Not needed for Gmail or iCloud." = "Không cần cho Gmail hoặc iCloud.";
+"🔎 Checking" = "🔎 Đang kiểm tra";
+"Dot is checking this message…" = "Dot đang kiểm tra thư này…";
+"You" = "Bạn";

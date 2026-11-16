@@ -1157,7 +1157,7 @@ import OSLog
         if let state=try? store.read() {
             var states:[String:Int]=[:]
             for entry in state.entries {
-                var hasher=Hasher(); hasher.combine("\(entry.outcome)"); hasher.combine(entry.draft?.count ?? -1); hasher.combine(entry.dotNote)
+                var hasher=Hasher(); hasher.combine("\(entry.outcome)"); hasher.combine(entry.draft?.count ?? -1); hasher.combine(entry.dotNote); hasher.combine(entry.replyPanelDraftingAt)
                 states[entry.id]=hasher.finalize()
             }
             if let last=lastBannerStates {
