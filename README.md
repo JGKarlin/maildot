@@ -4,7 +4,7 @@ Mail Dot is an extension for Apple Mail on the Mac that brings Dot, the assistan
 
 Hooner LLC publishes Mail Dot's source code under the PolyForm Noncommercial License 1.0.0. Anyone may use, study and modify it for noncommercial purposes, and commercial use requires a licence from Hooner LLC. The first public release is in testing, and the installer will appear on the [Releases page](https://github.com/JGKarlin/maildot/releases) when that testing ends.
 
-<p align="center"><img src="docs/images/reply-draft-ready.png" width="520" alt="Mail Dot's panel in a reply window, showing a draft that Dot has written, with buttons to insert it, save it as a draft, send it, or decline to reply."></p>
+<p align="center"><img src="docs/images/reply-draft-ready.png" width="520" alt="Mail Dot's panel in a reply window, showing a draft that Dot has written, with buttons to insert it, save it as a draft, send it, or decline to reply, and beneath them a field for telling Dot how to revise it beside Call Dot and Tell Dot."></p>
 
 ## Why Mail Dot exists
 
@@ -90,7 +90,7 @@ Search by Meaning asks for Full Disk Access when the first box is ticked, for on
 
 ### Reports on threads
 
-For each message it handles, Dot reports on the thread: how it began, how it developed, what has been decided, what remains open and who must act. A banner on the message in Mail gives the state in a word or two, such as "Draft ready", "Question for you" or "No reply needed", and the Mail Dot window shows the full report. The window offers three layouts, named Briefing, Storyline and Ledger.
+For each message it handles, Dot reports on the thread: how it began, how it developed, what has been decided, what remains open and who must act. A banner on the message in Mail gives the state in a word or two, such as "Draft ready", "Question for you" or "No reply needed", and the Mail Dot window shows the full report. Once the reader has answered a message, whether through Mail Dot, by hand in Mail or from another device, its banner reads "Replied". Mail the reader wrote carries no banner. The window offers three layouts, named Briefing, Storyline and Ledger.
 
 The report turns a long thread into a short account of where a matter stands, and it tracks the commitments that mail creates. When a message sets a meeting, the report shows it with a button that adds it to the calendar.
 
@@ -104,7 +104,7 @@ Mail Dot appears in three places in Mail.
 
 On a message, a banner states what Dot has done with it. The banner's button, Open Mail Dot, opens the report on that message and its thread. From the report the reader can ask for a draft, open a finished draft in a Mail reply, discard one, mark a message as needing no reply, start a voice call with Dot about it, or open Ask Dot.
 
-In a reply window, the Mail Dot button in the toolbar opens the panel shown at the top of this page. Insert places Dot's draft at the head of the reply and leaves the quoted mail untouched. Save Draft places it and saves the message to Drafts. Send places it and asks for one confirmation that names the recipients, after which Mail sends the message. No Reply dismisses the draft. The field beneath takes an instruction for revising the draft, and Call Dot opens a voice call for the same purpose.
+In a reply window, the Mail Dot button in the toolbar opens the panel shown at the top of this page. Insert places Dot's draft at the head of the reply and leaves the quoted mail untouched. Save Draft places it and saves the message to Drafts. Send places it and asks for one confirmation that names the recipients, after which Mail sends the message. No Reply dismisses the draft. Command-Return chooses Send. The wide field beneath takes an instruction for revising the draft, which Tell Dot sends, and Call Dot above it opens a voice call for the same purpose.
 
 Anywhere in Mail, Shift-Option-Command-F opens Ask Dot.
 
