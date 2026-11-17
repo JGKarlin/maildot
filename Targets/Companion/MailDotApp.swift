@@ -1030,8 +1030,8 @@ import OSLog
         guard access.checkRequestedAt != nil,access.checkRequestID == nil else { return }
         do {
             let available=try MailWorkflowAccount.available(settings:settings,native:NativeMailStore(bridgeDirectory:bridge.directory).read())
-            guard !available.isEmpty else { return }
-            let request=try MailWorkflowRequest(action:.check,accountIDs:DotCallCommands.scope(available))
+            // A check reads no mail: with no account linked yet (setup's test of Dot), it names none.
+            let request=try MailWorkflowRequest(action:.check,accountIDs:available.isEmpty ? [] : DotCallCommands.scope(available))
             try MailWorkflowStore(bridgeDirectory:bridge.directory).transaction { try $0.enqueue(request,allowedAccountIDs:Set(available.map(\.id))) }
             if let updated=try? settingsStore.transaction({ value -> MailSettings in value.markDotCheckSent(requestID:request.id); return value }) { settings=updated }
         } catch {
@@ -1074,7 +1074,9 @@ import OSLog
         let mailOpen = !NSRunningApplication.runningApplications(withBundleIdentifier:"com.apple.mail").isEmpty
         // Until Dot has answered on this Mac, nothing is sent to it automatically (owner request, 14 November 2026);
         // what the owner asked for still goes.
-        if let state=try? store.read() {
+        // A request the owner made themselves and Dot has not started goes first: nothing automatic is added in front of it.
+        let ownerWaiting = !((try? MailWorkflowStore(bridgeDirectory:bridge.directory).read())?.ownerRequestsWaiting().isEmpty ?? true)
+        if !ownerWaiting,let state=try? store.read() {
             for entry in state.dueForDot() where settings.dotActive || entry.askedByOwner {
                 if !entry.askedByOwner {
                     let to=entry.recipients ?? []
@@ -1410,11 +1412,14 @@ import OSLog
                 } else { throw BridgeFailure("Refresh this message to verify its live editor before applying text.") }
                 // A reply already in the message that the owner now chooses to send still needs their confirmation.
                 if proposal.delivery == .send,context.sendConfirmation == nil,context.review == nil {
-                    try store.transaction { state in
+                    let confirms=(try? MailSettingsStore(bridgeDirectory:store.directory).read())?.confirmsPanelSends ?? true
+                    let sending=try store.transaction { state in
                         guard var value=state.contexts[context.id] else { throw BridgeFailure("The message is no longer shared.") }
                         try BridgeCoordinator.requestSendConfirmation(context:&value)
                         state.contexts[context.id]=value
+                        return try BridgeCoordinator.sendWithoutAsking(contextID:context.id,confirms:confirms,state:&state)
                     }
+                    if sending { return String(localized:"Sending…") }
                     postSendConfirmation(contextID:context.id,store:store)
                     return String(localized:"Dot’s reply is in the message. Confirm to send it. Nothing has been sent.")
                 }
@@ -1477,12 +1482,16 @@ import OSLog
             }
             switch proposal.delivery {
             case .send:
-                // Nothing is made ready here. The owner's confirming act on this Mac comes first.
-                try store.transaction { state in
+                // Nothing is made ready here. The owner's confirming act on this Mac comes first, unless the owner
+                // pressed Send in the panel with "Confirm before sending" off: that press is the confirmation.
+                let confirms=(try? MailSettingsStore(bridgeDirectory:store.directory).read())?.confirmsPanelSends ?? true
+                let sending=try store.transaction { state in
                     guard var value=state.contexts[context.id] else { throw BridgeFailure("The message is no longer shared.") }
                     try BridgeCoordinator.requestSendConfirmation(context:&value)
                     state.contexts[context.id]=value
+                    return try BridgeCoordinator.sendWithoutAsking(contextID:context.id,confirms:confirms,state:&state)
                 }
+                if sending { return String(localized:"Sending…") }
                 postSendConfirmation(contextID:context.id,store:store)
                 return String(localized:"Dot’s reply is in the message. Confirm to send it. Nothing has been sent.")
             case .save:

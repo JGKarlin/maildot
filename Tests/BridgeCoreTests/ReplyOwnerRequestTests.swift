@@ -559,7 +559,8 @@ final class ReplyOwnerRequestTests:XCTestCase {
         linked.nativeAccounts=[NativeMailAccount(id:"icloud",name:"iCloud",addresses:["owner@icloud.example.invalid"],server:"imap.mail.me.com")]
         try MailSettingsStore(bridgeDirectory:root).transaction { $0=linked }
         let inbox=NativeMailbox(accountID:"icloud",path:["INBOX"])
-        try NativeMailStore(bridgeDirectory:root).transaction { try NativeMailCoordinator.authorize(accountID:"icloud",mailboxes:[inbox],state:&$0) }
+        // Folders the owner allowed and Mail confirmed: the one rule every reader goes by.
+        try NativeMailStore(bridgeDirectory:root).transaction { try NativeMailCoordinator.authorize(accountID:"icloud",mailboxes:[inbox],state:&$0); $0.grants[0].verifiedAt=Date() }
         let available=try MailWorkflowAccount.available(settings:linked,native:NativeMailState())
         var entry=MailTriageEntry(messageID:"r@example.invalid",sender:"tanaka@example.invalid",senderName:nil,subject:"研究会",receivedAt:Date(),
                                   verdict:MailTriage.Verdict(essential:true,reason:"r"),automatic:true)

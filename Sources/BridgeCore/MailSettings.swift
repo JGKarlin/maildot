@@ -153,13 +153,18 @@ public struct MailSettings:Codable,Sendable {
     public var lastDotSync:Date?
     public var lastAccountsSync:Date?
     public var lastSchedulesSync:Date?
-    /// When Dot confirmed that its hourly job renewing Mail Dot's subscriptions exists.
+    /// When Dot confirmed that its Keep connected job renewing Mail Dot's subscriptions exists.
     public var keepConnectedConfirmedAt:Date?
     /// How many keep-connected requests in a row Dot has left unanswered.
     public var keepConnectedUnanswered:Int?
     public var source = "Waiting for Dot"
     /// The layout of the Mail Dot window, chosen in Settings (owner request, 13 November 2026). Absent means Briefing.
     public var windowLayout:MailDotWindowLayout?
+    /// Whether pressing Send in the reply panel first asks the owner to confirm (owner request, 17 November 2026).
+    /// Absent means yes, the default. With it off, the panel's Send sends at once; a send Dot drafted by voice still
+    /// needs the owner's confirmation on the Mac.
+    public var confirmBeforeSending:Bool?
+    public var confirmsPanelSends:Bool { confirmBeforeSending ?? true }
     /// The owner's choice in Settings: mail of the accounts read on this Mac can also be found by its meaning, from
     /// embeddings made and kept on this Mac (15 November 2026). Absent or false means off, which is the default.
     public var searchByMeaning:Bool?
@@ -313,7 +318,9 @@ public struct MailSettings:Codable,Sendable {
 public enum MailSettingsCoordinator {
     /// The whole job, stated once here so that Dot receives it through the native settings channel
     /// and the owner never has to paste instructions.
-    public static let keepConnectedInstruction = "Keep Mail Dot connected. Create one scheduled job titled Mail Dot · Keep connected that runs every hour, every day. If a job with this exact title exists, reuse it and never create a second. On each run: 1. Call Mail Dot bridge_status. 2. If renewal_needed is false, stop without saying or notifying anything. 3. Otherwise subscribe again, with queue_id personal and ttlMs set to requested_lifetime_ms, to each event whose state is overdue or missing, reusing its existing handler (the message receipt handler, Mail Dot · Configuration, or Mail Dot · Mail menu) and never creating a duplicate. 4. Call bridge_status again; if an event is still not active, stop and let the next run retry. The job reads no mail, drafts nothing, sends nothing and changes no other schedule. If Mail Dot cannot be reached, stop silently, because the Mac may be asleep. When the job exists and is enabled, report confirmed/verified with empty connections and schedules. If you cannot create scheduled jobs in this run, report failed/capabilityUnavailable."
+    /// The job's title is the one setup gives it ("Mail Dot (<Mac account>) · Keep connected"); a job set up earlier by
+    /// hand under the older title is reused, never duplicated.
+    public static var keepConnectedInstruction:String { "Keep Mail Dot connected. Mail Dot needs one scheduled job that runs \(DotHandlers.keepConnectedSchedule). If a job titled \(DotHandlers.keepConnectedTitle()) or \(DotHandlers.legacyKeepConnectedTitle) already exists, reuse it under its own title, correct its schedule and instructions, and never create a second; otherwise create it with the title \(DotHandlers.keepConnectedTitle()). When it is set up, run it once now, so that Mail Dot sees it work; its schedule continues after. Its instructions are exactly: \(DotHandlers.keepConnectedPrompt) When renewing, subscribe with queue_id personal and ttlMs set to requested_lifetime_ms, reusing the existing handler for that event (Mail Dot · Configuration for mail.settings_requested, Mail Dot · Mail menu for mail.workflow_requested) and never creating a duplicate. When the job exists and is enabled, report confirmed/verified with empty connections and schedules. If you cannot create scheduled jobs in this run, report failed/capabilityUnavailable." }
     public static let keepConnectedRetry:TimeInterval = 6*3600
 
     /// True until Dot has confirmed the job, unless a request is already waiting or one failed recently.

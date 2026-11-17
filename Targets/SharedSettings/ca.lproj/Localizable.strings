@@ -516,7 +516,7 @@
 "Tunnel" = "Túnel";
 "Key" = "Clau";
 "Plugin" = "Connector";
-"Hourly task" = "Tasca cada hora";
+"Scheduled task" = "Tasca programada";
 "Use Gmail Connector…" = "Utilitza el connector del Gmail…";
 "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail." = "No cal per als comptes als quals el Dot arriba amb un connector del ChatGPT, com el Gmail.";
 "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on." = "El Dot cerca millor al Gmail amb el seu propi connector. Aquest compte continua funcionant a través del Mail fins que s’activi el connector.";
@@ -538,3 +538,14 @@
 "🔎 Checking" = "🔎 Comprovant";
 "Dot is checking this message…" = "El Dot està comprovant aquest missatge…";
 "You" = "Tu";
+"1 request ahead of yours" = "1 sol·licitud abans d’aquesta";
+"%lld requests ahead of yours" = "%lld sol·licituds abans d’aquesta";
+"SENDING" = "ENVIAMENT";
+"Confirm before sending" = "Confirma abans d’enviar";
+"Dot finished setting up" = "Dot ha acabat la configuració";
+"Mail Dot sees both subscriptions" = "Mail Dot veu les dues subscripcions";
+"Dot answered a drafting test" = "Dot ha respost una prova de redacció";
+"Dot answered a settings test" = "Dot ha respost una prova de configuració";
+"Dot has not answered Mail Dot’s test requests." = "Dot no ha respost les sol·licituds de prova de Mail Dot.";
+"Keep connected has run." = "Keep connected s’ha executat.";
+"Waiting for the first run of Keep connected." = "S’espera la primera execució de Keep connected.";

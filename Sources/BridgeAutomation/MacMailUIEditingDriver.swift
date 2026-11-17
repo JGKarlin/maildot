@@ -231,10 +231,19 @@ actor MacMailUIEditingDriver:MailUIEditingDriver {
         // Closing the panel is not instant: Mail keeps it in the window, and keeps focus away from the message,
         // while it animates away. Send was refused at once on 13 and 16 November because the check below ran
         // during that moment. Wait, briefly, for the message window to be ready again before checking it.
-        let readyBy=Date().addingTimeInterval(3)
+        // The owner's confirmation can leave another app in front (the Mail Dot confirmation, or a notification):
+        // Send was refused on 17 November with "Mail is not in front". Mail and the reviewed message window, and
+        // only that window, are brought forward through Accessibility, which works for a background app where
+        // activating another app does not.
+        let readyBy=Date().addingTimeInterval(4)
         while let target=try? locate(pid:retained.target.pid,subject:retained.subject),
-              sendReadiness(target,retained:retained.target) != nil,Date() < readyBy {
-            try await Task.sleep(for:.milliseconds(100))
+              let reason=sendReadiness(target,retained:retained.target),Date() < readyBy {
+            if ["Mail is not in front","another window has focus"].contains(reason),CFEqual(target.window,retained.target.window) {
+                AXUIElementSetAttributeValue(target.app,kAXFrontmostAttribute as CFString,kCFBooleanTrue)
+                AXUIElementSetAttributeValue(target.window,kAXMainAttribute as CFString,kCFBooleanTrue)
+                AXUIElementPerformAction(target.window,kAXRaiseAction as CFString)
+            }
+            try await Task.sleep(for:.milliseconds(150))
         }
         let dispatchID=UUID().uuidString
         defer { pendingSendButtons.removeValue(forKey:dispatchID) }

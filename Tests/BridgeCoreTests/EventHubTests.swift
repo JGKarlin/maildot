@@ -9,12 +9,12 @@ import XCTest
         return BridgeStore(directory:url)
     }
     func params() -> JSONValue {
-        ["name":"mail.reply_context_changed","arguments":["queue_id":"personal"],
+        ["name":"mail.settings_requested","arguments":["queue_id":"personal"],
          "delivery":["mode":"webhook","url":"https://chatgpt.com/test-callback","secret":.string(secret)],"ttlMs":120000]
     }
     func testVerifiedSubscriptionPersistsAndRefreshIsIdempotent() async throws {
         let store = store(), recorder = CallbackRecorder()
-        let hub = EventHub(store:store,sender:{ try await recorder.respond($0) })
+        let hub = EventHub(store:store,sender:{ try await recorder.respond($0) },shortestLifetimeMs:60_000)
         let first = try await hub.subscribe(params())
         let second = try await hub.subscribe(params())
         XCTAssertEqual(first["id"],second["id"])
@@ -34,16 +34,16 @@ import XCTest
         do { _ = try await hub.subscribe(params()); XCTFail("Wrong challenge accepted") } catch {}
         XCTAssertTrue(try store.read().subscriptions.isEmpty)
     }
-    func testSettingsEventsAreSeparateFromReplySubscriptions() async throws {
+    func testSettingsEventsAreSeparateFromWorkflowSubscriptions() async throws {
         let store=store(),recorder=CallbackRecorder()
         let hub=EventHub(store:store,sender:{ try await recorder.respond($0) })
-        _ = try await hub.subscribe(params())
+        var workflowObject=params().object!; workflowObject["name"] = "mail.workflow_requested"
+        _ = try await hub.subscribe(.object(workflowObject))
         let settings=MailSettingsStore(bridgeDirectory:store.directory)
         let pending=try settings.transaction { try MailSettingsCoordinator.request(.refresh,instruction:"Read actual settings",settings:&$0) }
         await hub.pump()
         XCTAssertNil(try settings.read().requests[0].event.receiptAt)
-        var settingsObject=params().object!; settingsObject["name"] = "mail.settings_requested"
-        let settingsParams=JSONValue.object(settingsObject)
+        let settingsParams=params()
         _ = try await hub.subscribe(settingsParams)
         // A previously loaded compose extension preserves IDs but drops new optional fields.
         try store.transaction { for index in $0.subscriptions.indices { $0.subscriptions[index].eventName=nil } }
@@ -61,14 +61,10 @@ import XCTest
         let store = store(), recorder = CallbackRecorder()
         let hub = EventHub(store:store,sender:{ try await recorder.respond($0) })
         _ = try await hub.subscribe(params())
-        try store.transaction { state in
-            let draft = MailDraft(id:1,subject:"Test",sender:"sender@example.invalid",to:["recipient@example.invalid"],cc:[],bcc:[],body:"Synthetic",attachmentCount:0)
-            var context = ReplyContext(id:"synthetic",envelope:draft)
-            BridgeCoordinator.share(draft,with:&context)
-            state.contexts[context.id] = context
-        }
+        let settings = MailSettingsStore(bridgeDirectory:store.directory)
+        try settings.transaction { $0.keepConnectedConfirmedAt = .now; _ = try MailSettingsCoordinator.request(.refresh,instruction:"Read actual settings",settings:&$0) }
         await hub.pump(); await hub.pump()
-        let event = try XCTUnwrap(store.read().contexts["synthetic"]?.event)
+        let event = try settings.read().requests[0].event
         XCTAssertNotNil(event.receiptAt)
         XCTAssertNil(event.reviewedAt)
         let delivered = await recorder.requests.filter { $0.value(forHTTPHeaderField:"webhook-id") == event.id }
@@ -80,13 +76,11 @@ import XCTest
         let store = store(), recorder = CallbackRecorder(eventStatus:410)
         let hub = EventHub(store:store,sender:{ try await recorder.respond($0) })
         _ = try await hub.subscribe(params())
-        try store.transaction { state in
-            var context = ReplyContext(id:"synthetic",envelope:MailDraft(id:1,subject:"",sender:"",to:[],cc:[],bcc:[],body:"",attachmentCount:0))
-            context.event = BridgeEvent(); state.contexts[context.id] = context
-        }
+        let settings = MailSettingsStore(bridgeDirectory:store.directory)
+        try settings.transaction { $0.keepConnectedConfirmedAt = .now; _ = try MailSettingsCoordinator.request(.refresh,instruction:"Read actual settings",settings:&$0) }
         await hub.pump(); await hub.pump()
-        XCTAssertEqual(try store.read().contexts["synthetic"]?.event?.attempts,8)
-        XCTAssertNil(try store.read().contexts["synthetic"]?.event?.receiptAt)
+        XCTAssertEqual(try settings.read().requests[0].event.attempts,8)
+        XCTAssertNil(try settings.read().requests[0].event.receiptAt)
         let count = await recorder.requests.count
         XCTAssertEqual(count,2) // verification + one delivery
     }

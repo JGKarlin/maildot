@@ -516,7 +516,7 @@
 "Tunnel" = "通道";
 "Key" = "金鑰";
 "Plugin" = "外掛程式";
-"Hourly task" = "每小時工作";
+"Scheduled task" = "排程工作";
 "Use Gmail Connector…" = "使用 Gmail 連接器⋯";
 "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail." = "Dot 透過 ChatGPT 連接器存取的帳號（例如 Gmail）無需開啟。";
 "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on." = "Dot 透過自己的連接器搜尋 Gmail 效果更好。在連接器開啟之前，此帳號會繼續透過「郵件」運作。";
@@ -538,3 +538,14 @@
 "🔎 Checking" = "🔎 檢查中";
 "Dot is checking this message…" = "Dot 正在檢查這封郵件⋯";
 "You" = "你";
+"1 request ahead of yours" = "前面還有 1 個請求";
+"%lld requests ahead of yours" = "前面還有 %lld 個請求";
+"SENDING" = "傳送";
+"Confirm before sending" = "傳送前確認";
+"Dot finished setting up" = "Dot 已完成設定";
+"Mail Dot sees both subscriptions" = "Mail Dot 已看到兩個訂閱";
+"Dot answered a drafting test" = "Dot 已回應一項草稿測試";
+"Dot answered a settings test" = "Dot 已回應一項設定測試";
+"Dot has not answered Mail Dot’s test requests." = "Dot 尚未回應 Mail Dot 的測試請求。";
+"Keep connected has run." = "Keep connected 已執行。";
+"Waiting for the first run of Keep connected." = "正在等待 Keep connected 首次執行。";

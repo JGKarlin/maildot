@@ -51,6 +51,15 @@ import BridgeCore
                     _ = record { state,_,_ in try state.dismiss(superseded) }
                 }
             }
+            // An answer the owner already gave Dot about this message, in the Mail Dot window, goes with this request, so
+            // Dot does not ask the same question again (owner report, 17 November 2026). Placed after the check above:
+            // while Dot is still drafting from that answer, the reply waits for that draft instead.
+            if !context.originalMessageID.isEmpty,let entry=(try? MailTriageStore.shared().read())?.entry(forMessageID:context.originalMessageID),entry.ownerAnswer != nil {
+                try bridge.transaction { state in
+                    guard var value=state.contexts[contextID] else { return }
+                    if BridgeCoordinator.carryOwnerAnswer(question:entry.dotNote,answer:entry.ownerAnswer,into:&value) { state.contexts[contextID]=value }
+                }
+            }
             if let refusal=record({ state,scope,allowed in _ = try state.requestReply(accountIDs:scope,allowedAccountIDs:allowed,contextID:contextID) }) { return refusal }
             // The message's banner and the Mail Dot window show Drafting until the draft arrives, panel open or not.
             if !context.originalMessageID.isEmpty { try? MailTriageStore.shared().transaction { $0.noteReplyPanelDrafting(messageID:context.originalMessageID) } }

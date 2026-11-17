@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0D7AD48A776E29ADDD810FCC /* ReplyPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4F3BD01CD1B7E9C0A52ECC /* ReplyPanelView.swift */; };
+		12CF4BE272B12CE1EB06ACCC /* StatusChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3DCF35A854D6210C44F41DE /* StatusChange.swift */; };
 		132238709EC706C0358E071E /* MailDotThreadWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5149831378E25F1240A6B043 /* MailDotThreadWindow.swift */; };
 		14C87287DD99CC9A74635D7B /* MailSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10F8D04A450B4130B0857E7 /* MailSettingsView.swift */; };
 		25C19199E8CCA527539F7F5F /* MessageReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C8DF88D873F6C176FDADE4 /* MessageReportView.swift */; };
@@ -60,6 +61,7 @@
 		F0B230886FE0D183D0F5937E /* PreviewRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66DDEB7713E6AC58D26AA093 /* PreviewRenderer.swift */; };
 		F4F8BEA6265C47AEC3DA6B67 /* MailSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10F8D04A450B4130B0857E7 /* MailSettingsView.swift */; };
 		F6A641AFC222C140D9DC9EC7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 031EB155CA4A90176C000939 /* Assets.xcassets */; };
+		FB3CDB170684F80E10B17F52 /* StatusChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3DCF35A854D6210C44F41DE /* StatusChange.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -209,6 +211,7 @@
 		98EE36F7DFA03E0ACC22A656 /* MailDotSetupWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailDotSetupWindow.swift; sourceTree = "<group>"; };
 		9AA4EE4E5C58160D67C425EE /* MailDotStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailDotStyle.swift; sourceTree = "<group>"; };
 		9DCE329DE8A999D4E6B8B8C8 /* AskDotPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AskDotPanel.swift; sourceTree = "<group>"; };
+		A3DCF35A854D6210C44F41DE /* StatusChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusChange.swift; sourceTree = "<group>"; };
 		A6BBF75AC4847D8355F21ACC /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		A7BFEB4FA8D5BE0F4F19F7E3 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
 		A888651B1FE9FAFFBAC4F6E9 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -297,6 +300,7 @@
 				57C8DF88D873F6C176FDADE4 /* MessageReportView.swift */,
 				C4E559E2C3AD85DD7C8C95B4 /* NativeMailSetupView.swift */,
 				ED4F3BD01CD1B7E9C0A52ECC /* ReplyPanelView.swift */,
+				A3DCF35A854D6210C44F41DE /* StatusChange.swift */,
 				CBB7789E0EAA0366D1C9B437 /* TriageViews.swift */,
 				0B3D0E083784554933ECFD6E /* UpdateCommands.swift */,
 				29CA92CC90AD84429063762D /* InfoPlist.strings */,
@@ -652,6 +656,7 @@
 				CA596239658360B0A340650D /* MessageReportView.swift in Sources */,
 				D9A9AA14C605D7DC729A6901 /* NativeMailSetupView.swift in Sources */,
 				6F9C48EC493973B5DB191C20 /* ReplyPanelView.swift in Sources */,
+				FB3CDB170684F80E10B17F52 /* StatusChange.swift in Sources */,
 				64B571F02920B1298CA31069 /* TriageViews.swift in Sources */,
 				F067B540FFD04A61AEA560A6 /* UpdateCommands.swift in Sources */,
 			);
@@ -684,6 +689,7 @@
 				8A55B050D0A7A1AE5D9C2FC0 /* NativeMailSetupView.swift in Sources */,
 				F0B230886FE0D183D0F5937E /* PreviewRenderer.swift in Sources */,
 				0D7AD48A776E29ADDD810FCC /* ReplyPanelView.swift in Sources */,
+				12CF4BE272B12CE1EB06ACCC /* StatusChange.swift in Sources */,
 				75E89BD21BB36A60E733CCC2 /* TriageViews.swift in Sources */,
 				8054333F5CDEB0C197BA3602 /* UpdateCommands.swift in Sources */,
 			);
@@ -900,7 +906,7 @@
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 199;
+				CURRENT_PROJECT_VERSION = 205;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -1056,7 +1062,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 199;
+				CURRENT_PROJECT_VERSION = 205;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;

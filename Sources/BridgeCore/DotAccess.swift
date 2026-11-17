@@ -30,7 +30,7 @@ public struct DotAccess:Codable,Sendable,Equatable {
 }
 
 extension MailSettings {
-    /// Dot's access, with setups that already had Dot answering counted as confirmed (their hourly
+    /// Dot's access, with setups that already had Dot answering counted as confirmed (their
     /// keep-connected job was confirmed by Dot).
     public var effectiveDotAccess:DotAccess {
         if let dotAccess { return dotAccess }

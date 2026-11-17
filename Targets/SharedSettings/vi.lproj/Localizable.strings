@@ -516,7 +516,7 @@
 "Tunnel" = "Đường hầm";
 "Key" = "Khóa";
 "Plugin" = "Plugin";
-"Hourly task" = "Tác vụ hằng giờ";
+"Scheduled task" = "Tác vụ đã lên lịch";
 "Use Gmail Connector…" = "Dùng trình kết nối Gmail…";
 "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail." = "Không cần cho các tài khoản Dot truy cập qua trình kết nối ChatGPT, như Gmail.";
 "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on." = "Dot tìm trong Gmail tốt hơn qua trình kết nối riêng. Tài khoản này vẫn hoạt động qua Mail cho đến khi bật trình kết nối.";
@@ -538,3 +538,14 @@
 "🔎 Checking" = "🔎 Đang kiểm tra";
 "Dot is checking this message…" = "Dot đang kiểm tra thư này…";
 "You" = "Bạn";
+"1 request ahead of yours" = "1 yêu cầu trước yêu cầu này";
+"%lld requests ahead of yours" = "%lld yêu cầu trước yêu cầu này";
+"SENDING" = "GỬI";
+"Confirm before sending" = "Xác nhận trước khi gửi";
+"Dot finished setting up" = "Dot đã thiết lập xong";
+"Mail Dot sees both subscriptions" = "Mail Dot thấy cả hai lượt đăng ký";
+"Dot answered a drafting test" = "Dot đã trả lời một bài thử bản nháp";
+"Dot answered a settings test" = "Dot đã trả lời một bài thử cài đặt";
+"Dot has not answered Mail Dot’s test requests." = "Dot chưa trả lời các yêu cầu thử của Mail Dot.";
+"Keep connected has run." = "Keep connected đã chạy.";
+"Waiting for the first run of Keep connected." = "Đang chờ Keep connected chạy lần đầu.";

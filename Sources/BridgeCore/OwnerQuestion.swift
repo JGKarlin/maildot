@@ -88,9 +88,19 @@ extension MailWorkflowState {
     }
     /// Where the panel's newest request for a message stands, in Mail Dot's own records: when it was made,
     /// when ChatGPT accepted it, and when Dot first read it.
-    public func replyProgress(contextID:String) -> (askedAt:Date,deliveredAt:Date?,readAt:Date?)? {
+    public func replyProgress(contextID:String,now:Date=Date()) -> (askedAt:Date,deliveredAt:Date?,readAt:Date?,ahead:Int)? {
         guard let request=requests.last(where:{$0.action == .reply && $0.contextID == contextID}) else { return nil }
-        return (request.createdAt,request.event.receiptAt,request.event.reviewedAt)
+        return (request.createdAt,request.event.receiptAt,request.event.reviewedAt,requestsAhead(of:request.id,now:now))
+    }
+    /// How many unfinished requests were made before this one, so that the owner can see their place while ChatGPT
+    /// starts Dot (owner request, 17 November 2026). One Dot is working on counts; one waiting on the owner's answer
+    /// does not, nor one nobody started that is old enough to be closed as undelivered.
+    public func requestsAhead(of id:String,now:Date=Date()) -> Int {
+        guard let target=requests.first(where:{$0.id == id}),![.ready,.failed].contains(target.stage) else { return 0 }
+        return requests.filter { other in
+            other.id != id && other.createdAt < target.createdAt && [.pending,.working].contains(other.stage)
+                && (other.hasActiveClaim(now:now) || (other.claim == nil && now.timeIntervalSince(other.createdAt) < MailWorkflowRequest.ownerPriorityWindow))
+        }.count
     }
     public mutating func requestReply(accountIDs:[String],allowedAccountIDs:Set<String>,contextID:String,now:Date=Date()) throws -> MailWorkflowRequest {
         requests.removeAll{$0.action == .reply && ($0.contextID == contextID || [.ready,.failed].contains($0.stage))}

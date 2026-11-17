@@ -18,7 +18,8 @@ public enum ReplyIndicator: Equatable, Sendable {
     public init?(_ context: ReplyContext) {
         guard let request = context.ownerRequest, !request.ignored, let snapshot = context.snapshot else { return nil }
         if context.sendConfirmation != nil { self = .confirmSend; return }
-        if let asked = context.dotQuestion, !asked.isEmpty {
+        // A draft already written comes before a question (owner report, 17 November 2026).
+        if context.proposal == nil, let asked = context.dotQuestion, !asked.isEmpty {
             let parsed = BridgeCoordinator.answers(in: asked)
             self = .question(text: parsed.question, answers: parsed.answers); return
         }

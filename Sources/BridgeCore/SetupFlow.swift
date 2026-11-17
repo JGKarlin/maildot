@@ -11,16 +11,28 @@ public enum SetupFlow {
         public var mailAllowed = false
         public var extensionOn = false
         public var chatGPTInstalled = true
-        /// Mail Dot has its connection and Dot is listening on it.
+        /// Mail Dot has its connection and Dot is listening on it for drafting requests.
         public var connected = false
+        /// Mail Dot also holds Dot's live subscription for settings requests.
+        public var settingsSubscribed = false
+        /// Since setup asked Dot to connect, Dot's handler answered a test request through each event (owner's
+        /// approval, 17 November 2026): seen by Mail Dot, not taken on Dot's word.
+        public var draftingAnswered = false
+        public var settingsAnswered = false
+        /// The Keep connected task has called in since setup asked Dot to connect.
+        public var keepConnectedRan = false
         public init() {}
+        /// Both subscriptions are live on this Mac.
+        public var subscribed: Bool { connected && settingsSubscribed }
     }
+    /// Every step is checked on the Mac. Dot's own report that it is done is not enough for the connection step:
+    /// Mail Dot must see both subscriptions and an answer to a test request through each.
     public static func done(_ step: Step, _ facts: Facts, reports: [SetupThroughDot.Report] = []) -> Bool {
         switch step {
         case .accessibility: facts.accessibility
         case .mail: facts.mailAllowed
         case .extensionOn: facts.extensionOn
-        case .connect: facts.connected || reports.contains { $0.step == "done" }
+        case .connect: facts.subscribed && facts.draftingAnswered && facts.settingsAnswered
         }
     }
     /// The step that needs the user now: the first one not done.
@@ -30,8 +42,15 @@ public enum SetupFlow {
 
     /// The stages Dot reports while it sets up the connection, in order.
     public static let stages = ["started", "tunnel_created", "key_created", "connection_saved", "plugin_added", "done"]
+    /// What Mail Dot checks itself once Dot's stages are done, in order: both subscriptions seen, then an answer to
+    /// a test request through each handler. The two tests run together.
+    public static let checks = ["subscribed", "drafting_answered", "settings_answered"]
     /// Without a new report for this long, the connection step says so instead of spinning on.
     public static let stallAfter: TimeInterval = 180
+    /// Each test request goes to ChatGPT, which can take minutes to start Dot, so the checks wait longer.
+    public static let checkStallAfter: TimeInterval = 600
+    /// Whether each of Mail Dot's own checks is done.
+    public static func checked(_ facts: Facts) -> [Bool] { [facts.subscribed, facts.subscribed && facts.draftingAnswered, facts.subscribed && facts.settingsAnswered] }
 
     public enum Connection: Equatable, Sendable {
         case noChatGPT
@@ -48,15 +67,18 @@ public enum SetupFlow {
     public static func connection(_ facts: Facts, askedAt: Date?, reports: [SetupThroughDot.Report], now: Date = .now) -> Connection {
         if done(.connect, facts, reports: reports) { return .complete }
         guard let askedAt else { return facts.chatGPTInstalled ? .ready : .noChatGPT }
-        let reached = stages.indices.last { index in reports.contains { $0.step == stages[index] } }.map { $0 + 1 } ?? 0
-        let last = reached > 0 ? stages[reached - 1] : nil
+        // Dot's stages count up to the last one reported; Mail Dot seeing both subscriptions counts all of them,
+        // since Dot can subscribe only at the end.
+        var reached = stages.indices.last { index in reports.contains { $0.step == stages[index] } }.map { $0 + 1 } ?? 0
+        if facts.subscribed { reached = stages.count + 1 }
+        let last = reached > stages.count ? checks[0] : (reached > 0 ? stages[reached - 1] : nil)
         let times = reports.compactMap { try? Date($0.at, strategy: .iso8601) }
         // A report of being stopped holds until Dot is asked to continue.
         if let latest = reports.last, latest.step == "blocked", (times.last ?? .distantPast) >= askedAt {
             return .blocked(note: latest.note.trimmingCharacters(in: .whitespacesAndNewlines), last: last)
         }
         let heard = max(askedAt, times.max() ?? .distantPast)
-        return now.timeIntervalSince(heard) >= stallAfter ? .stalled(last: last) : .working(reached: reached)
+        return now.timeIntervalSince(heard) >= (reached >= stages.count ? checkStallAfter : stallAfter) ? .stalled(last: last) : .working(reached: reached)
     }
 }
 
@@ -111,11 +133,14 @@ extension SetupThroughDot {
         let described = ["started": "you started the task on this computer", "tunnel_created": "the tunnel exists", "key_created": "the key exists",
                          "connection_saved": "Mail Dot has the tunnel ID and the key, and its connection is running", "plugin_added": "the plugin is added in ChatGPT"]
         let done = SetupFlow.stages.filter(completed.contains).compactMap { described[$0] }
-        return """
+        let text = """
         Mail Dot asks you to continue setting up its private connection to you, named "\(name)", from where it stopped. Do not start over and do not create a second tunnel, key, plugin or task: \(done.isEmpty ? "first check on platform.openai.com and in ChatGPT what already exists under that name, and reuse it" : "already done: " + done.joined(separator: "; ") + ". Reuse what exists under that name").
 
-        Carry out only the steps that remain, in the task on this computer, and call report_setup_progress of the MCP server maildot at each: tunnel_created and key_created (a Secure MCP Tunnel and a restricted API key that can only read and use tunnels, on platform.openai.com), connection_saved (after calling setup_connection of maildot with the tunnel_id and the key), plugin_added (a custom plugin in ChatGPT that uses that tunnel), done (after subscribing to mail.reply_context_changed, mail.settings_requested and mail.workflow_requested and creating the hourly task "\(name) · Keep connected"). If the key can no longer be read, create a new key with the same name and delete the old one. If something stops you, report blocked with a one-sentence reason. Never show the key in this chat.
+        Carry out only the steps that remain, in the task on this computer, and call report_setup_progress of the MCP server maildot at each: tunnel_created and key_created (a Secure MCP Tunnel and a restricted API key that can only read and use tunnels, on platform.openai.com), connection_saved (after calling setup_connection of maildot with the tunnel_id and the key), plugin_added (a custom plugin in ChatGPT that uses that tunnel), done (after subscribing to mail.workflow_requested with the handler instructions "\(DotHandlers.workflowPrompt)" and to mail.settings_requested with the handler instructions "\(DotHandlers.settingsPrompt)", each with ttlMs 86400000, and creating the task "\(DotHandlers.keepConnectedTitle(name: name))", which runs \(DotHandlers.keepConnectedSchedule) with the instructions "\(DotHandlers.keepConnectedPrompt)", and running that task once now). If the key can no longer be read, create a new key with the same name and delete the old one. If something stops you, report blocked with a one-sentence reason. Never show the key in this chat.
         """
+        guard completed.contains("done") else { return text }
+        // Dot reported done, but Mail Dot has not seen both subscriptions answer its test requests.
+        return text + "\n\n" + "You reported done, but Mail Dot sent a test request through mail.workflow_requested and one through mail.settings_requested and has not had an answer to both. Check that each of the two subscriptions exists with the handler instructions above and that its handler runs; fix what is missing, reusing what exists, and report done again."
     }
 
     /// Mail Dot's entry in ChatGPT's local-tools settings is one written for setup.

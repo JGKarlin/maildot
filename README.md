@@ -1,10 +1,10 @@
 # Mail Dot
 
-Mail Dot is an extension for Apple Mail on the Mac that brings Dot, the assistant in ChatGPT, into the mail client. It drafts replies that draw on the whole context of a correspondence, it answers questions about a mailbox in plain language, and it reports on each thread so that the state of a matter is visible at a glance. The reader works in Mail throughout. Nothing leaves the Mac as a sent message without one confirming press.
+Mail Dot is an extension for Apple Mail on the Mac that brings Dot, the assistant in ChatGPT, into the mail client. It drafts replies that draw on the whole context of a correspondence, it answers questions about a mailbox in plain language, and it reports on each thread so that the state of a matter is visible at a glance. The reader works in Mail throughout. Nothing is sent until the reader presses Send, and by default Mail Dot asks for one confirmation before the message goes.
 
-Hooner LLC publishes Mail Dot's source code under the PolyForm Noncommercial License 1.0.0. Anyone may use, study and modify it for noncommercial purposes, and commercial use requires a licence from Hooner LLC. The first public release is in testing, and the installer will appear on the [Releases page](https://github.com/JGKarlin/maildot/releases) when that testing ends.
+Hooner LLC publishes Mail Dot's source code under the PolyForm Noncommercial License 1.0.0. Anyone may use, study and modify it for noncommercial purposes, and commercial use requires a licence from Hooner LLC. The installer is on the [Releases page](https://github.com/JGKarlin/maildot/releases).
 
-<p align="center"><img src="docs/images/reply-draft-ready.png" width="520" alt="Mail Dot's panel in a reply window, showing a draft that Dot has written, with buttons to insert it, save it as a draft, send it, or decline to reply, and beneath them a field for telling Dot how to revise it beside Call Dot and Tell Dot."></p>
+<p align="center"><img src="docs/images/reply-draft-ready.png" width="520" alt="Mail Dot's panel in a reply window, showing a draft that Dot has written, with buttons to insert it, save it as a draft, send it or decline to reply, and beneath them a box for telling Dot how to revise it, with Call Dot and Tell Dot beside it."></p>
 
 ## Why Mail Dot exists
 
@@ -28,7 +28,7 @@ Mail Dot follows one rule for mail accounts.
 | iCloud | ChatGPT's iCloud Mail connector, required | On Apple's servers, through the connector |
 | Any account without a connector | Through Mail on the Mac | In Mail Dot's encrypted index on the Mac, with Search by Meaning as an option |
 
-Mail Dot's settings show which route each account uses, and offer Use Gmail Connector… and Use iCloud Connector… to turn the connectors on. The sections below explain what each route means for search and for privacy.
+Mail sent to another address of a Gmail or iCloud mailbox, such as a second address that Mail knows only as an alias, also reaches Dot through that mailbox's connector. Mail Dot's settings show which route each account uses, and offer Use Gmail Connector… and Use iCloud Connector… to turn the connectors on. The sections below explain what each route means for search and for privacy.
 
 ## How Mail Dot protects mail
 
@@ -52,13 +52,17 @@ Mail Dot has three functions: drafting, search and reports.
 
 When an important message arrives, or when the reader opens one, Mail Dot offers it to Dot. Dot reads the thread, consults earlier mail with the same person, the calendar and any other sources connected to it in ChatGPT, and writes a reply in the language of the message. The draft waits in Mail Dot's panel in the reply window. The reader inserts it into the message, saves it to Drafts, or sends it, and can ask Dot to revise it in a sentence or by voice.
 
-Where the context does not settle what the reply should say, Dot asks one question and offers concrete answers. A single press answers it, and Dot then writes the draft.
+Where the context does not settle what the reply should say, Dot asks one question and offers concrete answers. A single press answers it, and Dot then writes the draft. Mail Dot keeps the answer, so Dot does not ask the same question again, and a draft already written is shown before any question.
+
+A request the reader makes, such as a reply asked for in the panel, an instruction to revise, a call or a question in Ask Dot, goes ahead of the automatic draft checks, and Mail Dot offers Dot no new automatic check while it waits. While Dot is starting, the panel's status line says how many requests are ahead of the reader's own.
+
+<p align="center"><img src="docs/images/reply-queue-position.png" width="520" alt="Mail Dot's panel while Dot drafts a reply, with the status line reading: ChatGPT is starting Dot, 2 requests ahead of yours."></p>
 
 <p align="center"><img src="docs/images/reply-question.png" width="520" alt="Mail Dot's panel showing a question from Dot about a scheduling conflict, with three suggested answers and a fourth choice to write something else."></p>
 
 Mail Dot filters what it offers to Dot. Bulk mail, mailing lists, receipts, account notices, one-time codes and automated messages stay out, and each account has its own switch for automatic drafts. The reader's own drafting rules, such as how to open a message or how formal to be, accompany every request, and so do notes on how to write to a particular person.
 
-<p align="center"><img src="docs/images/settings-drafting-rules.png" width="460" alt="The Drafting Rules tab of Mail Dot's settings, listing two rules that Dot applies to every draft."></p>
+<p align="center"><img src="docs/images/settings-drafting-rules.png" width="460" alt="The Drafting Rules tab of Mail Dot's settings, listing two rules that Dot applies to every draft, and beneath them a Sending section with the Confirm before sending checkbox ticked."></p>
 
 ### Searching mail with Dot
 
@@ -90,9 +94,9 @@ Search by Meaning asks for Full Disk Access when the first box is ticked, for on
 
 ### Reports on threads
 
-For each message it handles, Dot reports on the thread: how it began, how it developed, what has been decided, what remains open and who must act. A banner on the message in Mail gives the state in a word or two, such as "Draft ready", "Question for you" or "No reply needed", and the Mail Dot window shows the full report. Once the reader has answered a message, whether through Mail Dot, by hand in Mail or from another device, its banner reads "Replied". Mail the reader wrote carries no banner. The window offers three layouts, named Briefing, Storyline and Ledger.
+For each message it handles, Dot reports on the thread: how it began, how it developed, what has been decided, what remains open and who must act. A banner on the message in Mail gives the state in a word or two. It reads "Checking" while Dot decides whether the message needs a reply, "Drafting" only while a reply is being written, and then "Draft ready", "Question for you" or "No reply needed". The Mail Dot window shows the full report. Once the reader has answered a message, whether through Mail Dot, by hand in Mail or from another device, its banner reads "Replied". Mail the reader wrote carries no banner. The window offers three layouts, named Briefing, Storyline and Ledger.
 
-The report turns a long thread into a short account of where a matter stands, and it tracks the commitments that mail creates. When a message sets a meeting, the report shows it with a button that adds it to the calendar.
+The report turns a long thread into a short account of where a matter stands, and it tracks the commitments that mail creates. When the reader answers Dot's question, the matter it concerned moves to Decided at once. When a message sets a meeting, the report shows it with a button that adds it to the calendar.
 
 <p align="center"><img src="docs/images/report-thread.png" width="480" alt="The Mail Dot window for a thread of seven messages, showing a question for the reader with four answers, a summary of what has been decided and what is still to decide, and the start of the thread's history. The bottom row offers No Reply Needed, Call Dot, Ask Dot and the settings."></p>
 
@@ -104,11 +108,11 @@ Mail Dot appears in three places in Mail.
 
 On a message, a banner states what Dot has done with it. The banner's button, Open Mail Dot, opens the report on that message and its thread. From the report the reader can ask for a draft, open a finished draft in a Mail reply, discard one, mark a message as needing no reply, start a voice call with Dot about it, or open Ask Dot.
 
-In a reply window, the Mail Dot button in the toolbar opens the panel shown at the top of this page. Insert places Dot's draft at the head of the reply and leaves the quoted mail untouched. Save Draft places it and saves the message to Drafts. Send places it and asks for one confirmation that names the recipients, after which Mail sends the message. No Reply dismisses the draft. Command-Return chooses Send. The wide field beneath takes an instruction for revising the draft, which Tell Dot sends, and Call Dot above it opens a voice call for the same purpose.
+In a reply window, the Mail Dot button in the toolbar opens the panel shown at the top of this page. Insert places Dot's draft at the head of the reply and leaves the quoted mail untouched. Save Draft places it and saves the message to Drafts. Send places it, brings Mail forward and asks for one confirmation that names the recipients, after which Mail sends the message. With Confirm before sending turned off in the settings, the press of Send is itself the confirmation. No Reply dismisses the draft. Command-Return chooses Send. The wide field beneath takes an instruction for revising the draft, which Tell Dot sends, and Call Dot above it opens a voice call for the same purpose.
 
 Anywhere in Mail, Shift-Option-Command-F opens Ask Dot.
 
-Mail Dot's settings hold the list of accounts, each with its checkboxes for Mail Dot, automatic replies and Search by Meaning, together with the drafting rules, the choice of layout and the state of the connection to Dot.
+Mail Dot's icon in the message header opens its settings. They hold the list of accounts, each with its checkboxes for Mail Dot, automatic replies and Search by Meaning; the drafting rules, with the Confirm before sending setting under Sending; the choice of layout; and the state of the connection to Dot.
 
 ## How Mail Dot works
 
@@ -127,7 +131,7 @@ The key that runs the connection is restricted to that one purpose. It cannot ru
 
 ### No ChatGPT window is required
 
-Dot runs in OpenAI's cloud, not on the Mac. When something happens in Mail that concerns Dot, such as the arrival of an important message or a press of a button in the panel, Mail Dot's helper notifies ChatGPT with a signed message over HTTPS, and Dot wakes, calls the tools it needs through the tunnel, and returns its result. The ChatGPT app therefore does not need to be open for drafting, search or reports. Mail Dot starts its connection at login and keeps it alive in the background, and an hourly task in Dot renews Dot's subscription to Mail Dot's notifications.
+Dot runs in OpenAI's cloud, not on the Mac. When something happens in Mail that concerns Dot, such as the arrival of an important message or a press of a button in the panel, Mail Dot's helper notifies ChatGPT with a signed message over HTTPS, and Dot wakes, calls the tools it needs through the tunnel, and returns its result. The ChatGPT app therefore does not need to be open for drafting, search or reports. Mail Dot starts its connection at login and keeps it alive in the background, Dot's subscriptions to Mail Dot's notifications last a day, and a scheduled task in Dot named Keep connected checks every six hours and renews any that are running out.
 
 The ChatGPT app is needed on two occasions only: during first-time setup, when Mail Dot opens it to ask Dot for the connection, and for a voice call with Dot, which is a ChatGPT call that Mail Dot opens.
 
@@ -151,7 +155,7 @@ The index is an encrypted database in Mail Dot's private storage on the Mac. A b
 
 ### Sending
 
-Mail Dot places text in a message by operating Mail on the reader's behalf, and Mail itself sends the message. In the send path, Mail Dot shows the recipients and the opening of the text and waits for one press. Dot has no tool that can give that confirmation, and a message that changes after the confirmation is not sent. Text inside a message is treated as data and can never authorise an action.
+Mail Dot places text in a message by operating Mail on the reader's behalf, and Mail itself sends the message. In the send path, Mail Dot shows the recipients and the opening of the text and waits for one press. Confirm before sending, on by default, controls this step for a send the reader starts in the panel: with it off, the reader's press of Send is the confirmation. A send that Dot prepared during a voice call always waits for the reader's confirmation on the Mac. Dot has no tool that can give that confirmation, and a message that changes after the confirmation is not sent. Text inside a message is treated as data and can never authorise an action.
 
 ## Requirements
 
@@ -159,17 +163,17 @@ Mail Dot needs a Mac with Apple silicon running macOS 14 or later, Apple Mail wi
 
 ## Installation and setup
 
+Download the installer, `Mail-Dot-0.4.205.pkg`, from the [Releases page](https://github.com/JGKarlin/maildot/releases), where its SHA-256 checksum is listed beside it. Quit Mail before opening it; the installer will not continue while Mail is open.
+
 macOS stops the installer at the first double-click. Open System Settings, click Privacy & Security, scroll down, and click Open Anyway; then click Open in the alert that follows.
 
 The installer places Mail Dot in the Applications folder. Mail Dot then opens and shows a setup window with four steps, each of which it checks against the Mac for itself.
 
-<p align="center"><img src="docs/images/setup.png" width="520" alt="The Set Up Mail Dot window with three steps completed and the fourth, connecting Mail Dot to Dot, in progress: Dot has started and is creating the connection, with the later stages listed beneath. A Remove Mail Dot button sits at the bottom left."></p>
+<p align="center"><img src="docs/images/setup.png" width="520" alt="The Set Up Mail Dot window with three steps completed and the fourth, connecting Mail Dot to Dot, nearly done: Dot has created the connection and the key and added Mail Dot to ChatGPT, Mail Dot sees both subscriptions, Dot has answered a drafting test, and a settings test is running. A Remove Mail Dot button sits at the bottom left."></p>
 
 The first three steps are permissions that macOS reserves for the person at the keyboard. The first turns on Accessibility for Mail Dot, which lets it write to Dot in ChatGPT and start calls. The second allows Mail Dot to work with Mail, so that it can read the messages the reader chooses and place Dot's drafts. The third selects the Mail Dot checkbox in Mail's Settings, under Extensions, and Mail Dot opens that page.
 
-In the fourth step, Mail Dot opens ChatGPT and asks Dot to make the connection. Dot creates a private connection in the reader's OpenAI account and a key that can run only that connection, hands the key to Mail Dot, which keeps it in the Keychain, and adds Mail Dot to ChatGPT as a private plugin. The window shows each stage as Dot reaches it. Dot reads no mail during setup. The reader may be asked to sign in to OpenAI and to approve Mail Dot's tools in ChatGPT.
-
-This flow is the part of the release still under test. This page will be revised to match the released installer.
+In the fourth step, Mail Dot opens ChatGPT and asks Dot to make the connection. Dot creates a private connection in the reader's OpenAI account and a key that can run only that connection, hands the key to Mail Dot, which keeps it in the Keychain, and adds Mail Dot to ChatGPT as a private plugin. The window shows each stage as Dot reaches it. Setup then ends on Mail Dot's own checks, not on Dot's word: Mail Dot confirms that it sees both of Dot's subscriptions, that Dot has answered a drafting test and a settings test through its handlers, and that the Keep connected task has run once. Dot reads no mail during setup. The reader may be asked to sign in to OpenAI and to approve Mail Dot's tools in ChatGPT.
 
 ## Privacy
 
@@ -216,13 +220,13 @@ In the accounts, setup created four items, each named "Mail Dot (*name*)", where
 > **Mail Dot is removed**
 > Four items remain on your OpenAI account, each named "Mail Dot (*name*)". Mail Dot cannot delete them.
 
-The window then lists the four, each with an Open button that leads to the page where it is deleted: the tunnel, under [Tunnels](https://platform.openai.com/settings/organization/tunnels) on OpenAI's platform; its restricted key, under [API keys](https://platform.openai.com/settings/organization/api-keys); the Mail Dot plugin, in ChatGPT; and the hourly task that keeps Mail Dot connected, also in ChatGPT, whose name ends in "Keep connected". Delete all four. The tunnel and the key remain valid on OpenAI's side after the Mac holds nothing, so removing Mail Dot from the Mac does not retire them.
+The window then lists the four, each with an Open button that leads to the page where it is deleted: the tunnel, under [Tunnels](https://platform.openai.com/settings/organization/tunnels) on OpenAI's platform; its restricted key, under [API keys](https://platform.openai.com/settings/organization/api-keys); the Mail Dot plugin, in ChatGPT; and the scheduled task that keeps Mail Dot connected, also in ChatGPT, named "Mail Dot (*name*) · Keep connected". Delete all four. The tunnel and the key remain valid on OpenAI's side after the Mac holds nothing, so removing Mail Dot from the Mac does not retire them.
 
 A copy of the source also carries `Tools/Remove Mail Dot.command`, which does the Mac's part from Terminal.
 
 ## Reporting problems
 
-Problems and questions belong on the [Issues page](https://github.com/JGKarlin/maildot/issues). Reports should not include the text of real mail or any key. [SECURITY.md](SECURITY.md) explains how to report a security problem privately.
+Problems and questions belong on the [Issues page](https://github.com/JGKarlin/maildot/issues). Other enquiries can be sent to [maildot@icloud.com](mailto:maildot@icloud.com). Reports should not include the text of real mail or any key. [SECURITY.md](SECURITY.md) explains how to report a security problem privately.
 
 ## Supporting Mail Dot
 
@@ -232,6 +236,10 @@ Mail Dot is free for noncommercial use. Readers who find it useful may [leave a 
 
 © 2026 Hooner LLC. Developed by Jason G. Karlin.
 
-Mail Dot is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). The licence permits use, modification and sharing for noncommercial purposes, which include personal use, research, and use by educational, charitable and public organisations. It does not permit commercial use. Commercial licences are available from Hooner LLC; open an issue on this repository to ask for one.
+Mail Dot is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). The licence permits use, modification and sharing for noncommercial purposes, which include personal use, research, and use by educational, charitable and public organisations. It does not permit commercial use. Commercial licences are available from Hooner LLC; write to [maildot@icloud.com](mailto:maildot@icloud.com) to ask for one.
 
-Mail Dot includes software by others, which keeps its own licences; see [NOTICE](NOTICE). OpenAI's `tunnel-client` is used under the Apache License 2.0. SQLCipher 4.20.0, Copyright (c) 2025, ZETETIC LLC. All rights reserved. Used under the SQLCipher Community Edition Open Source License. https://www.zetetic.net/sqlcipher/ Mail Dot is an independent project and is not made or endorsed by OpenAI or Apple. The software is provided as it is, without warranty of any kind.
+Mail Dot includes software by others, which keeps its own licences; see [NOTICE](NOTICE). OpenAI's `tunnel-client` is used under the Apache License 2.0. SQLCipher 4.20.0, Copyright (c) 2025, ZETETIC LLC. All rights reserved. Used under the SQLCipher Community Edition Open Source License. https://www.zetetic.net/sqlcipher/
+
+Mail Dot is an independent project and is not made or endorsed by OpenAI or Apple. The software is provided as it is, without warranty of any kind.
+
+ChatGPT is a trademark of OpenAI. Apple, Mail, macOS and iCloud are trademarks of Apple Inc. Gmail and Google Workspace are trademarks of Google LLC. Their use here describes compatibility and implies no affiliation or endorsement.

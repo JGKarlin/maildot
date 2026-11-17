@@ -183,7 +183,7 @@ public enum SetupThroughDot {
         1. In my browser, on platform.openai.com, create a Secure MCP Tunnel named "\(name)" and a restricted API key named "\(name)" that can only read and use tunnels. Report tunnel_created and key_created. Never show the key in this chat and do not save it anywhere.
         2. In the task on this computer, call setup_connection of maildot with the tunnel's tunnel_id and the key as api_key. Mail Dot keeps the key in the Mac's Keychain and starts the connection. Report connection_saved with what it answered.
         3. When it answers connected, add a custom plugin in ChatGPT named "\(name)" that uses that tunnel. Report plugin_added.
-        4. Using that plugin, subscribe to its three events (mail.reply_context_changed, mail.settings_requested, mail.workflow_requested) and create an hourly task named "\(name) · Keep connected" that calls bridge_status and renews the subscriptions as it instructs. Report done.
+        4. Using that plugin, subscribe to its two events, each with ttlMs 86400000 and its own handler: mail.workflow_requested, with exactly these handler instructions: "\(DotHandlers.workflowPrompt)"; and mail.settings_requested, with exactly these: "\(DotHandlers.settingsPrompt)". Then create a task named "\(DotHandlers.keepConnectedTitle(name: name))" that runs \(DotHandlers.keepConnectedSchedule), with exactly these instructions: "\(DotHandlers.keepConnectedPrompt)". Run that task once now, so that Mail Dot sees it work; its schedule continues after. Report done.
         """
     }
     /// The name for this Mac account's connection.

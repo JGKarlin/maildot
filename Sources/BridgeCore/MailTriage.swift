@@ -144,6 +144,8 @@ public struct MailTriageEntry:Codable,Sendable,Identifiable,Equatable {
     public var draft:String?
     /// The owner's answer to Dot's question, sent with the next request about this message.
     public var ownerAnswer:String?
+    /// The owner asked Dot about this message and the answer is still to come or still to be used.
+    public var ownerRequestInFlight:Bool { askedByOwner && [.pending,.asked,.drafted,.needsGuidance].contains(outcome) }
     /// The owner pressed Draft a Reply (owner request, 14 November 2026): Dot writes a reply even if it had found none
     /// needed, following the owner's words for it when they gave any. Both are sent with each request about this message.
     public var draftRequested:Bool?
@@ -508,9 +510,17 @@ public struct MailTriageState:Codable,Sendable {
     /// hand in Mail left the message on Draft ready, and the reply itself said No reply needed).
     @discardableResult public mutating func noteOwnerSent(inReplyTo parent:String?,now:Date=Date()) -> Bool {
         guard let parent,let id=MailMessageIdentity.normalized(parent) else { return false }
-        let open=entries.contains{ $0.messageID.flatMap(MailMessageIdentity.normalized) == id && $0.outcome != .replied && $0.outcome != .skipped }
-        guard ownerReplied?[id] == nil || open else { return false }
-        noteOwnerReplied(messageID:id,now:now)
+        guard ownerReplied?[id] != nil else { noteOwnerReplied(messageID:id,now:now); return true }
+        // A reply already recorded, shown again when its conversation is opened. It still closes an entry left open
+        // from before it, but never one the owner has asked Dot about since: that request is newer than the reply
+        // (owner report, 17 November 2026: an answer to Dot's question was closed as Replied the moment the
+        // conversation showed the owner's earlier reply, and Dot asked the same question again in the reply panel).
+        let stale=entries.indices.filter { index in
+            entries[index].messageID.flatMap(MailMessageIdentity.normalized) == id && ![.replied,.skipped].contains(entries[index].outcome)
+                && !entries[index].ownerRequestInFlight
+        }
+        guard !stale.isEmpty else { return false }
+        for index in stale { entries[index].outcome = .replied; entries[index].draft=nil }
         return true
     }
     public mutating func noteOwnerReplied(messageID:String,now:Date=Date()) {

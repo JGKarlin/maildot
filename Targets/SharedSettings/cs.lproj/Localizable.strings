@@ -516,7 +516,7 @@
 "Tunnel" = "Tunel";
 "Key" = "Klíč";
 "Plugin" = "Plugin";
-"Hourly task" = "Úloha každou hodinu";
+"Scheduled task" = "Naplánovaná úloha";
 "Use Gmail Connector…" = "Použít konektor Gmail…";
 "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail." = "Není potřeba pro účty, ke kterým má Dot přístup přes konektor ChatGPT, například Gmail.";
 "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on." = "Dot prohledává Gmail lépe přes vlastní konektor. Dokud konektor nezapnete, tento účet dál funguje přes Mail.";
@@ -538,3 +538,14 @@
 "🔎 Checking" = "🔎 Kontroluje se";
 "Dot is checking this message…" = "Dot kontroluje tuto zprávu…";
 "You" = "Vy";
+"1 request ahead of yours" = "1 požadavek před tímto";
+"%lld requests ahead of yours" = "Požadavků před tímto: %lld";
+"SENDING" = "ODESÍLÁNÍ";
+"Confirm before sending" = "Potvrdit před odesláním";
+"Dot finished setting up" = "Dot dokončil nastavení";
+"Mail Dot sees both subscriptions" = "Mail Dot vidí obě předplatná";
+"Dot answered a drafting test" = "Dot odpověděl na test psaní konceptu";
+"Dot answered a settings test" = "Dot odpověděl na test nastavení";
+"Dot has not answered Mail Dot’s test requests." = "Dot neodpověděl na testovací požadavky Mail Dot.";
+"Keep connected has run." = "Keep connected proběhl.";
+"Waiting for the first run of Keep connected." = "Čeká se na první spuštění Keep connected.";

@@ -516,7 +516,7 @@
 "Tunnel" = "Тунель";
 "Key" = "Ключ";
 "Plugin" = "Плагін";
-"Hourly task" = "Щогодинне завдання";
+"Scheduled task" = "Заплановане завдання";
 "Use Gmail Connector…" = "Використати конектор Gmail…";
 "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail." = "Не потрібно для облікових записів, до яких Dot звертається через конектор ChatGPT, як-от Gmail.";
 "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on." = "Dot краще шукає в Gmail через власний конектор. Доки конектор не ввімкнено, цей обліковий запис і далі працює через Пошту.";
@@ -538,3 +538,14 @@
 "🔎 Checking" = "🔎 Перевірка";
 "Dot is checking this message…" = "Dot перевіряє цей лист…";
 "You" = "Ви";
+"1 request ahead of yours" = "1 запит перед цим";
+"%lld requests ahead of yours" = "Запитів перед цим: %lld";
+"SENDING" = "НАДСИЛАННЯ";
+"Confirm before sending" = "Підтверджувати перед надсиланням";
+"Dot finished setting up" = "Dot завершив налаштування";
+"Mail Dot sees both subscriptions" = "Mail Dot бачить обидві підписки";
+"Dot answered a drafting test" = "Dot відповів на тест чернетки";
+"Dot answered a settings test" = "Dot відповів на тест налаштувань";
+"Dot has not answered Mail Dot’s test requests." = "Dot не відповів на тестові запити Mail Dot.";
+"Keep connected has run." = "Keep connected виконано.";
+"Waiting for the first run of Keep connected." = "Очікування першого запуску Keep connected.";

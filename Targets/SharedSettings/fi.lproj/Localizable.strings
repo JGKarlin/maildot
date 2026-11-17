@@ -516,7 +516,7 @@
 "Tunnel" = "Tunneli";
 "Key" = "Avain";
 "Plugin" = "Lisäosa";
-"Hourly task" = "Tunnin välein toistuva tehtävä";
+"Scheduled task" = "Ajastettu tehtävä";
 "Use Gmail Connector…" = "Käytä Gmail-liitintä…";
 "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail." = "Ei tarvita tileille, joihin Dot pääsee ChatGPT-liittimen kautta, kuten Gmailille.";
 "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on." = "Dot hakee Gmailista paremmin omalla liittimellään. Tämä tili toimii edelleen Mailin kautta, kunnes liitin on päällä.";
@@ -538,3 +538,14 @@
 "🔎 Checking" = "🔎 Tarkistetaan";
 "Dot is checking this message…" = "Dot tarkistaa tätä viestiä…";
 "You" = "Sinä";
+"1 request ahead of yours" = "1 pyyntö ennen tätä";
+"%lld requests ahead of yours" = "%lld pyyntöä ennen tätä";
+"SENDING" = "LÄHETTÄMINEN";
+"Confirm before sending" = "Vahvista ennen lähettämistä";
+"Dot finished setting up" = "Dot viimeisteli käyttöönoton";
+"Mail Dot sees both subscriptions" = "Mail Dot näkee molemmat tilaukset";
+"Dot answered a drafting test" = "Dot vastasi luonnostestiin";
+"Dot answered a settings test" = "Dot vastasi asetustestiin";
+"Dot has not answered Mail Dot’s test requests." = "Dot ei ole vastannut Mail Dotin testipyyntöihin.";
+"Keep connected has run." = "Keep connected on suoritettu.";
+"Waiting for the first run of Keep connected." = "Odotetaan Keep connectedin ensimmäistä suoritusta.";

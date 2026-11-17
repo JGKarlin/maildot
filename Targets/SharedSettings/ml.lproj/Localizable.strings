@@ -516,7 +516,7 @@
 "Tunnel" = "ടണൽ";
 "Key" = "കീ";
 "Plugin" = "പ്ലഗ്-ഇൻ";
-"Hourly task" = "മണിക്കൂർ തോറുമുള്ള ജോലി";
+"Scheduled task" = "ഷെഡ്യൂൾ ചെയ്ത ജോലി";
 "Use Gmail Connector…" = "Gmail കണക്ടർ ഉപയോഗിക്കുക…";
 "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail." = "Gmail പോലെ, ChatGPT കണക്ടർ വഴി Dot എത്തുന്ന അക്കൗണ്ടുകൾക്ക് ആവശ്യമില്ല.";
 "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on." = "Dot സ്വന്തം കണക്ടർ വഴി Gmail-ൽ കൂടുതൽ നന്നായി തിരയുന്നു. കണക്ടർ ഓണാകുന്നതുവരെ ഈ അക്കൗണ്ട് Mail വഴി പ്രവർത്തിക്കുന്നത് തുടരും.";
@@ -538,3 +538,14 @@
 "🔎 Checking" = "🔎 പരിശോധിക്കുന്നു";
 "Dot is checking this message…" = "Dot ഈ സന്ദേശം പരിശോധിക്കുന്നു…";
 "You" = "നിങ്ങൾ";
+"1 request ahead of yours" = "ഇതിന് മുമ്പ് 1 അഭ്യർത്ഥന";
+"%lld requests ahead of yours" = "ഇതിന് മുമ്പ് %lld അഭ്യർത്ഥനകൾ";
+"SENDING" = "അയയ്ക്കൽ";
+"Confirm before sending" = "അയയ്ക്കുന്നതിന് മുമ്പ് സ്ഥിരീകരിക്കുക";
+"Dot finished setting up" = "Dot സജ്ജീകരണം പൂർത്തിയാക്കി";
+"Mail Dot sees both subscriptions" = "Mail Dot രണ്ട് സബ്‌സ്ക്രിപ്ഷനുകളും കാണുന്നു";
+"Dot answered a drafting test" = "Dot ഒരു ഡ്രാഫ്റ്റ് പരിശോധനയ്ക്ക് മറുപടി നൽകി";
+"Dot answered a settings test" = "Dot ഒരു ക്രമീകരണ പരിശോധനയ്ക്ക് മറുപടി നൽകി";
+"Dot has not answered Mail Dot’s test requests." = "Mail Dot-ന്റെ പരിശോധനാ അഭ്യർത്ഥനകൾക്ക് Dot മറുപടി നൽകിയിട്ടില്ല.";
+"Keep connected has run." = "Keep connected പ്രവർത്തിച്ചു.";
+"Waiting for the first run of Keep connected." = "Keep connected ആദ്യമായി പ്രവർത്തിക്കുന്നതിനായി കാത്തിരിക്കുന്നു.";

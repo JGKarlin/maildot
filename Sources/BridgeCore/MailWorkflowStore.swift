@@ -26,6 +26,16 @@ public struct MailWorkflowState:Codable,Sendable {
     }
     /// A listener on the Mac is waiting now: it asked for work within the last half minute.
     public func listenerActive(now:Date=Date()) -> Bool { listenerSeenAt.map{ now.timeIntervalSince($0) < 30 } ?? false }
+    /// Requests the owner made themselves (a reply from the panel, Tell Dot, a call, an answer, Ask Dot) that Dot has
+    /// not started yet. While one waits, no automatic request is added in front of it, and a background request Dot
+    /// opens names it, so that Dot turns to the owner first (owner report, 17 November 2026: a reply asked for in the
+    /// panel waited three and a half minutes while Dot handled an automatic draft check that arrived after it).
+    public func ownerRequestsWaiting(now:Date=Date()) -> [MailWorkflowRequest] {
+        requests.filter { request in
+            !MailWorkflowRequest.backgroundActions.contains(request.action) && ![.ready,.failed].contains(request.stage)
+                && request.claim == nil && now.timeIntervalSince(request.createdAt) < MailWorkflowRequest.ownerPriorityWindow
+        }
+    }
     /// The worker takes the request, unless another holds it. Returns whether it is this worker's now.
     @discardableResult public mutating func take(_ id:String,worker:String,now:Date=Date()) -> Bool {
         guard let index=requests.firstIndex(where:{$0.id == id}),![.ready,.failed].contains(requests[index].stage),

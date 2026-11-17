@@ -1,6 +1,6 @@
 # Privacy
 
-Hooner LLC publishes Mail Dot. This page states what Mail Dot does with mail and with data.
+Hooner LLC publishes Mail Dot. This page states what Mail Dot does with mail and with data. It applies to Mail Dot 0.4.205 and later, and was last updated on 18 November 2026.
 
 ## What Mail Dot collects
 
@@ -36,7 +36,7 @@ Search by Meaning asks for Full Disk Access so that Mail Dot can read past mail 
 
 ## Sending mail
 
-Mail Dot never sends a message by itself. A draft is sent only after the user confirms it on the Mac.
+Mail Dot never sends a message by itself. A draft is sent only after the user presses Send in Mail Dot's panel on the Mac. By default Mail Dot then asks for one confirmation that names the recipients; the Confirm before sending setting can turn that second step off for sends the user starts in the panel. A send that Dot prepared during a voice call always waits for the user's confirmation on the Mac.
 
 ## Removing data
 
@@ -44,4 +44,4 @@ The Remove Mail Dot… button, in Mail Dot's window and in its setup window, mov
 
 ## Questions
 
-Questions belong on the project's Issues page on GitHub. Reports should not include the text of real mail.
+Questions about this statement can be sent to maildot@icloud.com or raised on the project's Issues page on GitHub. Messages and reports should not include the text of real mail.

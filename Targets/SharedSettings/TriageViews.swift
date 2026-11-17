@@ -54,6 +54,8 @@ import BridgeCore
     static func discardDraft(_ id:String) throws { try MailTriageStore.shared().transaction { try $0.discardDraft(id) } }
     /// Add to Calendar: the background app adds the meeting and records the result on the entry.
     static func addToCalendar(_ id:String) throws { try MailTriageStore.shared().transaction { try $0.requestCalendar(id) }; DotCallCommands.wakeCompanion() }
+    /// "Confirm before sending" in Settings; on is the default and is stored as absent.
+    static func setConfirmBeforeSending(_ on:Bool) throws { try MailSettingsStore.shared().transaction { $0.confirmBeforeSending=on ? nil : false } }
     static func setLayout(_ layout:MailDotWindowLayout) throws { try MailSettingsStore.shared().transaction { $0.windowLayout=layout == .briefing ? nil : layout } }
     static func layout() async -> MailDotWindowLayout {
         await Task.detached { (try? MailSettingsStore.shared().read())?.windowLayout ?? .briefing }.value
@@ -284,6 +286,7 @@ struct MailDotSettingsView:View {
     @State private var editingRule:String?
     @State private var ruleText=""
     @State private var ruleFailure:String?
+    @State private var confirmBeforeSending=true
     var body:some View {
         if let account=connecting {
             NativeMailSetupView(account:account,settings:model) { connecting=nil; Task { await reload() } }
@@ -453,6 +456,12 @@ struct MailDotSettingsView:View {
                 if let failure { Text(failure).font(.caption).foregroundStyle(MailDotStyle.dangerText) }
                 } else if tab == .rules {
                     draftingRules
+                    // Whether the panel's Send asks for a confirmation first (owner request, 17 November 2026).
+                    Text("SENDING").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting).kerning(0.5).padding(.top,12)
+                    Toggle("Confirm before sending",isOn:Binding(get:{confirmBeforeSending},set:{ value in
+                        confirmBeforeSending=value
+                        do { try TriageCommands.setConfirmBeforeSending(value) } catch { ruleFailure=error.localizedDescription }
+                    }))
                 } else if tab == .layout {
                     LayoutChoice()
                 } else {
@@ -548,6 +557,8 @@ struct MailDotSettingsView:View {
         if access != diskAccess { diskAccess=access }
         let freshRules=await Task.detached { (try? MailSettingsStore.shared().read())?.effectiveDraftingRules ?? DraftingRules.starters }.value
         if freshRules != rules { rules=freshRules }
+        let confirms=await Task.detached { (try? MailSettingsStore.shared().read())?.confirmsPanelSends ?? true }.value
+        if confirms != confirmBeforeSending { confirmBeforeSending=confirms }
         loaded=true
     }
     /// Checks the account's allowed folders again on this Mac, and asks Dot again to confirm it can read

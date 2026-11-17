@@ -398,7 +398,7 @@ struct AskDotView:View {
             }.pickerStyle(.segmented).labelsHidden().fixedSize()
             Spacer(minLength:8)
             Text(verbatim:"⇧⌥⌘F").font(.caption).foregroundStyle(MailDotStyle.supporting).fixedSize().help("Shows or hides this bar while Mail is in front")
-            Button { close() } label: { Image(systemName:"xmark.circle.fill").font(.title3).foregroundStyle(MailDotStyle.supporting) }
+            Button { close() } label: { Image(systemName:"xmark.circle.fill").font(.title3).foregroundStyle(MailDotStyle.tint) }
                 .buttonStyle(.plain).help("Close").accessibilityLabel("Close").keyboardShortcut(.cancelAction)
         }
     }

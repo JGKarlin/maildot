@@ -516,7 +516,7 @@
 "Tunnel" = "Alagút";
 "Key" = "Kulcs";
 "Plugin" = "Bővítmény";
-"Hourly task" = "Óránkénti feladat";
+"Scheduled task" = "Ütemezett feladat";
 "Use Gmail Connector…" = "Gmail-összekötő használata…";
 "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail." = "Nem szükséges azokhoz a fiókokhoz, amelyeket Dot ChatGPT-összekötőn át ér el, például a Gmailhez.";
 "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on." = "Dot a saját összekötőjén át jobban keres a Gmailben. Amíg az összekötő nincs bekapcsolva, ez a fiók továbbra is a Mailen át működik.";
@@ -538,3 +538,14 @@
 "🔎 Checking" = "🔎 Ellenőrzés";
 "Dot is checking this message…" = "Dot ellenőrzi ezt az üzenetet…";
 "You" = "Te";
+"1 request ahead of yours" = "1 kérés áll előtte";
+"%lld requests ahead of yours" = "%lld kérés áll előtte";
+"SENDING" = "KÜLDÉS";
+"Confirm before sending" = "Megerősítés küldés előtt";
+"Dot finished setting up" = "A Dot befejezte a beállítást";
+"Mail Dot sees both subscriptions" = "A Mail Dot mindkét előfizetést látja";
+"Dot answered a drafting test" = "A Dot válaszolt egy piszkozatpróbára";
+"Dot answered a settings test" = "A Dot válaszolt egy beállításpróbára";
+"Dot has not answered Mail Dot’s test requests." = "A Dot nem válaszolt a Mail Dot próbakéréseire.";
+"Keep connected has run." = "A Keep connected lefutott.";
+"Waiting for the first run of Keep connected." = "Várakozás a Keep connected első futására.";

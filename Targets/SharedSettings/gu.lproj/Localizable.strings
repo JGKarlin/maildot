@@ -516,7 +516,7 @@
 "Tunnel" = "ટનલ";
 "Key" = "કી";
 "Plugin" = "પ્લગ-ઇન";
-"Hourly task" = "દર કલાકનું કાર્ય";
+"Scheduled task" = "નિર્ધારિત કાર્ય";
 "Use Gmail Connector…" = "Gmail કનેક્ટર વાપરો…";
 "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail." = "જે ખાતાં સુધી Dot ChatGPT કનેક્ટર દ્વારા પહોંચે છે, જેમ કે Gmail, તેમના માટે જરૂરી નથી.";
 "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on." = "Dot તેના પોતાના કનેક્ટર દ્વારા Gmail માં વધુ સારી શોધ કરે છે. કનેક્ટર ચાલુ થાય ત્યાં સુધી આ ખાતું Mail દ્વારા કામ કરતું રહે છે.";
@@ -538,3 +538,14 @@
 "🔎 Checking" = "🔎 તપાસ ચાલુ";
 "Dot is checking this message…" = "Dot આ સંદેશ તપાસી રહ્યું છે…";
 "You" = "તમે";
+"1 request ahead of yours" = "આની પહેલાં 1 વિનંતી";
+"%lld requests ahead of yours" = "આની પહેલાં %lld વિનંતીઓ";
+"SENDING" = "મોકલવું";
+"Confirm before sending" = "મોકલતા પહેલાં પુષ્ટિ કરો";
+"Dot finished setting up" = "Dot એ સેટઅપ પૂર્ણ કર્યું";
+"Mail Dot sees both subscriptions" = "Mail Dot બંને સબ્સ્ક્રિપ્શન જુએ છે";
+"Dot answered a drafting test" = "Dot એ ડ્રાફ્ટ પરીક્ષણનો જવાબ આપ્યો";
+"Dot answered a settings test" = "Dot એ સેટિંગ્સ પરીક્ષણનો જવાબ આપ્યો";
+"Dot has not answered Mail Dot’s test requests." = "Dot એ Mail Dot ની પરીક્ષણ વિનંતીઓનો જવાબ આપ્યો નથી.";
+"Keep connected has run." = "Keep connected ચાલ્યું.";
+"Waiting for the first run of Keep connected." = "Keep connected ના પ્રથમ રનની રાહ જોવાઈ રહી છે.";

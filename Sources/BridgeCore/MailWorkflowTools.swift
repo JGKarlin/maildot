@@ -83,6 +83,14 @@ enum MailWorkflowTools {
                 exported.removeValue(forKey:"event")
                 var response:[String:JSONValue]=["protocol_version":1,"request":.object(exported),"accounts":try .encode(available.filter{request.accountIDs.contains($0.id)}),"instructions":.string([instructions(for:request.action),request.action == .ask ? "" : draftingRules(bridgeDirectory,for:try recipients(of:request,bridgeDirectory)),OwnerLanguage.instruction()].filter{!$0.isEmpty}.joined(separator:" "))]
                 if let asked=request.questionID,let question=saved.questions.first(where:{$0.id == asked}) { response["question"] = describe(question) }
+                // The owner is waiting on a request of their own: Dot handles that one first.
+                if MailWorkflowRequest.backgroundActions.contains(request.action) {
+                    let waiting=saved.ownerRequestsWaiting().filter { Set($0.accountIDs).isSubset(of:allowed) }.map(\.id)
+                    if !waiting.isEmpty {
+                        response["owner_requests_waiting"] = .array(waiting.map(JSONValue.string))
+                        response["owner_first_instruction"] = "The owner is waiting in Mail on a request of their own. Before this one, call get_mail_workflow with each request_id in owner_requests_waiting and handle it; then come back to this request."
+                    }
+                }
                 if let instruction=request.instruction {
                     // The update as it stands now, so Dot can tell whether the instruction still fits it.
                     let record=try ScheduledMailUpdateStore(bridgeDirectory:bridgeDirectory).read().records.first{$0.update.id == instruction.updateID && $0.update.scheduleID == instruction.scheduleID}
@@ -150,16 +158,7 @@ enum MailWorkflowTools {
                         // How Dot reaches this message: its Gmail connector, or Mail on this Mac through Mail Dot's native tools.
                         let settings=try MailSettingsStore(bridgeDirectory:bridgeDirectory).read()
                         let native=try NativeMailStore(bridgeDirectory:bridgeDirectory).read()
-                        let ids=settings.accountIDs(receiving:value.recipients ?? [])
-                        var routes:[JSONValue]=[]
-                        for id in ids.sorted() {
-                            if id.hasPrefix("gmail:") { routes.append(["route":"gmail_connector","account":.string(String(id.dropFirst(6)))]) }
-                            else if id.hasPrefix("icloud:") { routes.append(["route":"icloud_connector","account":.string(String(id.dropFirst(7)))]) }
-                            else if id.hasPrefix("mail:"),let grant=native.grants.first(where:{$0.accountID == String(id.dropFirst(5)) && $0.revokedAt == nil}) {
-                                routes.append(["route":"mail_on_this_mac","account_id":.string(grant.accountID),"mailboxes":.array(grant.mailboxes.map{["mailbox_id":.string($0.id),"name":.string($0.name)]})])
-                            }
-                        }
-                        described["reach"] = .array(routes)
+                        described["reach"] = .array(messageReach(recipients:value.recipients ?? [],settings:settings,native:native))
                         return .object(described)
                     } ?? ["available":false]
                 }
@@ -258,6 +257,32 @@ enum MailWorkflowTools {
     /// The drafting rules, and the notes for the people this request's draft is written to.
     /// How Dot reaches each of these accounts: its Gmail connector, or Mail on this Mac through Mail Dot's native
     /// tools, with the folders the owner allowed. `account` is the value coverage must repeat.
+    /// How Dot reaches one arriving message, from the addresses it was sent to. A Gmail or iCloud mailbox is read only
+    /// through its connector, also when the message was sent to another address of that mailbox that only Mail knows
+    /// (owner report, 17 November 2026: mail to a second university address reached Dot with no route, so it could
+    /// not be read); Mail on this Mac is the route only for an account with no connector.
+    static func messageReach(recipients:[String],settings:MailSettings,native:NativeMailState) -> [JSONValue] {
+        let searchable=MailIndexPass.scope(settings:settings,native:native)
+        var routes:[JSONValue]=[],seen=Set<String>()
+        func add(_ route:String,_ account:String,_ extra:[String:JSONValue] = [:]) {
+            guard seen.insert(route+"|"+account.lowercased()).inserted else { return }
+            routes.append(.object(["route":.string(route),"account":.string(account)].merging(extra){ $1 }))
+        }
+        for id in settings.accountIDs(receiving:recipients).sorted() {
+            if id.hasPrefix("gmail:") { add("gmail_connector",String(id.dropFirst(6))) }
+            else if id.hasPrefix("icloud:") { add("icloud_connector",String(id.dropFirst(7))) }
+            else if id.hasPrefix("mail:") {
+                let accountID=String(id.dropFirst(5))
+                let addresses=Set((settings.nativeAccounts.first{ $0.id == accountID }?.addresses ?? []).map{ $0.lowercased() })
+                if let connector=settings.connections.first(where:{ $0.isLiveConnector && addresses.contains($0.email.lowercased()) }) {
+                    add(connector.provider == "icloud" ? "icloud_connector" : "gmail_connector",connector.accountID.split(separator:":",maxSplits:1).last.map(String.init) ?? connector.email)
+                } else if let grant=searchable.first(where:{ $0.accountID == accountID }) {
+                    add("mail_on_this_mac",grant.accountID,["account_id":.string(grant.accountID),"mailboxes":.array(grant.mailboxes.map{["mailbox_id":.string($0.id),"name":.string($0.name)]})])
+                }
+            }
+        }
+        return routes
+    }
     static func reach(for ids:[String],labels:[MailWorkflowAccount],bridgeDirectory:URL) throws -> [JSONValue] {
         let native=try NativeMailStore(bridgeDirectory:bridgeDirectory).read()
         let settings=(try? MailSettingsStore(bridgeDirectory:bridgeDirectory).read()) ?? MailSettings()

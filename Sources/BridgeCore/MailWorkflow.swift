@@ -170,6 +170,12 @@ public struct MailWorkflowRequest:Codable,Sendable,Identifiable {
     public struct Claim:Codable,Sendable,Equatable { public var worker:String; public var at:Date }
     public private(set) var claim:Claim?
     public static let claimLease:TimeInterval=600
+    /// The actions Mail Dot starts on its own, or that tidy what the owner typed: everything else is the owner's own
+    /// request and goes first.
+    public static let backgroundActions:Set<MailWorkflowAction>=[.draftCheck,.ruleCleanup,.noteCleanup]
+    /// How long an owner's unstarted request holds automatic ones back. A request no one could receive is closed
+    /// after fifteen minutes in any case (EventHub.undeliveredLimit), so this cannot hold drafting back for good.
+    public static let ownerPriorityWindow:TimeInterval=900
     public func hasActiveClaim(now:Date=Date()) -> Bool {
         guard let claim,![.ready,.failed].contains(stage) else { return false }
         return now.timeIntervalSince(claim.at) < Self.claimLease
@@ -201,7 +207,8 @@ public struct MailWorkflowRequest:Codable,Sendable,Identifiable {
         try validate()
     }
     public func validate() throws {
-        guard UUID(uuidString:id) != nil,revision >= 0,!accountIDs.isEmpty,accountIDs.count <= 30,
+        // A check reads no mail, so it names no account: setup tests Dot before any account is linked.
+        guard UUID(uuidString:id) != nil,revision >= 0,!accountIDs.isEmpty || action == .check,accountIDs.count <= 30,
               Set(accountIDs).count == accountIDs.count,accountIDs.allSatisfy({Self.text($0,limit:1024)}),
               action.requiresItem ? (itemID.map{Self.text($0,limit:512)} == true && (itemRevision ?? -1) >= 0 && sourceID.map{Self.text($0,limit:1024)} == true) : (itemID == nil && itemRevision == nil && sourceID == nil) else {
             throw BridgeFailure("Select linked accounts and a current item for this Mail Dot action.")

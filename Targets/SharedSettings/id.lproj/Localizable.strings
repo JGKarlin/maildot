@@ -516,7 +516,7 @@
 "Tunnel" = "Terowongan";
 "Key" = "Kunci";
 "Plugin" = "Plugin";
-"Hourly task" = "Tugas per jam";
+"Scheduled task" = "Tugas terjadwal";
 "Use Gmail Connector…" = "Gunakan Konektor Gmail…";
 "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail." = "Tidak diperlukan untuk akun yang dijangkau Dot melalui konektor ChatGPT, seperti Gmail.";
 "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on." = "Dot menelusuri Gmail lebih baik melalui konektornya sendiri. Akun ini tetap berfungsi melalui Mail hingga konektor dinyalakan.";
@@ -538,3 +538,14 @@
 "🔎 Checking" = "🔎 Memeriksa";
 "Dot is checking this message…" = "Dot sedang memeriksa pesan ini…";
 "You" = "Anda";
+"1 request ahead of yours" = "1 permintaan sebelum ini";
+"%lld requests ahead of yours" = "%lld permintaan sebelum ini";
+"SENDING" = "PENGIRIMAN";
+"Confirm before sending" = "Konfirmasi sebelum mengirim";
+"Dot finished setting up" = "Dot selesai menyiapkan";
+"Mail Dot sees both subscriptions" = "Mail Dot melihat kedua langganan";
+"Dot answered a drafting test" = "Dot menjawab uji draf";
+"Dot answered a settings test" = "Dot menjawab uji pengaturan";
+"Dot has not answered Mail Dot’s test requests." = "Dot belum menjawab permintaan uji dari Mail Dot.";
+"Keep connected has run." = "Keep connected sudah berjalan.";
+"Waiting for the first run of Keep connected." = "Menunggu Keep connected berjalan pertama kali.";

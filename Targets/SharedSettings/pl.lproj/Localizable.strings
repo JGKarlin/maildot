@@ -516,7 +516,7 @@
 "Tunnel" = "Tunel";
 "Key" = "Klucz";
 "Plugin" = "Wtyczka";
-"Hourly task" = "Zadanie co godzinę";
+"Scheduled task" = "Zaplanowane zadanie";
 "Use Gmail Connector…" = "Użyj łącznika Gmail…";
 "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail." = "Niepotrzebne dla kont, do których Dot sięga przez łącznik ChatGPT, takich jak Gmail.";
 "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on." = "Dot lepiej przeszukuje Gmaila przez własny łącznik. To konto nadal działa przez Mail, dopóki łącznik nie zostanie włączony.";
@@ -538,3 +538,14 @@
 "🔎 Checking" = "🔎 Sprawdzanie";
 "Dot is checking this message…" = "Dot sprawdza tę wiadomość…";
 "You" = "Ty";
+"1 request ahead of yours" = "1 prośba przed tą";
+"%lld requests ahead of yours" = "Próśb przed tą: %lld";
+"SENDING" = "WYSYŁANIE";
+"Confirm before sending" = "Potwierdzaj przed wysłaniem";
+"Dot finished setting up" = "Dot zakończył konfigurację";
+"Mail Dot sees both subscriptions" = "Mail Dot widzi obie subskrypcje";
+"Dot answered a drafting test" = "Dot odpowiedział na test wersji roboczej";
+"Dot answered a settings test" = "Dot odpowiedział na test ustawień";
+"Dot has not answered Mail Dot’s test requests." = "Dot nie odpowiedział na prośby testowe Mail Dot.";
+"Keep connected has run." = "Keep connected został uruchomiony.";
+"Waiting for the first run of Keep connected." = "Oczekiwanie na pierwsze uruchomienie Keep connected.";

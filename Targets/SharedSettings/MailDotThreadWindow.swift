@@ -206,7 +206,7 @@ struct ThreadWorkingStrip:View {
     var body:some View {
         HStack(spacing:8) {
             ProgressView().controlSize(.small)
-            Text(words).font(.callout)
+            Text(words).font(.callout).statusChange(String(describing:words))
             Spacer(minLength:0)
         }
         .padding(.horizontal,16).padding(.vertical,7)
@@ -259,7 +259,11 @@ struct ThreadHeader:View {
                 Text(entry.subject.isEmpty ? String(localized:"(no subject)") : entry.subject).font(.headline).textSelection(.enabled).fixedSize(horizontal:false,vertical:true)
                 Spacer(minLength:4)
                 // The pill keeps its full width however long the subject is (a long subject squeezed it out, 13 November 2026).
-                if pill,let words=entry.stateWords { ThreadPill(text:words,color:entry.stateColor).fixedSize().layoutPriority(1) }
+                if pill,let words=entry.stateWords {
+                    // A draft ready, or a question from Dot, needs the owner: the pill pulses once when it appears.
+                    ThreadPill(text:words,color:entry.stateColor).fixedSize().layoutPriority(1)
+                        .statusChange(words,needsOwner:[.drafted,.needsGuidance].contains(entry.outcome))
+                }
             }
             Text(byline).font(.callout).foregroundStyle(MailDotStyle.supporting).lineLimit(2)
         }
@@ -583,7 +587,7 @@ struct ThreadActionBar:View {
                 if entry.dotWorking {
                     // While Dot works on the message (owner request, 13 November 2026): a spinner and words saying so,
                     // until Dot's answer arrives.
-                    Text(entry.workingWords).font(.caption).foregroundStyle(MailDotStyle.supporting).lineLimit(1)
+                    Text(entry.workingWords).font(.caption).foregroundStyle(MailDotStyle.supporting).lineLimit(1).statusChange(String(describing:entry.workingWords))
                     ProgressView().controlSize(.small).frame(width:28,height:22).accessibilityLabel(Text(entry.workingWords))
                 }
             }

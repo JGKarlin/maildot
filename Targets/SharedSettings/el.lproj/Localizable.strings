@@ -516,7 +516,7 @@
 "Tunnel" = "Τούνελ";
 "Key" = "Κλειδί";
 "Plugin" = "Πρόσθετο";
-"Hourly task" = "Ωριαία εργασία";
+"Scheduled task" = "Προγραμματισμένη εργασία";
 "Use Gmail Connector…" = "Χρήση του συνδέσμου Gmail…";
 "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail." = "Δεν χρειάζεται για λογαριασμούς στους οποίους το Dot φτάνει μέσω συνδέσμου ChatGPT, όπως το Gmail.";
 "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on." = "Το Dot αναζητά καλύτερα στο Gmail μέσω του δικού του συνδέσμου. Μέχρι να ενεργοποιηθεί ο σύνδεσμος, αυτός ο λογαριασμός συνεχίζει να λειτουργεί μέσω του Mail.";
@@ -538,3 +538,14 @@
 "🔎 Checking" = "🔎 Έλεγχος";
 "Dot is checking this message…" = "Το Dot ελέγχει αυτό το μήνυμα…";
 "You" = "Εσείς";
+"1 request ahead of yours" = "1 αίτημα πριν από αυτό";
+"%lld requests ahead of yours" = "%lld αιτήματα πριν από αυτό";
+"SENDING" = "ΑΠΟΣΤΟΛΗ";
+"Confirm before sending" = "Επιβεβαίωση πριν από την αποστολή";
+"Dot finished setting up" = "Το Dot ολοκλήρωσε τη ρύθμιση";
+"Mail Dot sees both subscriptions" = "Το Mail Dot βλέπει και τις δύο συνδρομές";
+"Dot answered a drafting test" = "Το Dot απάντησε σε μια δοκιμή σύνταξης";
+"Dot answered a settings test" = "Το Dot απάντησε σε μια δοκιμή ρυθμίσεων";
+"Dot has not answered Mail Dot’s test requests." = "Το Dot δεν έχει απαντήσει στα δοκιμαστικά αιτήματα του Mail Dot.";
+"Keep connected has run." = "Το Keep connected εκτελέστηκε.";
+"Waiting for the first run of Keep connected." = "Αναμονή για την πρώτη εκτέλεση του Keep connected.";

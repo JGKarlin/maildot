@@ -516,7 +516,7 @@
 "Tunnel" = "Tunel";
 "Key" = "Ključ";
 "Plugin" = "Dodatak";
-"Hourly task" = "Zadatak svakih sat vremena";
+"Scheduled task" = "Zakazani zadatak";
 "Use Gmail Connector…" = "Upotrijebi Gmail poveznik…";
 "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail." = "Nije potrebno za račune do kojih Dot dolazi putem ChatGPT poveznika, poput Gmaila.";
 "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on." = "Dot bolje pretražuje Gmail putem vlastitog poveznika. Dok se poveznik ne uključi, ovaj račun i dalje radi putem Maila.";
@@ -538,3 +538,14 @@
 "🔎 Checking" = "🔎 Provjera";
 "Dot is checking this message…" = "Dot provjerava ovu poruku…";
 "You" = "Vi";
+"1 request ahead of yours" = "1 zahtjev prije ovoga";
+"%lld requests ahead of yours" = "Zahtjeva prije ovoga: %lld";
+"SENDING" = "SLANJE";
+"Confirm before sending" = "Potvrdi prije slanja";
+"Dot finished setting up" = "Dot je dovršio postavljanje";
+"Mail Dot sees both subscriptions" = "Mail Dot vidi obje pretplate";
+"Dot answered a drafting test" = "Dot je odgovorio na test skice";
+"Dot answered a settings test" = "Dot je odgovorio na test postavki";
+"Dot has not answered Mail Dot’s test requests." = "Dot nije odgovorio na testne zahtjeve Mail Dota.";
+"Keep connected has run." = "Keep connected je pokrenut.";
+"Waiting for the first run of Keep connected." = "Čeka se prvo pokretanje Keep connected.";

@@ -1,7 +1,7 @@
 import XCTest
 @testable import BridgeCore
 
-/// Mail Dot asks Dot, without any action by the owner, to run the hourly job that renews its subscriptions.
+/// Mail Dot asks Dot, without any action by the owner, to run the six-hourly job that renews its subscriptions.
 @MainActor final class KeepConnectedTests: XCTestCase {
     func root() -> URL {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -20,6 +20,17 @@ import XCTest
         XCTAssertEqual(requests.first?.instruction,MailSettingsCoordinator.keepConnectedInstruction)
         XCTAssertTrue(MailSettingsCoordinator.keepConnectedInstruction.contains("Mail Dot · Keep connected"))
         XCTAssertTrue(MailSettingsCoordinator.keepConnectedInstruction.contains("bridge_status"))
+    }
+
+    /// The task setup creates and the task Mail Dot asks for afterwards carry the same title, so the request
+    /// that follows a fresh setup reuses the new task instead of making a second one.
+    func testSetupAndRepairNameTheSameTask() {
+        let title = DotHandlers.keepConnectedTitle()
+        XCTAssertEqual(title,"\(SetupThroughDot.connectionName()) · Keep connected")
+        XCTAssertTrue(SetupThroughDot.request(name:SetupThroughDot.connectionName()).contains("\"\(title)\""))
+        XCTAssertTrue(SetupThroughDot.continuation(name:SetupThroughDot.connectionName(),completed:["started"]).contains("\"\(title)\""))
+        XCTAssertTrue(MailSettingsCoordinator.keepConnectedInstruction.contains("titled \(title) or \(DotHandlers.legacyKeepConnectedTitle) already exists"))
+        XCTAssertTrue(MailSettingsCoordinator.keepConnectedInstruction.contains("never create a second"))
     }
 
     func testConfirmationIsRecordedAndStopsFurtherRequests() async throws {
@@ -125,7 +136,7 @@ import XCTest
     func testRenewalHealthRestsOnEvidenceHeldByTheMac() {
         let now = Date(timeIntervalSince1970:1_800_000_000)
         XCTAssertEqual(RenewalHealth.evaluate(lastStatusCheck:now.addingTimeInterval(-1800),allSubscriptionsLive:true,now:now),.working(lastCheck:now.addingTimeInterval(-1800)))
-        XCTAssertEqual(RenewalHealth.evaluate(lastStatusCheck:now.addingTimeInterval(-3*3600),allSubscriptionsLive:true,now:now),.notChecking(since:now.addingTimeInterval(-3*3600)))
+        XCTAssertEqual(RenewalHealth.evaluate(lastStatusCheck:now.addingTimeInterval(-13*3600),allSubscriptionsLive:true,now:now),.notChecking(since:now.addingTimeInterval(-13*3600)))
         XCTAssertEqual(RenewalHealth.evaluate(lastStatusCheck:nil,allSubscriptionsLive:true,now:now),.notChecking(since:nil))
         XCTAssertEqual(RenewalHealth.evaluate(lastStatusCheck:now.addingTimeInterval(-600),allSubscriptionsLive:false,now:now),.lapsed(lastCheck:now.addingTimeInterval(-600)))
     }
@@ -157,8 +168,8 @@ import XCTest
         lines = try eventLines()
         XCTAssertEqual(lines.count,2)
         let all = try String(contentsOf:log,encoding:.utf8)
-        XCTAssertTrue(all.contains(" state reply=missing settings=missing menu=missing keepConnected=pending"),all)
-        XCTAssertTrue(all.contains(" state reply=missing settings=active menu=missing keepConnected=pending"),all)
+        XCTAssertTrue(all.contains(" state settings=missing menu=missing keepConnected=pending"),all)
+        XCTAssertTrue(all.contains(" state settings=active menu=missing keepConnected=pending"),all)
         XCTAssertTrue(lines[1].hasSuffix(" event mail.settings_requested status=200 subscription=active"),lines[1])
     }
 

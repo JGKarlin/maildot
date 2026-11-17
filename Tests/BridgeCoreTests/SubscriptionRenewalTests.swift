@@ -10,7 +10,7 @@ import XCTest
         addTeardownBlock { try? FileManager.default.removeItem(at:url) }
         return BridgeStore(directory:url)
     }
-    func params(_ name:String = "mail.reply_context_changed", url:String = "https://chatgpt.com/test-callback") -> JSONValue {
+    func params(_ name:String = "mail.settings_requested", url:String = "https://chatgpt.com/test-callback") -> JSONValue {
         ["name":.string(name),"arguments":["queue_id":"personal"],
          "delivery":["mode":"webhook","url":.string(url),"secret":.string(secret)],"ttlMs":120000]
     }
@@ -21,13 +21,16 @@ import XCTest
             }
         }
     }
-    func shareSyntheticReply(_ store:BridgeStore) throws {
-        try store.transaction { state in
-            let draft = MailDraft(id:1,subject:"Test",sender:"sender@example.invalid",to:["recipient@example.invalid"],cc:[],bcc:[],body:"Synthetic",attachmentCount:0)
-            var context = ReplyContext(id:"synthetic",envelope:draft)
-            BridgeCoordinator.share(draft,with:&context)
-            state.contexts[context.id] = context
+    /// One settings request, the plainest event Mail Dot sends, stands for any event here. The keep-connected job
+    /// counts as confirmed, so that Mail Dot does not add a request of its own to the deliveries being counted.
+    func askDot(_ store:BridgeStore) throws {
+        try MailSettingsStore(bridgeDirectory:store.directory).transaction {
+            $0.keepConnectedConfirmedAt = .now
+            _ = try MailSettingsCoordinator.request(.refresh,instruction:"Read actual settings",settings:&$0)
         }
+    }
+    func event(_ store:BridgeStore) throws -> BridgeEvent {
+        try XCTUnwrap(MailSettingsStore(bridgeDirectory:store.directory).read().requests.first).event
     }
 
     func testOverdueSubscriptionStillReceivesEvents() async throws {
@@ -35,9 +38,9 @@ import XCTest
         let hub = EventHub(store:store,sender:{ try await recorder.respond($0) })
         _ = try await hub.subscribe(params())
         try expire(store,ago:3600)
-        try shareSyntheticReply(store)
+        try askDot(store)
         await hub.pump()
-        let event = try XCTUnwrap(store.read().contexts["synthetic"]?.event)
+        let event = try event(store)
         XCTAssertNotNil(event.receiptAt)
         XCTAssertEqual(try store.read().subscriptions.count,1)
     }
@@ -47,17 +50,17 @@ import XCTest
         let hub = EventHub(store:store,sender:{ try await recorder.respond($0) })
         _ = try await hub.subscribe(params())
         try expire(store,ago:3600)
-        try shareSyntheticReply(store)
+        try askDot(store)
         await recorder.setEventStatus(410)
         await hub.pump()
         XCTAssertTrue(try store.read().subscriptions.isEmpty)
-        let waiting = try XCTUnwrap(store.read().contexts["synthetic"]?.event)
+        let waiting = try event(store)
         XCTAssertEqual(waiting.attempts,0)
         XCTAssertNil(waiting.receiptAt)
         await recorder.setEventStatus(200)
         _ = try await hub.subscribe(params())
         await hub.pump()
-        XCTAssertNotNil(try store.read().contexts["synthetic"]?.event?.receiptAt)
+        XCTAssertNotNil(try event(store).receiptAt)
     }
 
     func testSubscriptionOverdueBeyondTheGracePeriodIsNotUsed() async throws {
@@ -65,9 +68,9 @@ import XCTest
         let hub = EventHub(store:store,sender:{ try await recorder.respond($0) })
         _ = try await hub.subscribe(params())
         try expire(store,ago:EventHub.renewalGrace + 60)
-        try shareSyntheticReply(store)
+        try askDot(store)
         await hub.pump()
-        let event = try XCTUnwrap(store.read().contexts["synthetic"]?.event)
+        let event = try event(store)
         XCTAssertNil(event.receiptAt)
         XCTAssertEqual(event.attempts,0)
         let deliveries = await recorder.eventDeliveries
@@ -79,7 +82,7 @@ import XCTest
         let hub = EventHub(store:store,sender:{ try await recorder.respond($0) })
         _ = try await hub.subscribe(params(url:"https://chatgpt.com/first"))
         _ = try await hub.subscribe(params(url:"https://chatgpt.com/second"))
-        try shareSyntheticReply(store)
+        try askDot(store)
         await hub.pump(); await hub.pump()
         let targets = await recorder.eventTargets
         XCTAssertEqual(targets,["https://chatgpt.com/second"])
@@ -90,7 +93,7 @@ import XCTest
         let hub = EventHub(store:store,sender:{ try await recorder.respond($0) })
         _ = try await hub.subscribe(params())
         try expire(store,ago:3600)
-        try shareSyntheticReply(store)
+        try askDot(store)
         await recorder.setEventStatus(429)
         await hub.pump()
         XCTAssertEqual(try store.read().subscriptions.count,1)
@@ -99,10 +102,10 @@ import XCTest
     func testRequestNobodyCouldReceiveExpiresAndIsNotDeliveredLate() async throws {
         let store = store(), recorder = RenewalRecorder()
         let hub = EventHub(store:store,sender:{ try await recorder.respond($0) })
-        try shareSyntheticReply(store)
-        try store.transaction { $0.contexts["synthetic"]?.event?.occurredAt = Date().addingTimeInterval(-EventHub.undeliveredLimit - 60) }
+        try askDot(store)
+        try MailSettingsStore(bridgeDirectory:store.directory).transaction { $0.requests[0].event.occurredAt = Date().addingTimeInterval(-EventHub.undeliveredLimit - 60) }
         await hub.pump()
-        let expired = try XCTUnwrap(store.read().contexts["synthetic"]?.event)
+        let expired = try event(store)
         XCTAssertEqual(expired.attempts,8)
         XCTAssertEqual(expired.lastError,EventHub.undeliveredMessage)
         _ = try await hub.subscribe(params())
@@ -117,7 +120,7 @@ import XCTest
         _ = try await hub.subscribe(params(url:"https://chatgpt.com/old"))
         _ = try await hub.subscribe(params(url:"https://chatgpt.com/new"))
         try expire(store,url:"https://chatgpt.com/old",ago:3600)
-        try shareSyntheticReply(store)
+        try askDot(store)
         await hub.pump()
         let targets = await recorder.eventTargets
         XCTAssertEqual(targets,["https://chatgpt.com/new"])
@@ -126,15 +129,15 @@ import XCTest
     func testRenewalRemovesSupersededAndDeadSubscriptions() async throws {
         let store = store(), recorder = RenewalRecorder()
         let hub = EventHub(store:store,sender:{ try await recorder.respond($0) })
-        _ = try await hub.subscribe(params(url:"https://chatgpt.com/message-old"))
-        _ = try await hub.subscribe(params("mail.settings_requested",url:"https://chatgpt.com/settings-dead"))
+        _ = try await hub.subscribe(params(url:"https://chatgpt.com/settings-old"))
+        _ = try await hub.subscribe(params("mail.workflow_requested",url:"https://chatgpt.com/menu-dead"))
         _ = try await hub.subscribe(params("mail.workflow_requested",url:"https://chatgpt.com/menu-overdue"))
-        try expire(store,url:"https://chatgpt.com/message-old",ago:3600)
-        try expire(store,url:"https://chatgpt.com/settings-dead",ago:EventHub.renewalGrace + 60)
+        try expire(store,url:"https://chatgpt.com/settings-old",ago:3600)
+        try expire(store,url:"https://chatgpt.com/menu-dead",ago:EventHub.renewalGrace + 60)
         try expire(store,url:"https://chatgpt.com/menu-overdue",ago:3600)
-        _ = try await hub.subscribe(params(url:"https://chatgpt.com/message-new"))
+        _ = try await hub.subscribe(params(url:"https://chatgpt.com/settings-new"))
         let remaining = Set(try store.read().subscriptions.map(\.callbackURL))
-        XCTAssertEqual(remaining,["https://chatgpt.com/message-new","https://chatgpt.com/menu-overdue"])
+        XCTAssertEqual(remaining,["https://chatgpt.com/settings-new","https://chatgpt.com/menu-overdue"])
     }
 
     func testManyRenewalsWithChangingAddressesNeverFillTheStore() async throws {
@@ -165,18 +168,18 @@ import XCTest
         let states = Dictionary(uniqueKeysWithValues:(status["subscriptions"].array ?? []).compactMap { item in
             item["event"].string.flatMap { name in item["state"].string.map { (name,$0) } }
         })
-        XCTAssertEqual(states,["mail.reply_context_changed":"active","mail.workflow_requested":"overdue","mail.settings_requested":"missing"])
+        XCTAssertEqual(states,["mail.settings_requested":"active","mail.workflow_requested":"overdue"])
         XCTAssertEqual(status["renewal_needed"],true)
         XCTAssertEqual(status["subscription_count"].integer,1)
         XCTAssertEqual(status["requested_lifetime_ms"].integer,86_400_000)
     }
 
-    func testSubscriptionAboutToLapseBeforeTheNextHourlyCheckIsReportedForRenewal() async throws {
+    func testShortSubscriptionPastHalfItsLifeIsReportedForRenewal() async throws {
         let store = store(), recorder = RenewalRecorder()
         let hub = EventHub(store:store,sender:{ try await recorder.respond($0) })
         for name in EventHub.eventNames { _ = try await hub.subscribe(params(name,url:"https://chatgpt.com/" + name)) }
         // A one-hour subscription with twenty minutes left: still live, but past the point where ChatGPT
-        // should have renewed it, so the hourly check must repair it.
+        // should have renewed it, so the check must repair it.
         try store.transaction { state in
             for index in state.subscriptions.indices {
                 state.subscriptions[index].verifiedAt = Date().addingTimeInterval(-2400)
@@ -189,7 +192,7 @@ import XCTest
         let status = try JSONDecoder().decode(JSONValue.self,from:Data(try XCTUnwrap(raw).utf8))["result"]["structuredContent"]
         XCTAssertEqual(status["renewal_needed"],true)
         XCTAssertEqual(Set((status["subscriptions"].array ?? []).compactMap { $0["state"].string }),["overdue"])
-        XCTAssertEqual(status["subscription_count"].integer,3)
+        XCTAssertEqual(status["subscription_count"].integer,2)
     }
 
     func testFreshOneHourSubscriptionIsNotReportedForRenewalAtEveryCheck() async throws {
@@ -208,6 +211,80 @@ import XCTest
         let status = try JSONDecoder().decode(JSONValue.self,from:Data(try XCTUnwrap(raw).utf8))["result"]["structuredContent"]
         XCTAssertEqual(status["renewal_needed"],false)
         XCTAssertEqual(Set((status["subscriptions"].array ?? []).compactMap { $0["state"].string }),["active"])
+    }
+}
+
+extension SubscriptionRenewalTests {
+    func status(_ store:BridgeStore,arguments:JSONValue = [:]) async throws -> JSONValue {
+        let router = MCPRouter(store:store,statelessTunnel:true)
+        let line:JSONValue = ["jsonrpc":"2.0","id":1,"method":"tools/call","params":["name":"bridge_status","arguments":arguments]]
+        let raw = await router.response(try line.text())
+        return try JSONDecoder().decode(JSONValue.self,from:Data(try XCTUnwrap(raw).utf8))["result"]["structuredContent"]
+    }
+
+    /// ChatGPT asked for an hour, or for nothing, and renewed 70 to 98 times a day. Every grant is now a day.
+    func testEverySubscriptionIsGrantedADayWhateverIsAskedFor() async throws {
+        let store = store(), recorder = RenewalRecorder()
+        let hub = EventHub(store:store,sender:{ try await recorder.respond($0) })
+        var asked = params().object!
+        for ttl:JSONValue? in [nil,3_600_000,120_000,.null,172_800_000] {
+            asked["ttlMs"] = ttl
+            let answer = try await hub.subscribe(.object(asked))
+            let granted = try XCTUnwrap(store.read().subscriptions.first).expiresAt.timeIntervalSinceNow
+            XCTAssertEqual(granted,86_400,accuracy:5,"asked for \(String(describing:ttl))")
+            XCTAssertNotNil(answer["refreshBefore"].string)
+        }
+    }
+
+    /// Dot's check runs every six hours, so a one-day subscription is due for renewal in its last six hours and ten minutes.
+    func testOneDaySubscriptionIsDueOnlyWithinOneCheckOfLapsing() async throws {
+        let store = store(), recorder = RenewalRecorder()
+        let hub = EventHub(store:store,sender:{ try await recorder.respond($0) })
+        for name in EventHub.eventNames { _ = try await hub.subscribe(params(name,url:"https://chatgpt.com/" + name)) }
+        func states(remaining:TimeInterval) async throws -> Set<String> {
+            try store.transaction { state in
+                for index in state.subscriptions.indices {
+                    state.subscriptions[index].verifiedAt = Date().addingTimeInterval(remaining - 86_400)
+                    state.subscriptions[index].expiresAt = Date().addingTimeInterval(remaining)
+                }
+            }
+            return Set((try await status(store)["subscriptions"].array ?? []).compactMap { $0["state"].string })
+        }
+        var found = try await states(remaining:86_000)
+        XCTAssertEqual(found,["active"])
+        found = try await states(remaining:7 * 3600)
+        XCTAssertEqual(found,["active"],"the next check, six hours on, still finds it live")
+        found = try await states(remaining:5 * 3600)
+        XCTAssertEqual(found,["overdue"],"it would lapse before the next check")
+        XCTAssertEqual(EventHub.renewalLead,DotHandlers.keepConnectedInterval + 600)
+    }
+
+    /// The event for a message shared from Mail is retired: it is not listed, not renewed and not sent.
+    func testRetiredReplyEventIsRefusedDroppedAndNeverSent() async throws {
+        let store = store(), recorder = RenewalRecorder()
+        let hub = EventHub(store:store,sender:{ try await recorder.respond($0) })
+        do { _ = try await hub.subscribe(params(EventHub.retiredEventName)); XCTFail("the retired event was accepted") } catch {}
+        // An installation updated from an earlier build still holds its subscription and a shared message's event.
+        try store.transaction { state in
+            var old = EventSubscription(id:"sub_old",callbackURL:"https://chatgpt.com/old",secret:secret,expiresAt:Date().addingTimeInterval(3000),verifiedAt:.now)
+            old.eventName = EventHub.retiredEventName
+            state.subscriptions.append(old)
+            let draft = MailDraft(id:1,subject:"Test",sender:"sender@example.invalid",to:["recipient@example.invalid"],cc:[],bcc:[],body:"Synthetic",attachmentCount:0)
+            var context = ReplyContext(id:"synthetic",envelope:draft)
+            BridgeCoordinator.share(draft,with:&context)
+            state.contexts[context.id] = context
+        }
+        await hub.pump(); await hub.pump()
+        let state = try store.read()
+        XCTAssertTrue(state.subscriptions.isEmpty)
+        XCTAssertEqual(state.contexts["synthetic"]?.event?.attempts,8)
+        XCTAssertNil(state.contexts["synthetic"]?.event?.lastError)
+        let deliveries = await recorder.eventDeliveries
+        XCTAssertEqual(deliveries,0)
+        let listed = try await status(store)["subscriptions"].array?.compactMap { $0["event"].string }
+        XCTAssertEqual(listed,EventHub.eventNames)
+        // Dot can still unsubscribe from it without an error.
+        _ = try await hub.unsubscribe(params(EventHub.retiredEventName,url:"https://chatgpt.com/old"))
     }
 }
 

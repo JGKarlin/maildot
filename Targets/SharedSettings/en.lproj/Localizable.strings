@@ -262,7 +262,7 @@
 "Tunnel" = "Tunnel";
 "Key" = "Key";
 "Plugin" = "Plugin";
-"Hourly task" = "Hourly task";
+"Scheduled task" = "Scheduled task";
 "Use Gmail Connector…" = "Use Gmail Connector…";
 "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail." = "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail.";
 "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on." = "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on.";
@@ -284,3 +284,11 @@
 "🔎 Checking" = "🔎 Checking";
 "Dot is checking this message…" = "Dot is checking this message…";
 "You" = "You";
+"%lld requests ahead of yours" = "%lld requests ahead of yours";
+"Dot finished setting up" = "Dot finished setting up";
+"Mail Dot sees both subscriptions" = "Mail Dot sees both subscriptions";
+"Dot answered a drafting test" = "Dot answered a drafting test";
+"Dot answered a settings test" = "Dot answered a settings test";
+"Dot has not answered Mail Dot’s test requests." = "Dot has not answered Mail Dot’s test requests.";
+"Keep connected has run." = "Keep connected has run.";
+"Waiting for the first run of Keep connected." = "Waiting for the first run of Keep connected.";

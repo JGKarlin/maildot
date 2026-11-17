@@ -516,7 +516,7 @@
 "Tunnel" = "อุโมงค์";
 "Key" = "กุญแจ";
 "Plugin" = "ปลั๊กอิน";
-"Hourly task" = "งานรายชั่วโมง";
+"Scheduled task" = "งานที่ตั้งเวลาไว้";
 "Use Gmail Connector…" = "ใช้ตัวเชื่อมต่อ Gmail…";
 "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail." = "ไม่จำเป็นสำหรับบัญชีที่ Dot เข้าถึงผ่านตัวเชื่อมต่อ ChatGPT เช่น Gmail";
 "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on." = "Dot ค้นหาใน Gmail ได้ดีกว่าผ่านตัวเชื่อมต่อของตัวเอง บัญชีนี้จะยังทำงานผ่านเมลจนกว่าจะเปิดตัวเชื่อมต่อ";
@@ -538,3 +538,14 @@
 "🔎 Checking" = "🔎 กำลังตรวจสอบ";
 "Dot is checking this message…" = "Dot กำลังตรวจสอบข้อความนี้…";
 "You" = "คุณ";
+"1 request ahead of yours" = "มีคำขอก่อนหน้า 1 รายการ";
+"%lld requests ahead of yours" = "มีคำขอก่อนหน้า %lld รายการ";
+"SENDING" = "การส่ง";
+"Confirm before sending" = "ยืนยันก่อนส่ง";
+"Dot finished setting up" = "Dot ตั้งค่าเสร็จแล้ว";
+"Mail Dot sees both subscriptions" = "Mail Dot เห็นการสมัครรับทั้งสองรายการ";
+"Dot answered a drafting test" = "Dot ตอบการทดสอบฉบับร่างแล้ว";
+"Dot answered a settings test" = "Dot ตอบการทดสอบการตั้งค่าแล้ว";
+"Dot has not answered Mail Dot’s test requests." = "Dot ยังไม่ได้ตอบคำขอทดสอบของ Mail Dot";
+"Keep connected has run." = "Keep connected ทำงานแล้ว";
+"Waiting for the first run of Keep connected." = "กำลังรอ Keep connected ทำงานครั้งแรก";

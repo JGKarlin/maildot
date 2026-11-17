@@ -67,7 +67,7 @@ import BridgeCore
         case .tunnel: String(localized:"Tunnel")
         case .key: String(localized:"Key")
         case .plugin: String(localized:"Plugin")
-        case .task: String(localized:"Hourly task")
+        case .task: String(localized:"Scheduled task")
         }
     }
     /// What changes the system outside Mail Dot's own files. Each step is one the removal script took, by the same tool.

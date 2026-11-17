@@ -2,13 +2,17 @@ import Foundation
 import CryptoKit
 
 public actor EventHub {
-    public static let eventNames = ["mail.reply_context_changed","mail.settings_requested","mail.workflow_requested"]
+    /// The events Mail Dot sends. `mail.reply_context_changed` was a third until 17 November 2026: every message
+    /// opened in Mail Dot has carried the owner's request since build 78, which reaches Dot as a workflow request,
+    /// so that event had not been sent since 12 November while its subscription and handler were still renewed.
+    public static let eventNames = ["mail.settings_requested","mail.workflow_requested"]
+    public static let retiredEventName = "mail.reply_context_changed"
     /// How long a subscription whose renewal is late may still be tried. ChatGPT renews on its own schedule and
     /// cannot reach a Mac that is asleep or off, so a missed renewal must not disable Mail Dot by itself.
     public static let renewalGrace: TimeInterval = 86_400
-    /// Dot's check runs hourly. A subscription with less life left than one interval plus a margin would
-    /// lapse before the next run, so it is reported for renewal while it is still live.
-    public static let renewalLead: TimeInterval = 4_200
+    /// Dot's check runs every six hours. A subscription with less life left than one interval plus a margin
+    /// would lapse before the next run, so it is reported for renewal while it is still live.
+    public static let renewalLead: TimeInterval = DotHandlers.keepConnectedInterval + 600
     /// A request that reached nobody within this time is closed, so that it cannot arrive hours later
     /// when the owner has moved on.
     public static let undeliveredLimit: TimeInterval = 900
@@ -18,17 +22,27 @@ public actor EventHub {
     }
     /// The longest lifetime this server grants; Dot is asked to request it.
     public static let longestLifetimeMs = 86_400_000
+    /// The shortest lifetime granted, and the one granted when none is asked for. ChatGPT asked for an hour or for
+    /// nothing, every one of 587 grants up to 17 November 2026 was an hour, and it renewed 70 to 98 times a day.
+    /// OpenAI's Events page lets a server enforce a minimum "to prevent excessive refresh requests".
+    public static let shortestLifetimeMs = 86_400_000
+    private let shortestLifetimeMs: Int
     private let store: BridgeStore
     private let sender: @Sendable (URLRequest) async throws -> (Data,Int)
     private let deliveryLog: URL?
     private var notedWaiting: Set<String> = []
-    public init(store: BridgeStore, sender: (@Sendable (URLRequest) async throws -> (Data,Int))? = nil, deliveryLog: URL? = nil) {
-        self.store = store; self.deliveryLog = deliveryLog
+    public init(store: BridgeStore, sender: (@Sendable (URLRequest) async throws -> (Data,Int))? = nil, deliveryLog: URL? = nil,
+                shortestLifetimeMs: Int = EventHub.shortestLifetimeMs) {
+        self.store = store; self.deliveryLog = deliveryLog; self.shortestLifetimeMs = shortestLifetimeMs
         self.sender = sender ?? { try await PinnedWebhookTransport.send($0) }
     }
 
     public func subscribe(_ params: JSONValue) async throws -> JSONValue {
-        guard let eventName=params["name"].string,["mail.reply_context_changed","mail.settings_requested","mail.workflow_requested"].contains(eventName), params["arguments"] == ["queue_id":"personal"],
+        if params["name"].string == Self.retiredEventName {
+            note("subscribe refused \(Self.retiredEventName): retired")
+            throw BridgeFailure("Mail Dot no longer sends mail.reply_context_changed. Unsubscribe from it and delete its handler; do not subscribe to it again.")
+        }
+        guard let eventName=params["name"].string,Self.eventNames.contains(eventName), params["arguments"] == ["queue_id":"personal"],
               params["delivery"]["mode"] == "webhook", let rawURL = params["delivery"]["url"].string,
               let secret = params["delivery"]["secret"].string else { throw BridgeFailure("Invalid Mail Dot event subscription.") }
         let url: URL
@@ -48,8 +62,8 @@ public actor EventHub {
         guard (200..<300).contains(status), data.count <= 4096,
               let reply = try? JSONDecoder().decode(JSONValue.self, from:data), let echoed = reply["challenge"].string,
               WebhookSecurity.sameChallenge(challenge, echoed) else { throw CallbackEndpointFailure(reason:"challenge_failed") }
-        let requested = params["ttlMs"].integer ?? 3_600_000
-        let lifetime = Double(max(60_000, min(requested,86_400_000))) / 1000
+        let requested = params["ttlMs"].integer
+        let lifetime = Double(max(shortestLifetimeMs, 60_000, min(requested ?? Self.longestLifetimeMs, Self.longestLifetimeMs))) / 1000
         var subscription = EventSubscription(id:id, callbackURL:rawURL, secret:secret,
                                              expiresAt:Date().addingTimeInterval(lifetime), verifiedAt:.now)
         subscription.eventName=eventName
@@ -65,12 +79,12 @@ public actor EventHub {
         }
         // Which official domain ChatGPT calls back on, so that domains it never uses can later be dropped.
         let family = WebhookSecurity.callbackDomain(of: url) ?? "-"
-        note("subscribed \(eventName) host=\(family) lifetime=\(Int(lifetime))s")
+        note("subscribed \(eventName) host=\(family) lifetime=\(Int(lifetime))s asked=\(requested.map { "\($0 / 1000)s" } ?? "none")")
         return ["id":.string(id), "refreshBefore":.string(subscription.expiresAt.ISO8601Format()), "cursor":nil, "truncated":false]
     }
 
     public func unsubscribe(_ params: JSONValue) throws -> JSONValue {
-        guard let eventName=params["name"].string,["mail.reply_context_changed","mail.settings_requested","mail.workflow_requested"].contains(eventName), params["arguments"] == ["queue_id":"personal"],
+        guard let eventName=params["name"].string,(Self.eventNames+[Self.retiredEventName]).contains(eventName), params["arguments"] == ["queue_id":"personal"],
               let rawURL = params["delivery"]["url"].string else { throw BridgeFailure("Invalid unsubscribe request.") }
         try store.transaction { $0.subscriptions.removeAll { $0.callbackURL == rawURL && $0.resolvedEventName == eventName } }
         return [:]
@@ -79,66 +93,32 @@ public actor EventHub {
     public func pump() async {
         do {
             let state = try store.read()
-            for context in state.contexts.values {
-                guard let event = context.event, event.nextAttemptAt <= .now, event.attempts < 8 else { continue }
-                // A message opened in the Mail Dot panel reaches Dot as the panel's own request, which carries
-                // the message; the older "message shared" event only started a second run of Dot that
-                // acknowledged it (build 78 record) and could hold up the run that drafts. It is not sent.
-                if context.ownerRequest != nil {
-                    try? store.transaction { state in
-                        guard state.contexts[context.id]?.event?.id == event.id else { return }
-                        state.contexts[context.id]?.event?.attempts = 8
-                        state.contexts[context.id]?.event?.lastError = nil
-                    }
-                    continue
-                }
-                if Self.undelivered(event) {
-                    try? store.transaction { state in
-                        guard state.contexts[context.id]?.event?.id == event.id else { return }
-                        state.contexts[context.id]?.event?.attempts = 8
-                        state.contexts[context.id]?.event?.lastError = Self.undeliveredMessage
-                    }
-                    continue
-                }
-                let replyTargets = state.subscriptions.deliverable(for:"mail.reply_context_changed")
-                if replyTargets.isEmpty { noteWaiting("mail.reply_context_changed", eventID:event.id) }
-                for subscription in replyTargets where event.receipts[subscription.id] == nil {
-                    let payload: JSONValue = ["eventId":.string(event.id), "name":"mail.reply_context_changed",
-                                              "timestamp":.string(event.occurredAt.ISO8601Format()),
-                                              "data":["context_id":.string(context.id), "snapshot_revision":.number(Double(context.snapshotRevision))], "cursor":nil]
-                    do {
-                        guard let status = try await deliver(payload, eventID:event.id, to:subscription) else { continue }
-                        try store.transaction { state in
-                            guard state.contexts[context.id]?.event?.id == event.id else { return }
-                            if (200..<300).contains(status) {
-                                state.contexts[context.id]?.event?.receiptAt = .now
-                                state.contexts[context.id]?.event?.receipts[subscription.id] = .now
-                                state.contexts[context.id]?.event?.lastError = nil
-                            } else {
-                                state.contexts[context.id]?.event?.lastError = "Callback returned HTTP \(status)."
-                                state.contexts[context.id]?.event?.attempts += 1
-                                state.contexts[context.id]?.event?.nextAttemptAt = Date().addingTimeInterval(pow(2,Double(event.attempts + 1)))
-                                if status == 410 || status == 413 { state.contexts[context.id]?.event?.attempts = 8 }
-                            }
-                        }
-                    } catch {
-                        try? store.transaction { state in
-                            guard state.contexts[context.id]?.event?.id == event.id else { return }
-                            state.contexts[context.id]?.event?.lastError = "Event callback connection or verification failed. No assistant review is confirmed."
-                            state.contexts[context.id]?.event?.attempts += 1
-                            state.contexts[context.id]?.event?.nextAttemptAt = Date().addingTimeInterval(pow(2,Double(event.attempts + 1)))
-                        }
+            // A message opened in Mail Dot reaches Dot as the owner's own request (a workflow request, which carries
+            // the message). The older "message shared" event is retired: it had not been sent since 12 November 2026,
+            // because every message has carried an owner request since build 78. Its record is closed, never sent.
+            let unsent = state.contexts.values.filter { ($0.event?.attempts ?? 8) < 8 }.map { ($0.id, $0.event!.id) }
+            if !unsent.isEmpty {
+                try? store.transaction { state in
+                    for (contextID, eventID) in unsent where state.contexts[contextID]?.event?.id == eventID {
+                        state.contexts[contextID]?.event?.attempts = 8
+                        state.contexts[contextID]?.event?.lastError = nil
                     }
                 }
+            }
+            if state.subscriptions.contains(where: { $0.resolvedEventName == Self.retiredEventName }) {
+                try? store.transaction { $0.subscriptions.removeAll { $0.resolvedEventName == Self.retiredEventName } }
             }
             await pumpSettings(subscriptions:state.subscriptions)
             await pumpWorkflow(subscriptions:state.subscriptions)
         } catch { /* Storage failures remain visible when the native panel reads the store. */ }
     }
 
-    /// A request ChatGPT confirmed receiving but no session started within this long is announced again, up to three
-    /// times (owner report, 16 November 2026: two drafts waited an hour on events Dot did not act on).
-    static let unreadRedelivery:TimeInterval=90
+    /// A request ChatGPT confirmed receiving but no session started within this long is announced again, once
+    /// (owner report, 16 November 2026: two drafts waited an hour on events Dot did not act on). It was three times at
+    /// 90 seconds until 17 November: that made 79 events for 32 requests in a day, each one more turn in the single
+    /// conversation every request waits in, and the waits of 4 to 14 minutes went on regardless.
+    static let unreadRedelivery:TimeInterval=300
+    static let unreadRedeliveries=1
 
     private func pumpWorkflow(subscriptions:[EventSubscription]) async {
         let workflow=MailWorkflowStore(bridgeDirectory:store.directory)
@@ -147,7 +127,7 @@ public actor EventHub {
                 let request=state.requests[index]
                 guard ![.ready,.failed].contains(request.stage),request.event.reviewedAt == nil,!request.hasActiveClaim(),
                       let received=request.event.receiptAt,Date().timeIntervalSince(received) > Self.unreadRedelivery,
-                      (request.redeliveries ?? 0) < 3 else { continue }
+                      (request.redeliveries ?? 0) < Self.unreadRedeliveries else { continue }
                 state.requests[index].event=BridgeEvent()
                 state.requests[index].redeliveries=(request.redeliveries ?? 0)+1
             }
@@ -199,7 +179,7 @@ public actor EventHub {
     }
     private func pumpSettings(subscriptions:[EventSubscription]) async {
         let settingsStore=MailSettingsStore(bridgeDirectory:store.directory)
-        // Renewal must not depend on the owner remembering to ask for it: request Dot's hourly job unprompted.
+        // Renewal must not depend on the owner remembering to ask for it: request Dot's Keep connected job unprompted.
         let lastCheck=(try? ToolCallLogStore(bridgeDirectory:store.directory).read())?.last(where:{ $0.tool == "bridge_status" && $0.outcome == .ok })?.at
         if var trial=try? settingsStore.read(),(try? MailSettingsCoordinator.ensureKeepConnected(settings:&trial,lastStatusCheck:lastCheck)) == true {
             _ = try? settingsStore.transaction { try MailSettingsCoordinator.ensureKeepConnected(settings:&$0,lastStatusCheck:lastCheck) }
@@ -283,7 +263,7 @@ public actor EventHub {
             keep = request.status == .failed ? "failed(\(request.resultCode == "noAnswer" ? "noAnswer" : "refused"))"
                 : "pending(delivered=\(request.event.receiptAt == nil ? "no" : "yes"),attempts=\(request.event.attempts))"
         } else { keep = "none" }
-        let summary = "state reply=\(health("mail.reply_context_changed")) settings=\(health("mail.settings_requested")) menu=\(health("mail.workflow_requested")) keepConnected=\(keep)"
+        let summary = "state settings=\(health("mail.settings_requested")) menu=\(health("mail.workflow_requested")) keepConnected=\(keep)"
         guard summary != lastNotedState else { return }
         lastNotedState = summary
         ToolCallLogStore.appendLine("\(Date().ISO8601Format()) \(summary)", to: deliveryLog!)

@@ -516,7 +516,7 @@
 "Tunnel" = "Tunel";
 "Key" = "Cheie";
 "Plugin" = "Plugin";
-"Hourly task" = "Sarcină orară";
+"Scheduled task" = "Sarcină programată";
 "Use Gmail Connector…" = "Folosește conectorul Gmail…";
 "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail." = "Nu este necesar pentru conturile la care Dot ajunge printr-un conector ChatGPT, precum Gmail.";
 "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on." = "Dot caută mai bine în Gmail prin propriul conector. Până la activarea conectorului, acest cont funcționează în continuare prin Mail.";
@@ -538,3 +538,14 @@
 "🔎 Checking" = "🔎 Se verifică";
 "Dot is checking this message…" = "Dot verifică acest mesaj…";
 "You" = "Tu";
+"1 request ahead of yours" = "1 cerere înaintea acesteia";
+"%lld requests ahead of yours" = "Cereri înaintea acesteia: %lld";
+"SENDING" = "TRIMITERE";
+"Confirm before sending" = "Confirmă înainte de trimitere";
+"Dot finished setting up" = "Dot a terminat configurarea";
+"Mail Dot sees both subscriptions" = "Mail Dot vede ambele abonamente";
+"Dot answered a drafting test" = "Dot a răspuns la un test de ciornă";
+"Dot answered a settings test" = "Dot a răspuns la un test de setări";
+"Dot has not answered Mail Dot’s test requests." = "Dot nu a răspuns la solicitările de test ale Mail Dot.";
+"Keep connected has run." = "Keep connected a rulat.";
+"Waiting for the first run of Keep connected." = "Se așteaptă prima rulare a Keep connected.";

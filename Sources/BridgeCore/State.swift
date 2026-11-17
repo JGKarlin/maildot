@@ -172,6 +172,12 @@ public struct BridgeState: Codable, Sendable {
     public var agentSeenAt: Date?
     public var agentInitializedAt: Date?
     public var mailPermissionStatus: Int32?
+    /// The version of Mail Dot's handlers in ChatGPT that Dot last reported holding (see `DotHandlers`), and when
+    /// Dot was last told they are out of date.
+    public var handlerVersion: Int?
+    public var handlerUpdateOfferedAt: Date?
+    /// When the Keep connected task last called in (it alone passes its handler version to `bridge_status`).
+    public var keepConnectedRanAt: Date?
     public init() {}
 }
 

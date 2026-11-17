@@ -49,6 +49,32 @@ extension BridgeCoordinator {
         context.ownerRequest = request
     }
 
+    /// Whether two of Dot's questions are the same question: compared on the question itself, without its numbered
+    /// answers, case or spacing.
+    public static func sameQuestion(_ a: String, _ b: String) -> Bool {
+        func key(_ text: String) -> String {
+            answers(in: text).question.lowercased().components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }.joined(separator: " ")
+        }
+        return !key(a).isEmpty && key(a) == key(b)
+    }
+    /// The owner has already answered this question for this reply.
+    public static func alreadyAnswered(_ question: String, in context: ReplyContext) -> Bool {
+        context.ownerRequest?.answers.contains { sameQuestion($0.question, question) } ?? false
+    }
+    /// An answer the owner already gave Dot about this message elsewhere (in the Mail Dot window) goes with the reply's
+    /// request, so that Dot does not ask the same question again (owner report, 17 November 2026: "It should have saved
+    /// that answer, and not sent a new request to create draft questions"). Returns whether it was added.
+    @discardableResult public static func carryOwnerAnswer(question: String?, answer: String?, into context: inout ReplyContext, now: Date = .now) -> Bool {
+        guard let answer = answer?.trimmingCharacters(in: .whitespacesAndNewlines), !answer.isEmpty, var request = context.ownerRequest else { return false }
+        let asked = question?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty ?? "What should the reply say?"
+        guard !request.answers.contains(where: { $0.answer == answer && $0.question == asked }) else { return false }
+        request.answers = Array((request.answers + [ReplyOwnerRequest.Answer(question: asked, answer: answer, at: now)]).suffix(5))
+        context.ownerRequest = request
+        // The same question is not shown again in the panel: the owner has answered it.
+        if let shown = context.dotQuestion, shown.trimmingCharacters(in: .whitespacesAndNewlines) == asked { context.dotQuestion = nil }
+        return true
+    }
+
     private static func change(_ contextID: String, state: inout BridgeState, now: Date, _ body: (inout ReplyContext, inout ReplyOwnerRequest) throws -> Void) throws {
         guard var context = state.contexts[contextID] else { throw BridgeFailure("This message is no longer open in Mail Dot. Open the Mail Dot panel in it again.") }
         var request = context.ownerRequest ?? ReplyOwnerRequest()
@@ -196,6 +222,16 @@ extension BridgeCoordinator {
         state.contexts[contextID]?.ownerRequest?.sendConfirmedAt = now
     }
 
+    /// The owner pressed Send in the panel with "Confirm before sending" off: the press is the confirmation. Only a
+    /// send the owner chose on the panel; one Dot drafted by voice is left for the owner to confirm. Returns whether
+    /// the send went ahead without asking.
+    @discardableResult public static func sendWithoutAsking(contextID: String, confirms: Bool, state: inout BridgeState, now: Date = .now) throws -> Bool {
+        guard !confirms, let context = state.contexts[contextID], context.ownerRequest?.delivery == .send,
+              let confirmation = context.sendConfirmation else { return false }
+        try confirmSendFromPanel(contextID: contextID, confirmationID: confirmation.id, state: &state, now: now)
+        return true
+    }
+
     /// After the review of the exact draft is granted: queues the send the owner confirmed on the panel, and
     /// returns its operation. Returns nil, queuing nothing, unless the owner chose draft and send on the
     /// panel, confirmed there within the confirmation's lifetime, has not since ignored the message or
@@ -295,4 +331,8 @@ extension BridgeCoordinator {
         guard !question.isEmpty, found.allSatisfy({ !$0.isEmpty && $0.count <= 120 }) else { return (text, []) }
         return (question, found)
     }
+}
+
+extension String {
+    var nilIfEmpty: String? { isEmpty ? nil : self }
 }

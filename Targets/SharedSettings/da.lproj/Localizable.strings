@@ -516,7 +516,7 @@
 "Tunnel" = "Tunnel";
 "Key" = "Nøgle";
 "Plugin" = "Plugin";
-"Hourly task" = "Opgave hver time";
+"Scheduled task" = "Planlagt opgave";
 "Use Gmail Connector…" = "Brug Gmail-forbindelsen …";
 "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail." = "Ikke nødvendigt for konti, som Dot når via en ChatGPT-forbindelse, f.eks. Gmail.";
 "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on." = "Dot søger bedre i Gmail via sin egen forbindelse. Kontoen fortsætter med at virke via Mail, indtil forbindelsen er slået til.";
@@ -538,3 +538,14 @@
 "🔎 Checking" = "🔎 Tjekker";
 "Dot is checking this message…" = "Dot tjekker beskeden …";
 "You" = "Dig";
+"1 request ahead of yours" = "1 anmodning før denne";
+"%lld requests ahead of yours" = "%lld anmodninger før denne";
+"SENDING" = "AFSENDELSE";
+"Confirm before sending" = "Bekræft før afsendelse";
+"Dot finished setting up" = "Dot er færdig med opsætningen";
+"Mail Dot sees both subscriptions" = "Mail Dot ser begge abonnementer";
+"Dot answered a drafting test" = "Dot besvarede en kladdetest";
+"Dot answered a settings test" = "Dot besvarede en indstillingstest";
+"Dot has not answered Mail Dot’s test requests." = "Dot har ikke besvaret Mail Dots testanmodninger.";
+"Keep connected has run." = "Keep connected har kørt.";
+"Waiting for the first run of Keep connected." = "Venter på første kørsel af Keep connected.";

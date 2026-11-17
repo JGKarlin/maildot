@@ -94,6 +94,18 @@ struct SetupFindings:Equatable {
             found.reports=SetupThroughDot.reports(in:bridge.directory)
             found.askedAt=SetupThroughDot.askedAt(in:bridge.directory)
             found.facts.connected = !MailDotSetupWindow.needed && ConnectionWatch.listening(bridge)
+            if found.facts.connected,let state=try? bridge.read() {
+                found.facts.settingsSubscribed = !state.subscriptions.deliverable(for:"mail.settings_requested").isEmpty
+                found.facts.keepConnectedRan = state.keepConnectedRanAt.map{ $0 >= (found.askedAt ?? .distantPast) } ?? false
+            }
+            // With both subscriptions live, a test request goes through each, and setup ends on Dot's answers.
+            let settingsStore=MailSettingsStore(bridgeDirectory:bridge.directory)
+            if found.facts.subscribed,var settings=try? settingsStore.read() {
+                if (try? SetupVerification.requestTests(settings:&settings,since:found.askedAt)) == true,
+                   let updated=try? settingsStore.transaction({ value -> MailSettings in try SetupVerification.requestTests(settings:&value,since:found.askedAt); return value }) { settings=updated }
+                found.facts.draftingAnswered=SetupVerification.draftingAnswered(settings,since:found.askedAt)
+                found.facts.settingsAnswered=SetupVerification.settingsAnswered(settings,since:found.askedAt)
+            }
         }
         return found
     }
@@ -115,6 +127,13 @@ struct MailDotSetupView:View {
             }
             ForEach(SetupFlow.Step.allCases,id:\.rawValue) { step in row(step) }
             if found.current == nil {
+                // Dot runs the task once at the end of setup; the line is shown, never waited for.
+                HStack(spacing:8) {
+                    Image(systemName:found.facts.keepConnectedRan ? "checkmark.circle.fill" : "clock").foregroundStyle(found.facts.keepConnectedRan ? AnyShapeStyle(Color.green) : AnyShapeStyle(MailDotStyle.supporting))
+                    Text(found.facts.keepConnectedRan ? "Keep connected has run." : "Waiting for the first run of Keep connected.")
+                        .foregroundStyle(found.facts.keepConnectedRan ? Color.primary : MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true)
+                }
+                .accessibilityElement(children:.combine)
                 HStack(spacing:12) {
                     Spacer()
                     Text("Mail Dot is connected to Dot.").fontWeight(.semibold)
@@ -216,6 +235,10 @@ struct MailDotSetupView:View {
         case "key_created": String(localized:"Key created")
         case "connection_saved": String(localized:"Key handed to Mail Dot")
         case "plugin_added": String(localized:"Mail Dot added to ChatGPT")
+        case "done": String(localized:"Dot finished setting up")
+        case "subscribed": String(localized:"Mail Dot sees both subscriptions")
+        case "drafting_answered": String(localized:"Dot answered a drafting test")
+        case "settings_answered": String(localized:"Dot answered a settings test")
         default: String(localized:"Done")
         }
     }
@@ -231,7 +254,8 @@ struct MailDotSetupView:View {
             stages(reached:reached,pending:true)
         case .stalled(let last):
             stages(reached:last.flatMap(SetupFlow.stages.firstIndex).map{ $0+1 } ?? 0,pending:false)
-            if let last { Text("Dot has not answered since “\(Self.stageName(last)).”").fixedSize(horizontal:false,vertical:true) }
+            if let last,SetupFlow.checks.contains(last) { Text("Dot has not answered Mail Dot’s test requests.").fixedSize(horizontal:false,vertical:true) }
+            else if let last { Text("Dot has not answered since “\(Self.stageName(last)).”").fixedSize(horizontal:false,vertical:true) }
             else { Text("Dot has not answered.") }
             continueButtons
         case .blocked(let stopped,let last):
@@ -250,20 +274,25 @@ struct MailDotSetupView:View {
         }
     }
     /// The six stages Dot reports: a check mark on each one reached, a spinner on the one pending.
+    /// Then Mail Dot's own three checks: both subscriptions seen, and Dot's answer to a test through each handler.
+    /// The two tests run together, so each has its own mark.
     private func stages(reached:Int,pending:Bool) -> some View {
-        VStack(alignment:.leading,spacing:6) {
-            ForEach(Array(SetupFlow.stages.enumerated()),id:\.offset) { index,stage in
+        let dot=SetupFlow.stages.count,checked=SetupFlow.checked(found.facts)
+        let lines:[(name:String,done:Bool,active:Bool)]=SetupFlow.stages.indices.map{ (SetupFlow.stages[$0],$0 < reached,$0 == reached) }
+            + SetupFlow.checks.indices.map{ index in (SetupFlow.checks[index],checked[index],index == 0 ? reached == dot : checked[0] && !checked[index]) }
+        return VStack(alignment:.leading,spacing:6) {
+            ForEach(Array(lines.enumerated()),id:\.offset) { _,line in
                 HStack(spacing:8) {
                     ZStack {
-                        if index < reached { Image(systemName:"checkmark.circle.fill").foregroundStyle(.green) }
-                        else if index == reached,pending { ProgressView().controlSize(.small) }
+                        if line.done { Image(systemName:"checkmark.circle.fill").foregroundStyle(.green) }
+                        else if line.active,pending { ProgressView().controlSize(.small) }
                         else { Image(systemName:"circle").foregroundStyle(.tertiary) }
                     }.frame(width:18,height:18)
-                    Text(verbatim:Self.stageName(stage)).foregroundStyle(index <= reached ? Color.primary : MailDotStyle.supporting)
+                    Text(verbatim:Self.stageName(line.name)).foregroundStyle(line.done || line.active ? Color.primary : MailDotStyle.supporting)
                 }
                 .accessibilityElement(children:.ignore)
-                .accessibilityLabel(Text(verbatim:Self.stageName(stage)))
-                .accessibilityValue(index < reached ? Text("Done") : Text("Not Done"))
+                .accessibilityLabel(Text(verbatim:Self.stageName(line.name)))
+                .accessibilityValue(line.done ? Text("Done") : Text("Not Done"))
             }
         }
     }

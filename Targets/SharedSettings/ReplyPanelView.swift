@@ -44,7 +44,7 @@ import BridgeCore
     @State private var showingSettings=false
     /// The panel's newest request to Dot for this message, as Mail Dot recorded it, and the time now, so the
     /// progress line can count the seconds.
-    @State private var requestProgress:(askedAt:Date,deliveredAt:Date?,readAt:Date?)?
+    @State private var requestProgress:(askedAt:Date,deliveredAt:Date?,readAt:Date?,ahead:Int)?
     @State private var now=Date()
     /// For a new message: what the owner wants it to say, before Dot is asked.
     @State private var newText=""
@@ -91,7 +91,9 @@ import BridgeCore
     /// A new message for which Dot has not been asked yet: the panel asks the owner what it should say.
     private var awaitingNewRequest:Bool { isNew && context?.proposal == nil && request?.direction == nil }
     private var question:(question:String,answers:[String])? {
-        guard let text=context?.dotQuestion,!text.isEmpty else { return nil }
+        // With a draft already written, the draft is what the panel shows: a question is not put in front of it
+        // again (owner report, 17 November 2026: the draft sat behind a repeat of a question already answered).
+        guard context?.proposal == nil,let text=context?.dotQuestion,!text.isEmpty else { return nil }
         let parsed=BridgeCoordinator.answers(in:text)
         // The panel always ends with its own "Something else…", so an answer of Dot's that says the same is left out.
         let other=["something else","other","else","その他","ほか","別の"]
@@ -156,12 +158,14 @@ import BridgeCore
     }
     private func statusPill(_ value:(text:String,symbol:String,color:Color,busy:Bool)) -> some View {
         HStack(spacing:5) {
-            if value.busy { ProgressView().controlSize(.mini) } else { Image(systemName:value.symbol) }
+            if value.busy { ProgressView().controlSize(.mini) } else { StatusSymbol(name:value.symbol,key:value.text) }
             Text(value.text).fontWeight(.semibold)
         }
         .font(.caption).foregroundStyle(value.color)
         .padding(.horizontal,8).padding(.vertical,3)
         .background(Capsule().fill(value.color.opacity(0.14)))
+        // A draft ready, or a question from Dot, needs the owner: the pill pulses once when it appears.
+        .statusChange(value.text,needsOwner:["square.and.pencil","questionmark.bubble.fill"].contains(value.symbol))
         .accessibilityLabel("Status: \(value.text)")
     }
     private var recipient:String? {
@@ -214,7 +218,15 @@ import BridgeCore
         let stage:String
         if let update=context.lastDotUpdate,update > progress.askedAt { stage=context.dotStatus }
         else if progress.readAt != nil { stage=String(localized:"Dot is reading the message") }
-        else if progress.deliveredAt != nil { stage=String(localized:"ChatGPT is starting Dot") }
+        else if progress.deliveredAt != nil {
+            // Where the request stands in the queue, when others are ahead of it (owner request, 17 November 2026).
+            let starting=String(localized:"ChatGPT is starting Dot")
+            switch progress.ahead {
+            case 0: stage=starting
+            case 1: stage=starting+" · "+String(localized:"1 request ahead of yours")
+            default: stage=starting+" · "+String(localized:"\(progress.ahead) requests ahead of yours")
+            }
+        }
         else if seconds > 45 { stage=String(localized:"Dot has not picked this up yet. You can call Dot instead.") }
         else { stage=String(localized:"Sending your request to Dot") }
         // The stage only: a running count of seconds made the wait feel longer (owner request, 12 November 2026).
@@ -233,8 +245,8 @@ import BridgeCore
         HStack(alignment:.top,spacing:10) {
             ProgressView().controlSize(.small).padding(.top,2)
             VStack(alignment:.leading,spacing:2) {
-                Text(title).font(.headline)
-                if let detail { Text(detail).font(.callout).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true).textSelection(.enabled) }
+                Text(title).font(.headline).statusChange(title)
+                if let detail { Text(detail).font(.callout).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true).textSelection(.enabled).statusChange(detail) }
             }
         }
     }
@@ -499,7 +511,7 @@ import BridgeCore
             }.value
             loaded=true
             let helper=state.agentSeenAt.map { Date().timeIntervalSince($0) < 8 } ?? false
-            connected=helper && !state.subscriptions.deliverable(for:"mail.reply_context_changed").isEmpty
+            connected=helper && !state.subscriptions.deliverable(for:"mail.workflow_requested").isEmpty
             let mine=state.operations.filter{$0.contextID == contextID}
             let pending=mine.last{$0.result == nil && $0.error == nil}
             working=pending.map{ $0.kind == "share" ? String(localized:"Reading this message from Mail…") : $0.kind == "apply" ? String(localized:"Putting Dot’s reply into your message…") : $0.kind == "send" ? String(localized:"Sending…") : $0.kind == "saveDraft" ? String(localized:"Saving to Drafts…") : String(localized:"Checking the reply against Mail…") }

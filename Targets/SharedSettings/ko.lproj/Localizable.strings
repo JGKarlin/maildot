@@ -516,7 +516,7 @@
 "Tunnel" = "터널";
 "Key" = "키";
 "Plugin" = "플러그인";
-"Hourly task" = "매시간 작업";
+"Scheduled task" = "예약된 작업";
 "Use Gmail Connector…" = "Gmail 커넥터 사용…";
 "Not needed for accounts Dot reaches through a ChatGPT connector, such as Gmail." = "Gmail처럼 Dot이 ChatGPT 커넥터로 접근하는 계정에는 필요하지 않습니다.";
 "Dot searches Gmail better through its own connector. This account keeps working through Mail until the connector is on." = "Dot은 자체 커넥터를 통해 Gmail을 더 잘 검색합니다. 커넥터가 켜질 때까지 이 계정은 Mail을 통해 계속 작동합니다.";
@@ -538,3 +538,14 @@
 "🔎 Checking" = "🔎 확인 중";
 "Dot is checking this message…" = "Dot이 이 메시지를 확인하는 중…";
 "You" = "나";
+"1 request ahead of yours" = "앞선 요청 1건";
+"%lld requests ahead of yours" = "앞선 요청 %lld건";
+"SENDING" = "보내기";
+"Confirm before sending" = "보내기 전에 확인";
+"Dot finished setting up" = "Dot이 설정을 마쳤습니다";
+"Mail Dot sees both subscriptions" = "Mail Dot이 두 구독을 모두 확인했습니다";
+"Dot answered a drafting test" = "Dot이 초안 테스트에 응답했습니다";
+"Dot answered a settings test" = "Dot이 설정 테스트에 응답했습니다";
+"Dot has not answered Mail Dot’s test requests." = "Dot이 Mail Dot의 테스트 요청에 응답하지 않았습니다.";
+"Keep connected has run." = "Keep connected가 실행되었습니다.";
+"Waiting for the first run of Keep connected." = "Keep connected의 첫 실행을 기다리는 중입니다.";

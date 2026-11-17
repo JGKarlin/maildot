@@ -383,8 +383,12 @@ final class SetupFlowTests: XCTestCase {
         XCTAssertEqual(SetupFlow.current(facts), .mail, "a later step being done does not skip an earlier one")
         facts.mailAllowed = true
         XCTAssertEqual(SetupFlow.current(facts), .connect)
-        XCTAssertNil(SetupFlow.current(facts, reports: [report("done", after: 60)]))
-        facts.connected = true
+        XCTAssertEqual(SetupFlow.current(facts, reports: [report("done", after: 60)]), .connect, "Dot's word that it is done is not enough")
+        facts.connected = true; facts.settingsSubscribed = true
+        XCTAssertEqual(SetupFlow.current(facts), .connect, "both subscriptions, but no test answered yet")
+        facts.draftingAnswered = true
+        XCTAssertEqual(SetupFlow.current(facts), .connect)
+        facts.settingsAnswered = true
         XCTAssertNil(SetupFlow.current(facts))
     }
     func testTheConnectionStepShowsProgressThenAStallAndABlock() {
@@ -404,9 +408,48 @@ final class SetupFlowTests: XCTestCase {
         // Asked to continue: the block is behind, and Dot has three minutes again.
         let again = asked.addingTimeInterval(500)
         XCTAssertEqual(SetupFlow.connection(facts, askedAt: again, reports: stopped, now: again.addingTimeInterval(10)), .working(reached: 3))
-        XCTAssertEqual(SetupFlow.connection(facts, askedAt: again, reports: stopped + [report("done", after: 600)], now: again.addingTimeInterval(200)), .complete)
+        // Dot reports done: Mail Dot now waits, longer, for the subscriptions and the test answers.
+        let finished = stopped + [report("done", after: 600)]
+        XCTAssertEqual(SetupFlow.connection(facts, askedAt: again, reports: finished, now: asked.addingTimeInterval(1_100)), .working(reached: 6))
+        XCTAssertEqual(SetupFlow.connection(facts, askedAt: again, reports: finished, now: asked.addingTimeInterval(1_200)), .stalled(last: "done"))
         facts.connected = true
+        XCTAssertEqual(SetupFlow.connection(facts, askedAt: again, reports: finished, now: asked.addingTimeInterval(700)), .working(reached: 6), "one subscription is not both")
+        facts.settingsSubscribed = true
+        XCTAssertEqual(SetupFlow.connection(facts, askedAt: again, reports: finished, now: asked.addingTimeInterval(700)), .working(reached: 7))
+        XCTAssertEqual(SetupFlow.connection(facts, askedAt: again, reports: finished, now: asked.addingTimeInterval(1_200)), .stalled(last: "subscribed"))
+        XCTAssertEqual(SetupFlow.checked(facts), [true, false, false])
+        facts.settingsAnswered = true
+        XCTAssertEqual(SetupFlow.checked(facts), [true, false, true], "the two tests are marked one by one")
+        facts.draftingAnswered = true
         XCTAssertEqual(SetupFlow.connection(facts, askedAt: nil, reports: []), .complete)
+    }
+    func testSetupAsksForATestThroughEachHandlerAndCountsOnlyAnswers() throws {
+        var settings = MailSettings()
+        let since = Date().addingTimeInterval(-60)
+        XCTAssertTrue(try SetupVerification.requestTests(settings: &settings, since: since))
+        XCTAssertNotNil(settings.effectiveDotAccess.checkRequestedAt)
+        XCTAssertEqual(settings.requests.filter { $0.kind == .keepConnected }.count, 1)
+        XCTAssertFalse(try SetupVerification.requestTests(settings: &settings, since: since), "a test already waiting is not asked again")
+        XCTAssertFalse(SetupVerification.draftingAnswered(settings, since: since))
+        XCTAssertFalse(SetupVerification.settingsAnswered(settings, since: since))
+        // Dot never answered the settings test: that is no answer, and it is asked again.
+        settings.requests[0].status = .failed; settings.requests[0].resultCode = "noAnswer"
+        XCTAssertFalse(SetupVerification.settingsAnswered(settings, since: since))
+        XCTAssertTrue(try SetupVerification.requestTests(settings: &settings, since: since))
+        // Dot's own refusal is an answer: its handler ran.
+        let last = settings.requests.count - 1
+        settings.requests[last].status = .failed; settings.requests[last].resultCode = "capabilityUnavailable"
+        XCTAssertTrue(SetupVerification.settingsAnswered(settings, since: since))
+        settings.noteDotAnswered()
+        XCTAssertTrue(SetupVerification.draftingAnswered(settings, since: since))
+        XCTAssertFalse(SetupVerification.draftingAnswered(settings, since: Date().addingTimeInterval(60)), "an answer from before setup asked does not count")
+    }
+    func testACheckNamesNoAccountAndTheContinuePromptNamesTheTests() throws {
+        XCTAssertNoThrow(try MailWorkflowRequest(action: .check, accountIDs: []))
+        XCTAssertThrowsError(try MailWorkflowRequest(action: .status, accountIDs: []))
+        let text = SetupThroughDot.continuation(name: "Mail Dot (tester)", completed: SetupFlow.stages)
+        XCTAssertTrue(text.contains("You reported done") && text.contains("mail.settings_requested"))
+        XCTAssertFalse(SetupThroughDot.continuation(name: "Mail Dot (tester)", completed: ["started"]).contains("You reported done"))
     }
     func testAskingIsRememberedAndAFirstRequestStartsOver() throws {
         let store = FileManager.default.temporaryDirectory.appendingPathComponent("setup-\(UUID().uuidString)"); defer { try? FileManager.default.removeItem(at: store) }
