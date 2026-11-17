@@ -44,4 +44,4 @@ The Remove Mail Dot… button, in Mail Dot's window and in its setup window, mov
 
 ## Questions
 
-Questions about this statement can be sent to maildot@icloud.com or raised on the project's Issues page on GitHub. Messages and reports should not include the text of real mail.
+Questions about this statement can be sent to mail_dot@icloud.com or raised on the project's Issues page on GitHub. Messages and reports should not include the text of real mail.

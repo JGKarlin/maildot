@@ -226,7 +226,7 @@ A copy of the source also carries `Tools/Remove Mail Dot.command`, which does th
 
 ## Reporting problems
 
-Problems and questions belong on the [Issues page](https://github.com/JGKarlin/maildot/issues). Other enquiries can be sent to [maildot@icloud.com](mailto:maildot@icloud.com). Reports should not include the text of real mail or any key. [SECURITY.md](SECURITY.md) explains how to report a security problem privately.
+Problems and questions belong on the [Issues page](https://github.com/JGKarlin/maildot/issues). Other enquiries can be sent to [mail_dot@icloud.com](mailto:mail_dot@icloud.com). Reports should not include the text of real mail or any key. [SECURITY.md](SECURITY.md) explains how to report a security problem privately.
 
 ## Supporting Mail Dot
 
@@ -236,7 +236,7 @@ Mail Dot is free for noncommercial use. Readers who find it useful may [leave a 
 
 © 2026 Hooner LLC. Developed by Jason G. Karlin.
 
-Mail Dot is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). The licence permits use, modification and sharing for noncommercial purposes, which include personal use, research, and use by educational, charitable and public organisations. It does not permit commercial use. Commercial licences are available from Hooner LLC; write to [maildot@icloud.com](mailto:maildot@icloud.com) to ask for one.
+Mail Dot is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). The licence permits use, modification and sharing for noncommercial purposes, which include personal use, research, and use by educational, charitable and public organisations. It does not permit commercial use. Commercial licences are available from Hooner LLC; write to [mail_dot@icloud.com](mailto:mail_dot@icloud.com) to ask for one.
 
 Mail Dot includes software by others, which keeps its own licences; see [NOTICE](NOTICE). OpenAI's `tunnel-client` is used under the Apache License 2.0. SQLCipher 4.20.0, Copyright (c) 2025, ZETETIC LLC. All rights reserved. Used under the SQLCipher Community Edition Open Source License. https://www.zetetic.net/sqlcipher/
 

@@ -2,7 +2,7 @@
 
 ## Reporting a problem
 
-A security problem in Mail Dot should be reported privately. The preferred way is the project's GitHub page: open the Security tab and choose Report a vulnerability. Reports can also be sent to maildot@icloud.com. Security problems should not be opened as public issues, and a report should not include the text of real mail or any key.
+A security problem in Mail Dot should be reported privately. The preferred way is the project's GitHub page: open the Security tab and choose Report a vulnerability. Reports can also be sent to mail_dot@icloud.com. Security problems should not be opened as public issues, and a report should not include the text of real mail or any key.
 
 ## What Mail Dot is trusted with
 
