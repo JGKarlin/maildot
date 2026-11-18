@@ -4,7 +4,7 @@ Mail Dot is an extension for Apple Mail on the Mac that brings Dot, the assistan
 
 Hooner LLC publishes Mail Dot's source code under the PolyForm Noncommercial License 1.0.0. Anyone may use, study and modify it for noncommercial purposes, and commercial use requires a licence from Hooner LLC. The installer is on the [Releases page](https://github.com/JGKarlin/maildot/releases).
 
-<p align="center"><img src="docs/images/reply-draft-ready.png" width="520" alt="Mail Dot's panel in a reply window, showing a draft that Dot has written, with buttons to insert it, save it as a draft, send it or decline to reply, and beneath them a box for telling Dot how to revise it, with Call Dot and Tell Dot beside it."></p>
+<p align="center"><img src="docs/images/window-briefing.png" width="480" alt="The Mail Dot window for a thread of seven messages, in the Briefing view: Dot's question about which hall to book, with three suggested answers and a fourth choice, then what has been decided and what is still to decide. The bottom row offers No Reply Needed, Call Dot, Ask Dot and the settings."></p>
 
 ## Why Mail Dot exists
 
@@ -98,9 +98,27 @@ For each message it handles, Dot reports on the thread: how it began, how it dev
 
 The report turns a long thread into a short account of where a matter stands, and it tracks the commitments that mail creates. When the reader answers Dot's question, the matter it concerned moves to Decided at once. When a message sets a meeting, the report shows it with a button that adds it to the calendar.
 
-<p align="center"><img src="docs/images/report-thread.png" width="480" alt="The Mail Dot window for a thread of seven messages, showing a question for the reader with four answers, a summary of what has been decided and what is still to decide, and the start of the thread's history. The bottom row offers No Reply Needed, Call Dot, Ask Dot and the settings."></p>
+#### The Mail Dot window
 
-<p align="center"><img src="docs/images/report-single-message.png" width="480" alt="The Mail Dot window for a single message, showing Dot's draft, a one-line account of the message, and a note that Dot checked the calendar. The bottom row offers Open in Reply, Discard Draft, Call Dot, Ask Dot and the settings."></p>
+The banner's Open Mail Dot button opens the Mail Dot window for that message, which Mail shows over the message itself. Its top line gives the subject, the people in the thread, the number of messages and the state. What needs the reader comes next: Dot's question with its suggested answers, or Dot's draft. The report follows: where the matter stands, with what is decided and what is still to decide; how the thread got there; any meeting the mail sets, with a button that adds it to the calendar; and what Dot did, such as checking the calendar. A row of buttons at the bottom offers what fits the state, such as No Reply Needed, Open in Reply, Discard Draft, Call Dot and Ask Dot, beside the settings and the time of the last update.
+
+<p align="center"><img src="docs/images/window-briefing-draft.png" width="480" alt="The Mail Dot window for a single message with Dot's draft ready: the draft, a one-line account of the message, and a note that Dot checked the calendar. The bottom row offers Open in Reply, Discard Draft, Call Dot, Ask Dot and the settings."></p>
+
+#### Three views
+
+The same report can be shown in three views, chosen under Layout in Mail Dot's settings. The choice applies to every Mail Dot window.
+
+<p align="center"><img src="docs/images/settings-layout.png" width="460" alt="The Layout tab of Mail Dot's settings, headed Mail Dot window, with three cards to choose from: Briefing, one column, what needs you comes first; Storyline, the thread as a timeline, ending at your next step; Ledger, two panes in a wider window, each decision a row. Briefing is selected."></p>
+
+**Briefing**, the default, is a single column in which what needs the reader comes first, followed by where the matter stands and how it got there. It suits a quick decision, and it is the view shown at the top of this page.
+
+**Storyline** shows the thread as a timeline. A line at the top says what is waiting on the reader; below it come the message that began the thread, each development in order, the points decided, and the latest message with any meeting it sets, ending at the reader's next step and its due date. It suits a long thread whose history matters.
+
+<p align="center"><img src="docs/images/window-storyline.png" width="480" alt="The Mail Dot window in the Storyline view: a line saying Maya asks for the hall by Monday, then a timeline from the origin on November 3 through the offer of two halls, the budget limit and the decisions of November 11, to this message with a planning call and an Add to Calendar button."></p>
+
+**Ledger** uses two panes in a wider window. On the left are the thread report, in three parts named Origin, Development and Now, and what Dot did. On the right each decision is a row, marked decided or open, with who decided it and when, or who must decide and by when. The decision that waits on the reader opens in place, with Dot's question, its suggested answers and a box for telling Dot the answer or how to draft the reply. A meeting in the message appears beneath. It suits a matter with many separate decisions. Ledger needs a window of about 820 by 730 points; on a smaller screen the window shows Briefing instead.
+
+<p align="center"><img src="docs/images/window-ledger.png" width="720" alt="The Mail Dot window in the Ledger view: on the left the thread report and what Dot did; on the right the decisions as rows, with Dates and Catering decided, the Hall marked as yours to decide with Dot's question and four answers opened beneath it, Extra budget waiting on the hall, and a planning call with an Add to Calendar button."></p>
 
 ## Using Mail Dot
 
@@ -108,7 +126,9 @@ Mail Dot appears in three places in Mail.
 
 On a message, a banner states what Dot has done with it. The banner's button, Open Mail Dot, opens the report on that message and its thread. From the report the reader can ask for a draft, open a finished draft in a Mail reply, discard one, mark a message as needing no reply, start a voice call with Dot about it, or open Ask Dot.
 
-In a reply window, the Mail Dot button in the toolbar opens the panel shown at the top of this page. Insert places Dot's draft at the head of the reply and leaves the quoted mail untouched. Save Draft places it and saves the message to Drafts. Send places it, brings Mail forward and asks for one confirmation that names the recipients, after which Mail sends the message. With Confirm before sending turned off in the settings, the press of Send is itself the confirmation. No Reply dismisses the draft. Command-Return chooses Send. The wide field beneath takes an instruction for revising the draft, which Tell Dot sends, and Call Dot above it opens a voice call for the same purpose.
+In a reply window, the Mail Dot button in the toolbar opens Mail Dot's panel. Insert places Dot's draft at the head of the reply and leaves the quoted mail untouched. Save Draft places it and saves the message to Drafts. Send places it, brings Mail forward and asks for one confirmation that names the recipients, after which Mail sends the message. With Confirm before sending turned off in the settings, the press of Send is itself the confirmation. No Reply dismisses the draft. Command-Return chooses Send. The wide field beneath takes an instruction for revising the draft, which Tell Dot sends, and Call Dot above it opens a voice call for the same purpose.
+
+<p align="center"><img src="docs/images/reply-draft-ready.png" width="520" alt="Mail Dot's panel in a reply window, showing a draft that Dot has written, with buttons to insert it, save it as a draft, send it or decline to reply, and beneath them a box for telling Dot how to revise it, with Call Dot and Tell Dot beside it."></p>
 
 Anywhere in Mail, Shift-Option-Command-F opens Ask Dot.
 
