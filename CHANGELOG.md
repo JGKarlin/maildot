@@ -1,6 +1,6 @@
 # Changes
 
-## 0.4.216, 18 November 2026: first release
+## 0.4.217, 18 November 2026: first release
 
 The first installer published on the Releases page.
 
@@ -20,4 +20,4 @@ The installer is for Macs with Apple silicon running macOS 14 or later.
 
 ## Earlier source snapshots
 
-The source was published without an installer as 0.4.168 and 0.4.189 on 15 November 2026, and as 0.4.199 and 0.4.205 on 17 November 2026.
+The source was published as 0.4.168 and 0.4.189 on 15 November 2026, as 0.4.199 and 0.4.205 on 17 November 2026, and as 0.4.216 on 18 November 2026.

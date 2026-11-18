@@ -6,7 +6,7 @@ import Foundation
 public struct ConnectionState: Codable, Sendable, Equatable {
     public enum MailAccess: String, Codable, Sendable { case unknown, allowed, notAllowed }
     public enum ChatGPT: String, Codable, Sendable { case open, closed, notInstalled }
-    public enum Request: String, Codable, Sendable { case allowMail, openAccessibility, openChatGPT, askDotToListen, openFullDiskAccess }
+    public enum Request: String, Codable, Sendable { case allowMail, openAccessibility, openChatGPT, askDotToListen, openFullDiskAccess, openSetup }
 
     /// Whether macOS lets Mail Dot work with Mail. Unknown until Mail has been open once since Mail Dot started.
     public var mail = MailAccess.unknown
@@ -17,6 +17,14 @@ public struct ConnectionState: Codable, Sendable, Equatable {
     /// With search by meaning on: whether macOS lets Mail Dot read the Mail folder. Absent while the option is off,
     /// when Mail Dot does not look.
     public var fullDiskAccess: Bool?
+    /// Whether setup is complete on this Mac: Mail Dot has its connection and Dot has answered setup's tests. Until it
+    /// is, nothing can reach Dot, and the Connection tab says so with a button that opens setup (second-account test,
+    /// 18 November 2026: the tab said "Asking Dot…" for a check that could not arrive). Absent from older records.
+    public var setUp: Bool?
+    /// While setup is not complete: whether Dot is at work on it now, or it has stopped (no report for a while, or
+    /// Dot reported what stops it). Absent when setup has not started or is complete.
+    public enum SetupProgress: String, Codable, Sendable { case working, stopped }
+    public var setupProgress: SetupProgress?
     /// When Mail Dot last asked Dot to listen, and how many times since a listener was last present.
     public var askedToListenAt: Date?
     public var asks = 0
@@ -30,7 +38,7 @@ public struct ConnectionState: Codable, Sendable, Equatable {
     public func asking(now: Date = Date()) -> Bool { askedToListenAt.map { now.timeIntervalSince($0) < 120 } ?? false }
     /// The same findings, whatever was asked or pressed: what decides whether to save again.
     public func sameFindings(as other: ConnectionState) -> Bool {
-        mail == other.mail && accessibility == other.accessibility && chatGPT == other.chatGPT && tunnelConnected == other.tunnelConnected && fullDiskAccess == other.fullDiskAccess
+        mail == other.mail && accessibility == other.accessibility && chatGPT == other.chatGPT && tunnelConnected == other.tunnelConnected && fullDiskAccess == other.fullDiskAccess && setUp == other.setUp && setupProgress == other.setupProgress
     }
 }
 

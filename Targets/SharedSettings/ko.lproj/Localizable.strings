@@ -559,3 +559,11 @@
 "macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS가 Mail Dot이 Mail과 함께 작동하도록 허용하지 않습니다. 시스템 설정의 자동화에서 Mail Dot에 대해 Mail을 켜십시오.";
 "Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "다음으로 메일 계정을 연결하십시오. Mail에서 아무 메시지나 열고 헤더의 Mail Dot 아이콘을 클릭한 다음 %@을(를) 선택하십시오.";
 "Look at what Dot wrote in ChatGPT." = "ChatGPT에서 Dot이 쓴 내용을 확인하십시오.";
+"Not set up" = "설정되지 않음";
+"Set Up…" = "설정…";
+"Mail Dot is not set up yet" = "Mail Dot이 아직 설정되지 않았습니다";
+"Setting up…" = "설정 중…";
+"Setup stopped" = "설정이 중단됨";
+"Show Setup" = "설정 보기";
+"Dot is setting up Mail Dot" = "Dot이 Mail Dot을 설정하는 중";
+"Mail Dot’s setup has stopped" = "Mail Dot 설정이 중단되었습니다";

@@ -22,6 +22,15 @@ import BridgeAutomation
         let chatGPT=chatGPTState()
         let tunnel=listening(bridge)
         let accessibility=AXIsProcessTrusted()
+        let setupShown=MailDotSetupWindow.shown
+        // Where setup stands while it is not complete: worked out from Dot's reports, as the setup window does.
+        var progress:ConnectionState.SetupProgress?
+        if setupShown,let asked=SetupThroughDot.askedAt(in:bridge.directory) {
+            var facts=SetupFlow.Facts()
+            facts.connected=tunnel
+            if let state=try? bridge.read() { facts.settingsSubscribed = !state.subscriptions.deliverable(for:"mail.settings_requested").isEmpty }
+            progress=SetupFlow.progress(SetupFlow.connection(facts,askedAt:asked,reports:SetupThroughDot.reports(in:bridge.directory)))
+        }
         // Looked at only while search by meaning is on: the look itself is what lists Mail Dot under Full Disk Access.
         let meaning=(try? MailSettingsStore(bridgeDirectory:bridge.directory).read())?.searchByMeaningAnywhere == true
         let diskAccess:Bool?=meaning ? MailFiles.access(home:FileManager.default.homeDirectoryForCurrentUser) == .granted : nil
@@ -31,6 +40,7 @@ import BridgeAutomation
             let before=found,request=found.request
             if mailStatus == 0 { found.mail = .allowed } else if mailStatus == -1743 || mailStatus == -1744 { found.mail = .notAllowed }
             found.accessibility=accessibility; found.chatGPT=chatGPT; found.tunnelConnected=tunnel; found.fullDiskAccess=diskAccess; found.request=nil
+            found.setUp = !setupShown; found.setupProgress=progress
             if found != before { state.connection=found }
             return (found,request)
         }) else { return }
@@ -78,6 +88,8 @@ import BridgeAutomation
             open(pane:"Privacy_AllFiles")
         case .askDotToListen:
             break   // no longer offered: Dot is not asked to work on this Mac
+        case .openSetup:
+            MailDotSetupWindow.shared.show()
         }
     }
     private static func open(pane:String) {

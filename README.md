@@ -135,9 +135,7 @@ Dot runs in OpenAI's cloud, not on the Mac. When something happens in Mail that 
 
 The ChatGPT app is needed on two occasions only: during first-time setup, when Mail Dot opens it to ask Dot for the connection, and for a voice call with Dot, which is a ChatGPT call that Mail Dot opens. For a call, Mail Dot opens the call first and then passes Dot the request, which Dot acknowledges before looking into it. To find ChatGPT's message field and its Start call button in whatever language ChatGPT is shown, Mail Dot reads the names of those controls from the ChatGPT app's own files on the Mac.
 
-The Mac must be awake, logged in and online for Dot to reach Mail. Requests made while it sleeps wait until it wakes. The Connection tab of Mail Dot's settings shows the state of each thing the connection depends on.
-
-<p align="center"><img src="docs/images/settings-connection.png" width="460" alt="The Connection tab of Mail Dot's settings, with four lines marked in green: Mail allowed, Accessibility on, ChatGPT open, and Dot connected. The ChatGPT line states that the app needs to be open only for a call with Dot."></p>
+The Mac must be awake, logged in and online for Dot to reach Mail. Requests made while it sleeps wait until it wakes. The Connection tab of Mail Dot's settings shows the state of each thing the connection depends on; [step 4 of the installation](#4-check-the-connection-tab) shows it.
 
 ### The parts
 
@@ -163,15 +161,39 @@ Mail Dot needs a Mac with Apple silicon running macOS 14 or later, Apple Mail wi
 
 ## Installation and setup
 
-Download the installer, a file named like `Mail-Dot-0.4.216.pkg`, from the [Releases page](https://github.com/JGKarlin/maildot/releases), where its SHA-256 checksum is listed in the release notes. Quit Mail before opening it; the installer will not continue while Mail is open.
+Installation takes five steps. Mail Dot checks each one for itself and shows what is still needed.
 
-The installer places Mail Dot in the Applications folder. Mail Dot then opens and shows a setup window with four steps, each of which it checks against the Mac for itself.
+### 1. Run the installer
+
+Download the installer, a file named like `Mail-Dot-0.4.217.pkg`, from the [Releases page](https://github.com/JGKarlin/maildot/releases); its SHA-256 checksum is listed in the release notes. Quit Mail, then open the installer and follow it. The installer will not continue while Mail is open. It places Mail Dot in the Applications folder and opens it.
+
+### 2. Follow the setup window
+
+Mail Dot opens a window named Set Up Mail Dot with four steps. It opens again by itself whenever Mail Dot starts before setup is complete.
 
 <p align="center"><img src="docs/images/setup.png" width="520" alt="The Set Up Mail Dot window with three steps completed and the fourth, connecting Mail Dot to Dot, nearly done: Dot has created the connection and the key and added Mail Dot to ChatGPT, Mail Dot sees both subscriptions, Dot has answered a drafting test, and a settings test is running. A Remove Mail Dot button sits at the bottom left."></p>
 
-The first three steps are permissions that macOS reserves for the person at the keyboard. The first turns on Accessibility for Mail Dot, which lets it write to Dot in ChatGPT and start calls. The second allows Mail Dot to work with Mail, so that it can read the messages the reader chooses and place Dot's drafts. The third selects the Mail Dot checkbox in Mail's Settings, under Extensions, and Mail Dot opens that page.
+The first three steps are permissions that macOS reserves for the person at the keyboard. Turn on Accessibility for Mail Dot lets it write to Dot in ChatGPT and start calls; its button opens the right page of System Settings. Allow Mail Dot to work with Mail lets it read the messages the reader chooses and place Dot's drafts; Mail must be open for macOS to ask. Turn on Mail Dot in Mail is the extension switch described in the next step.
 
-In the fourth step, Mail Dot opens ChatGPT and asks Dot to make the connection. Dot creates a private connection in the reader's OpenAI account and a key that can run only that connection, hands the key to Mail Dot, which keeps it in the Keychain, and adds Mail Dot to ChatGPT as a private plugin. The window shows each stage as Dot reaches it. Setup then ends on Mail Dot's own checks, not on Dot's word: Mail Dot confirms that it sees both of Dot's subscriptions, that Dot has answered a drafting test and a settings test through its handlers, and that the Keep connected task has run once. Dot reads no mail during setup. The reader may be asked to sign in to OpenAI and to approve Mail Dot's tools in ChatGPT. If ChatGPT is signed out or the account has no Dot, if the permission to work with Mail was refused, or if Dot stops partway, the setup window says what to do, and opening Mail Dot shows setup again until Dot has answered both tests.
+The fourth step, Connect Mail Dot to Dot, starts by itself once the first three are done. Mail Dot opens ChatGPT and asks Dot to make the connection. Dot creates a private connection in the reader's OpenAI account and a key that can run only that connection, hands the key to Mail Dot, which keeps it in the Keychain, and adds Mail Dot to ChatGPT as a private plugin. The window shows each stage as Dot reaches it, and setup ends on Mail Dot's own checks, not on Dot's word: it confirms that it sees both of Dot's subscriptions, that Dot has answered a drafting test and a settings test, and that the Keep connected task has run once. Dot reads no mail during setup. The reader may be asked to sign in to OpenAI and to approve Mail Dot's tools in ChatGPT. If ChatGPT is signed out or the account has no Dot, if a permission was refused, or if Dot stops partway, the window says what to do.
+
+### 3. Turn on the extension in Mail
+
+macOS installs a Mail extension switched off, and only the person at the Mac can switch it on. In Mail, choose Mail > Settings, click Extensions, and select the Mail Dot checkbox. The setup window's Open Mail button leads there.
+
+<p align="center"><img src="docs/images/mail-settings-extensions.png" width="560" alt="Mail's Settings window on the Extensions tab, with the Mail Dot checkbox selected in the list on the left and, on the right, Mail Dot 0.4.217 with its permissions to read email contents and to modify messages."></p>
+
+### 4. Check the Connection tab
+
+In Mail, open any message and click the Mail Dot icon in its header. Mail Dot's settings open; click Connection. Each line should show a green check: Mail reads Allowed, Accessibility reads On, and Dot reads Connected. ChatGPT reads Open (running) in green, or Closed in grey, which is not a fault, because the ChatGPT app needs to be open only for a call with Dot.
+
+<p align="center"><img src="docs/images/settings-connection.png" width="460" alt="The Connection tab of Mail Dot's settings, with four lines marked in green: Mail allowed, Accessibility on, ChatGPT open, and Dot connected. The ChatGPT line states that the app needs to be open only for a call with Dot."></p>
+
+A line that needs attention is marked in orange and carries a button that leads to the fix. Mail with Not allowed offers Allow…; Accessibility with Off offers Open Settings…; Dot with Not set up offers Set Up…, and with Setup stopped offers Show Setup, both of which reopen the setup window; Dot with Not answering offers Check Again.
+
+### 5. Connect mail accounts
+
+Click Accounts in the same settings. Turn on each account with its Mail Dot checkbox. A Gmail account needs its connector: click Use Gmail Connector…. An iCloud account needs its connector too: click Use iCloud Connector…. Any other account is read through Mail, in the folders chosen with its Connect… button.
 
 ## Automatic updates
 

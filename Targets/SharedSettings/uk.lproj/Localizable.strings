@@ -559,3 +559,11 @@
 "macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS не дозволяє Mail Dot працювати з Поштою. У Системних параметрах у розділі «Автоматизація» ввімкніть Пошту для Mail Dot.";
 "Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "Далі під’єднайте поштовий обліковий запис. У Пошті відкрийте будь-який лист, клацніть значок Mail Dot у його заголовку та виберіть «%@».";
 "Look at what Dot wrote in ChatGPT." = "Подивіться, що Dot написав у ChatGPT.";
+"Not set up" = "Не налаштовано";
+"Set Up…" = "Налаштувати…";
+"Mail Dot is not set up yet" = "Mail Dot ще не налаштовано";
+"Setting up…" = "Налаштування…";
+"Setup stopped" = "Налаштування зупинено";
+"Show Setup" = "Показати налаштування";
+"Dot is setting up Mail Dot" = "Dot налаштовує Mail Dot";
+"Mail Dot’s setup has stopped" = "Налаштування Mail Dot зупинено";

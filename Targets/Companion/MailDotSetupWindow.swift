@@ -125,6 +125,9 @@ struct MailDotSetupView:View {
     @State private var note:String?
     /// Dot's page could not be used at the last press: Show ChatGPT is offered beside the button.
     @State private var unreachable=false
+    /// Whether this window has already asked Dot by itself: once each time it opens, and never again after a failure,
+    /// which then shows its reason and the button (owner's direction, 18 November 2026).
+    @State private var askedOnItsOwn=false
     @State private var busy=false
     init(fixed:SetupFindings?=nil) { self.fixed=fixed; _found=State(initialValue:fixed ?? SetupFindings()) }
     var body:some View {
@@ -176,6 +179,12 @@ struct MailDotSetupView:View {
                 if completed >= 0,count > completed { MailDotSetupWindow.shared.bringForward() }
                 completed=count
                 found=fresh
+                // The connection step starts by itself once the steps before it are done: no press is needed. A
+                // press of the button still works, and after a failure the button is what tries again.
+                if !askedOnItsOwn,!busy,fresh.current == .connect,fresh.connection == .ready {
+                    askedOnItsOwn=true
+                    ask(fresh:true)
+                }
                 try? await Task.sleep(for:.seconds(2))
             }
         }

@@ -559,3 +559,11 @@
 "macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS Mail Dot କୁ Mail ସହ କାମ କରିବାକୁ ଦେଉନାହିଁ। ସିଷ୍ଟମ୍ ସେଟିଂସରେ, ଅଟୋମେସନ୍ ତଳେ, Mail Dot ପାଇଁ Mail ଚାଲୁ କରନ୍ତୁ।";
 "Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "ଏହାପରେ ଏକ ମେଲ୍ ଆକାଉଣ୍ଟ ସଂଯୋଗ କରନ୍ତୁ। Mail ରେ ଯେକୌଣସି ବାର୍ତ୍ତା ଖୋଲନ୍ତୁ, ତାହାର ହେଡରରେ ଥିବା Mail Dot ଆଇକନ୍ କ୍ଲିକ୍ କରନ୍ତୁ ଏବଂ %@ ବାଛନ୍ତୁ।";
 "Look at what Dot wrote in ChatGPT." = "ChatGPT ରେ Dot କ’ଣ ଲେଖିଛି ଦେଖନ୍ତୁ।";
+"Not set up" = "ସେଟ୍ ଅପ୍ ହୋଇନାହିଁ";
+"Set Up…" = "ସେଟ୍ ଅପ୍ କରନ୍ତୁ…";
+"Mail Dot is not set up yet" = "Mail Dot ଏପର୍ଯ୍ୟନ୍ତ ସେଟ୍ ଅପ୍ ହୋଇନାହିଁ";
+"Setting up…" = "ସେଟ୍ ଅପ୍ ହେଉଛି…";
+"Setup stopped" = "ସେଟଅପ୍ ବନ୍ଦ ହୋଇଛି";
+"Show Setup" = "ସେଟଅପ୍ ଦେଖାନ୍ତୁ";
+"Dot is setting up Mail Dot" = "Dot, Mail Dot ସେଟ୍ ଅପ୍ କରୁଛି";
+"Mail Dot’s setup has stopped" = "Mail Dot ର ସେଟଅପ୍ ବନ୍ଦ ହୋଇଛି";

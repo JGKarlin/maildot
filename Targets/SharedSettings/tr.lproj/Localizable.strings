@@ -559,3 +559,11 @@
 "macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS, Mail Dot’un Mail ile çalışmasına izin vermiyor. Sistem Ayarları’nda, Otomasyon altında, Mail Dot için Mail’i açın.";
 "Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "Sırada bir e-posta hesabı bağlamak var. Mail’de herhangi bir iletiyi açın, başlığındaki Mail Dot simgesini tıklayın ve %@ seçeneğini seçin.";
 "Look at what Dot wrote in ChatGPT." = "Dot’un ChatGPT’de ne yazdığına bakın.";
+"Not set up" = "Ayarlanmadı";
+"Set Up…" = "Ayarla…";
+"Mail Dot is not set up yet" = "Mail Dot henüz ayarlanmadı";
+"Setting up…" = "Ayarlanıyor…";
+"Setup stopped" = "Ayarlama durdu";
+"Show Setup" = "Ayarlamayı Göster";
+"Dot is setting up Mail Dot" = "Dot, Mail Dot’u ayarlıyor";
+"Mail Dot’s setup has stopped" = "Mail Dot’un ayarlanması durdu";

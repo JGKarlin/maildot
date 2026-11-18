@@ -559,3 +559,11 @@
 "macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS 不允许 Mail Dot 与“邮件”协同工作。请在“系统设置”的“自动化”下，为 Mail Dot 打开“邮件”。";
 "Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "接下来请连接一个邮件账户。在“邮件”中打开任意一封邮件，点按其标头中的 Mail Dot 图标，然后选取“%@”。";
 "Look at what Dot wrote in ChatGPT." = "请查看 Dot 在 ChatGPT 中写了什么。";
+"Not set up" = "未设置";
+"Set Up…" = "设置…";
+"Mail Dot is not set up yet" = "Mail Dot 尚未设置";
+"Setting up…" = "正在设置…";
+"Setup stopped" = "设置已停止";
+"Show Setup" = "显示设置";
+"Dot is setting up Mail Dot" = "Dot 正在设置 Mail Dot";
+"Mail Dot’s setup has stopped" = "Mail Dot 的设置已停止";

@@ -559,3 +559,11 @@
 "macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "A macOS nem engedi, hogy a Mail Dot együttműködjön a Maillel. A Rendszerbeállítások Automatizálás részében kapcsolja be a Mailt a Mail Dot számára.";
 "Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "Ezután csatlakoztasson egy e-mail-fiókot. A Mailben nyisson meg egy üzenetet, kattintson a fejlécében a Mail Dot ikonra, és válassza a(z) %@ lehetőséget.";
 "Look at what Dot wrote in ChatGPT." = "Nézze meg, mit írt Dot a ChatGPT-ben.";
+"Not set up" = "Nincs beállítva";
+"Set Up…" = "Beállítás…";
+"Mail Dot is not set up yet" = "A Mail Dot még nincs beállítva";
+"Setting up…" = "Beállítás folyamatban…";
+"Setup stopped" = "A beállítás leállt";
+"Show Setup" = "Beállítás megjelenítése";
+"Dot is setting up Mail Dot" = "Dot beállítja a Mail Dotot";
+"Mail Dot’s setup has stopped" = "A Mail Dot beállítása leállt";

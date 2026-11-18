@@ -76,6 +76,15 @@ struct ConnectionLine:Identifiable {
         }
     }
     private static func dot(_ snapshot:ConnectionSnapshot,_ found:ConnectionState) -> ConnectionLine {
+        // Before setup is complete nothing can reach Dot: the line says so and opens setup, rather than showing a
+        // check that cannot arrive (second-account test, 18 November 2026).
+        if found.setUp == false {
+            switch found.setupProgress {
+            case .working?: return .init(id:"dot",title:"Dot",state:String(localized:"Setting up…"),mark:.idle,button:(String(localized:"Show Setup"),.press(.openSetup)))
+            case .stopped?: return .init(id:"dot",title:"Dot",state:String(localized:"Setup stopped"),mark:.attention,button:(String(localized:"Show Setup"),.press(.openSetup)))
+            case nil: return .init(id:"dot",title:"Dot",state:String(localized:"Not set up"),mark:.attention,button:(String(localized:"Set Up…"),.press(.openSetup)))
+            }
+        }
         if snapshot.availability.isAvailable { return .init(id:"dot",title:"Dot",state:String(localized:"Connected"),mark:.ok) }
         if snapshot.access.checking { return .init(id:"dot",title:"Dot",state:String(localized:"Asking Dot…"),mark:.idle) }
         return .init(id:"dot",title:"Dot",state:String(localized:"Not answering"),mark:.attention,button:(String(localized:"Check Again"),.checkDot))
@@ -159,6 +168,15 @@ struct DotUnavailableLine:View {
     let snapshot:ConnectionSnapshot
     let act:ThreadAct
     static func words(_ snapshot:ConnectionSnapshot,now:Date=Date()) -> String? {
+        // Before setup is complete the window says so, with the button that opens setup (second-account test,
+        // 18 November 2026): this window is where a new user is, and nothing else in Mail led to setup.
+        if snapshot.connection?.setUp == false {
+            switch snapshot.connection?.setupProgress {
+            case .working?: return String(localized:"Dot is setting up Mail Dot")
+            case .stopped?: return String(localized:"Mail Dot’s setup has stopped")
+            case nil: return String(localized:"Mail Dot is not set up yet")
+            }
+        }
         switch snapshot.availability {
         case .available: return nil
         case .notConnected: return String(localized:"Dot is not connected")
@@ -169,7 +187,10 @@ struct DotUnavailableLine:View {
         }
     }
     private var button:(title:String,action:ConnectionLine.Action)? {
-        snapshot.availability.isAvailable || snapshot.access.checking ? nil : (String(localized:"Check Again"),.checkDot)
+        if snapshot.connection?.setUp == false {
+            return (snapshot.connection?.setupProgress == nil ? String(localized:"Set Up…") : String(localized:"Show Setup"),.press(.openSetup))
+        }
+        return snapshot.availability.isAvailable || snapshot.access.checking ? nil : (String(localized:"Check Again"),.checkDot)
     }
     var body:some View {
         if let words=Self.words(snapshot) {

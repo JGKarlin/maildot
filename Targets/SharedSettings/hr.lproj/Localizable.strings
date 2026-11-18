@@ -559,3 +559,11 @@
 "macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS ne dopušta da Mail Dot radi s Mailom. U Postavkama sustava, pod Automatizacija, uključite Mail za Mail Dot.";
 "Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "Zatim povežite račun e-pošte. U Mailu otvorite bilo koju poruku, kliknite ikonu Mail Dot u njezinu zaglavlju i odaberite %@.";
 "Look at what Dot wrote in ChatGPT." = "Pogledajte što je Dot napisao u ChatGPT-u.";
+"Not set up" = "Nije podešeno";
+"Set Up…" = "Podesi…";
+"Mail Dot is not set up yet" = "Mail Dot još nije podešen";
+"Setting up…" = "Podešavanje…";
+"Setup stopped" = "Podešavanje zaustavljeno";
+"Show Setup" = "Prikaži podešavanje";
+"Dot is setting up Mail Dot" = "Dot podešava Mail Dot";
+"Mail Dot’s setup has stopped" = "Podešavanje Mail Dota je zaustavljeno";

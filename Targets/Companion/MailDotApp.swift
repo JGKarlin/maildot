@@ -820,7 +820,11 @@ import OSLog
             }
         }
         // Until Mail Dot has a connection, opening the app shows setup instead (owner request, 14 November 2026).
-        if openedByPerson { if MailDotSetupWindow.shown { MailDotSetupWindow.shared.show() } else { MailDotAboutWindow.shared.show() } }
+        // Setup opens by itself whenever Mail Dot starts and is not set up, however it was started (owner's
+        // direction, 18 November 2026: a new user who closed the setup window was left with no way to it). The
+        // About window still opens only when a person opened the app.
+        if MailDotSetupWindow.shown,!inert { MailDotSetupWindow.shared.show() }
+        else if openedByPerson { MailDotAboutWindow.shared.show() }
     }
     /// Removal is under way: nothing writes to Mail Dot's stores again.
     func stopForRemoval() { removing=true; worker?.cancel(); connectionWorker?.cancel() }
@@ -1059,7 +1063,7 @@ import OSLog
     private func checkDotAccess(_ settings:inout MailSettings,bridge:BridgeStore) async {
         let settingsStore=MailSettingsStore(bridgeDirectory:bridge.directory)
         // Drafting notes Dot did not polish in time keep the owner's words.
-        if let updated=try? settingsStore.transaction({ value -> MailSettings in value.expireDotCheck(); value.expireNotePolish(); value.expireRuleTidying(); if value.dotCheckDue() { value.requestDotCheck() }; return value }) { settings=updated }
+        if let updated=try? settingsStore.transaction({ value -> MailSettings in value.expireDotCheck(); value.expireNotePolish(); value.expireRuleTidying(); if value.dotCheckDue(),!MailDotSetupWindow.needed { value.requestDotCheck() }; return value }) { settings=updated }
         let access=settings.effectiveDotAccess
         guard access.checkRequestedAt != nil,access.checkRequestID == nil else { return }
         do {

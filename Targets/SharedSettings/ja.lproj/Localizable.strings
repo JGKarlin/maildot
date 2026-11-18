@@ -559,3 +559,11 @@
 "macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS が Mail Dot に Mail との連携を許可していません。「システム設定」の「オートメーション」で、Mail Dot の「Mail」をオンにしてください。";
 "Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "次に、メールアカウントを接続します。Mail で任意のメッセージを開き、ヘッダにある Mail Dot のアイコンをクリックして「%@」を選択してください。";
 "Look at what Dot wrote in ChatGPT." = "ChatGPT で Dot が書いた内容を確認してください。";
+"Not set up" = "未設定";
+"Set Up…" = "設定…";
+"Mail Dot is not set up yet" = "Mail Dot はまだ設定されていません";
+"Setting up…" = "設定中…";
+"Setup stopped" = "設定が停止しました";
+"Show Setup" = "設定を表示";
+"Dot is setting up Mail Dot" = "Dot が Mail Dot を設定しています";
+"Mail Dot’s setup has stopped" = "Mail Dot の設定が停止しました";

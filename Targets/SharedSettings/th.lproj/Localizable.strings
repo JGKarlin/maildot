@@ -559,3 +559,11 @@
 "macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS ไม่อนุญาตให้ Mail Dot ทำงานร่วมกับเมล ในการตั้งค่าระบบ ภายใต้การทำงานอัตโนมัติ ให้เปิดเมลสำหรับ Mail Dot";
 "Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "ถัดไป ให้เชื่อมต่อบัญชีเมล ในเมล ให้เปิดข้อความใดก็ได้ คลิกไอคอน Mail Dot ในหัวข้อความ แล้วเลือก %@";
 "Look at what Dot wrote in ChatGPT." = "ดูสิ่งที่ Dot เขียนไว้ใน ChatGPT";
+"Not set up" = "ยังไม่ได้ตั้งค่า";
+"Set Up…" = "ตั้งค่า…";
+"Mail Dot is not set up yet" = "ยังไม่ได้ตั้งค่า Mail Dot";
+"Setting up…" = "กำลังตั้งค่า…";
+"Setup stopped" = "การตั้งค่าหยุดลง";
+"Show Setup" = "แสดงการตั้งค่า";
+"Dot is setting up Mail Dot" = "Dot กำลังตั้งค่า Mail Dot";
+"Mail Dot’s setup has stopped" = "การตั้งค่า Mail Dot หยุดลง";

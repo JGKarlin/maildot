@@ -559,3 +559,11 @@
 "macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS ei anna Mail Dotin toimia Mailin kanssa. Laita Mail päälle Mail Dotille Järjestelmäasetusten Automaatio-kohdassa.";
 "Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "Yhdistä seuraavaksi sähköpostitili. Avaa Mailissa mikä tahansa viesti, klikkaa sen otsakkeessa Mail Dot ‑kuvaketta ja valitse %@.";
 "Look at what Dot wrote in ChatGPT." = "Katso, mitä Dot kirjoitti ChatGPT:ssä.";
+"Not set up" = "Ei käyttöönotettu";
+"Set Up…" = "Ota käyttöön…";
+"Mail Dot is not set up yet" = "Mail Dotia ei ole vielä otettu käyttöön";
+"Setting up…" = "Otetaan käyttöön…";
+"Setup stopped" = "Käyttöönotto pysähtyi";
+"Show Setup" = "Näytä käyttöönotto";
+"Dot is setting up Mail Dot" = "Dot ottaa Mail Dotia käyttöön";
+"Mail Dot’s setup has stopped" = "Mail Dotin käyttöönotto pysähtyi";

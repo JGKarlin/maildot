@@ -82,6 +82,17 @@ public enum SetupFlow {
     }
 }
 
+extension SetupFlow {
+    /// Where setup stands, as the Connection tab shows it while setup is not complete.
+    public static func progress(_ connection: Connection) -> ConnectionState.SetupProgress? {
+        switch connection {
+        case .working: .working
+        case .stalled, .blocked: .stopped
+        case .ready, .noChatGPT, .complete: nil
+        }
+    }
+}
+
 extension SetupThroughDot {
     /// When Dot was last asked to connect or to continue, kept beside its reports.
     public static func askedAt(in store: URL) -> Date? {

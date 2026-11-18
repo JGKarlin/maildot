@@ -524,4 +524,34 @@ final class SetupFlowTests: XCTestCase {
         XCTAssertLessThanOrEqual(MCPRouter.refusalOpeningLength, fixed.count)
         XCTAssertEqual(MCPRouter.toolsWithRecordedRefusalOpening, ["report_mail_workflow", "get_mail_workflow"])
     }
+
+    /// Second-account test, 18 November 2026: before setup is complete the Connection record says so, and a record
+    /// from before this field existed reads as unknown, not as "not set up".
+    func testTheConnectionRecordSaysWhetherSetupIsComplete() throws {
+        var state = ConnectionState()
+        XCTAssertNil(state.setUp)
+        let old = try JSONDecoder().decode(ConnectionState.self, from: Data(#"{"mail":"allowed","accessibility":true,"chatGPT":"open","tunnelConnected":false,"asks":0}"#.utf8))
+        XCTAssertNil(old.setUp, "an older record says nothing about setup")
+        var other = state; other.setUp = false
+        XCTAssertFalse(state.sameFindings(as: other), "a change in setup is a change worth saving")
+        state.setUp = false
+        XCTAssertEqual(try JSONDecoder().decode(ConnectionState.self, from: JSONEncoder().encode(state)).setUp, false)
+        XCTAssertEqual(ConnectionState.Request(rawValue: "openSetup"), .openSetup)
+    }
+
+    /// The Connection tab shows where setup stands: working while Dot reports, stopped after a stall or a report of
+    /// what stops it, and nothing before setup has started or once it is complete.
+    func testSetupProgressFollowsTheSetupWindowsReading() {
+        let asked = Date(timeIntervalSince1970: 1_800_000_000)
+        let facts = SetupFlow.Facts()
+        XCTAssertNil(SetupFlow.progress(SetupFlow.connection(facts, askedAt: nil, reports: [])))
+        XCTAssertEqual(SetupFlow.progress(SetupFlow.connection(facts, askedAt: asked, reports: [], now: asked.addingTimeInterval(30))), .working)
+        XCTAssertEqual(SetupFlow.progress(SetupFlow.connection(facts, askedAt: asked, reports: [], now: asked.addingTimeInterval(400))), .stopped)
+        let blocked = [SetupThroughDot.Report(at: asked.addingTimeInterval(20).ISO8601Format(), step: "blocked", note: "OpenAI asks you to sign in.")]
+        XCTAssertEqual(SetupFlow.progress(SetupFlow.connection(facts, askedAt: asked, reports: blocked, now: asked.addingTimeInterval(40))), .stopped)
+        XCTAssertNil(SetupFlow.progress(.complete))
+        var state = ConnectionState(); state.setUp = false
+        var other = state; other.setupProgress = .working
+        XCTAssertFalse(state.sameFindings(as: other))
+    }
 }

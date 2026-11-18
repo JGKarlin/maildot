@@ -559,3 +559,11 @@
 "macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "Το macOS δεν επιτρέπει στο Mail Dot να συνεργαστεί με το Mail. Στις Ρυθμίσεις συστήματος, στον Αυτοματισμό, ενεργοποιήστε το Mail για το Mail Dot.";
 "Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "Στη συνέχεια, συνδέστε έναν λογαριασμό αλληλογραφίας. Στο Mail, ανοίξτε οποιοδήποτε μήνυμα, κάντε κλικ στο εικονίδιο Mail Dot στην κεφαλίδα του και επιλέξτε «%@».";
 "Look at what Dot wrote in ChatGPT." = "Δείτε τι έγραψε το Dot στο ChatGPT.";
+"Not set up" = "Δεν έχει ρυθμιστεί";
+"Set Up…" = "Ρύθμιση…";
+"Mail Dot is not set up yet" = "Το Mail Dot δεν έχει ρυθμιστεί ακόμα";
+"Setting up…" = "Γίνεται ρύθμιση…";
+"Setup stopped" = "Η ρύθμιση σταμάτησε";
+"Show Setup" = "Εμφάνιση ρύθμισης";
+"Dot is setting up Mail Dot" = "Το Dot ρυθμίζει το Mail Dot";
+"Mail Dot’s setup has stopped" = "Η ρύθμιση του Mail Dot σταμάτησε";

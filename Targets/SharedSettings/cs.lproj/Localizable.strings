@@ -559,3 +559,11 @@
 "macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS nedovoluje Mail Dot pracovat s aplikací Mail. V Nastavení systému v části Automatizace zapněte Mail pro Mail Dot.";
 "Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "Dále připojte poštovní účet. V aplikaci Mail otevřete libovolnou zprávu, klikněte na ikonu Mail Dot v jejím záhlaví a vyberte %@.";
 "Look at what Dot wrote in ChatGPT." = "Podívejte se, co Dot napsal v ChatGPT.";
+"Not set up" = "Nenastaveno";
+"Set Up…" = "Nastavit…";
+"Mail Dot is not set up yet" = "Mail Dot ještě není nastaven";
+"Setting up…" = "Nastavuje se…";
+"Setup stopped" = "Nastavení se zastavilo";
+"Show Setup" = "Zobrazit nastavení";
+"Dot is setting up Mail Dot" = "Dot nastavuje Mail Dot";
+"Mail Dot’s setup has stopped" = "Nastavení Mail Dot se zastavilo";
