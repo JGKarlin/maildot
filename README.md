@@ -2,7 +2,7 @@
 
 Mail Dot brings Dot, ChatGPT's always-on agent, into Apple Mail on the Mac. Dot runs in the cloud on its own computer and keeps working between conversations, and Mail Dot gives it a private connection to your mail. Dot drafts replies that draw on the whole correspondence, answers questions about your mail in plain language with the messages it relied on, and reports on each thread so that you can see at a glance what is decided, what is open and what waits on you. You stay in Mail throughout, and nothing is sent until you press Send.
 
-**Mail Dot is free for personal and noncommercial use.** Download the installer from the [Releases page](https://github.com/JGKarlin/maildot/releases); it is signed and notarized, and it updates itself. Hooner LLC publishes the source under the PolyForm Noncommercial License, and a [tip](https://donate.stripe.com/6oU4gA7Qm7Gl3103T333W00) is welcome but never required.
+**Mail Dot is free for personal and noncommercial use.** Download the installer from the [Releases page](https://github.com/JGKarlin/maildot/releases); it is signed and notarized, and it updates itself. The source is published under the PolyForm Noncommercial License.
 
 <p align="center"><img src="docs/images/window-briefing.png" width="480" alt="The Mail Dot window for a thread of seven messages, in the Briefing view: Dot's question about which hall to book, with three suggested answers and a fourth choice, then what has been decided and what is still to decide. The bottom row offers No Reply Needed, Call Dot, Ask Dot and the settings."></p>
 
