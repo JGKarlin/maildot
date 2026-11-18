@@ -1,6 +1,6 @@
 # Settings for the project page at https://jgkarlin.github.io/maildot, which shows README.md.
 title: Mail Dot
-description: Dot, the assistant in ChatGPT, inside Apple Mail.
+description: Dot, ChatGPT's always-on agent, inside Apple Mail.
 theme: jekyll-theme-primer
 exclude:
   - Sources
