@@ -549,3 +549,13 @@
 "Dot has not answered Mail Dot’s test requests." = "Dot nu a răspuns la solicitările de test ale Mail Dot.";
 "Keep connected has run." = "Keep connected a rulat.";
 "Waiting for the first run of Keep connected." = "Se așteaptă prima rulare a Keep connected.";
+"A Mail Dot update is ready. It installs the next time you quit Mail." = "O actualizare Mail Dot este pregătită. Se va instala data viitoare când închideți Mail.";
+"Version %@ is ready. It installs the next time you quit Mail." = "Versiunea %@ este pregătită. Se va instala data viitoare când închideți Mail.";
+"Install Now" = "Instalează acum";
+"Check for Updates" = "Caută actualizări";
+"Checking for updates…" = "Se caută actualizări…";
+"Version %@ · Up to date" = "Versiunea %@ · La zi";
+"Mail Dot could not reach Dot in ChatGPT. Sign in to ChatGPT with an account whose plan includes Dot, then press %@ again." = "Mail Dot nu a putut ajunge la Dot în ChatGPT. Autentificați-vă în ChatGPT cu un cont al cărui plan include Dot, apoi apăsați din nou %@.";
+"macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS nu permite ca Mail Dot să lucreze cu Mail. În Configurări sistem, la Automatizare, activați Mail pentru Mail Dot.";
+"Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "În continuare, conectați un cont de e-mail. În Mail, deschideți orice mesaj, faceți clic pe pictograma Mail Dot din antetul său și alegeți %@.";
+"Look at what Dot wrote in ChatGPT." = "Vedeți ce a scris Dot în ChatGPT.";

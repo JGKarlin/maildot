@@ -549,3 +549,13 @@
 "Dot has not answered Mail Dot’s test requests." = "Dot এখনও Mail Dot-এর পরীক্ষার অনুরোধগুলির উত্তর দেয়নি।";
 "Keep connected has run." = "Keep connected চলেছে।";
 "Waiting for the first run of Keep connected." = "Keep connected প্রথমবার চলার অপেক্ষায়।";
+"A Mail Dot update is ready. It installs the next time you quit Mail." = "Mail Dot-এর একটি আপডেট প্রস্তুত। পরের বার Mail বন্ধ করলে এটি ইনস্টল হবে।";
+"Version %@ is ready. It installs the next time you quit Mail." = "সংস্করণ %@ প্রস্তুত। পরের বার Mail বন্ধ করলে এটি ইনস্টল হবে।";
+"Install Now" = "এখনই ইনস্টল করুন";
+"Check for Updates" = "আপডেট খুঁজুন";
+"Checking for updates…" = "আপডেট খোঁজা হচ্ছে…";
+"Version %@ · Up to date" = "সংস্করণ %@ · হালনাগাদ";
+"Mail Dot could not reach Dot in ChatGPT. Sign in to ChatGPT with an account whose plan includes Dot, then press %@ again." = "Mail Dot ChatGPT-এ Dot-এর কাছে পৌঁছাতে পারেনি। যে অ্যাকাউন্টের প্ল্যানে Dot আছে তা দিয়ে ChatGPT-এ সাইন ইন করুন, তারপর আবার %@ চাপুন।";
+"macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS Mail Dot-কে Mail-এর সঙ্গে কাজ করতে দিচ্ছে না। সিস্টেম সেটিংসে, অটোমেশনের অধীনে, Mail Dot-এর জন্য Mail চালু করুন।";
+"Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "এরপর একটি মেইল অ্যাকাউন্ট সংযুক্ত করুন। Mail-এ যেকোনো বার্তা খুলুন, তার হেডারে Mail Dot আইকনে ক্লিক করুন এবং %@ বেছে নিন।";
+"Look at what Dot wrote in ChatGPT." = "ChatGPT-এ Dot কী লিখেছে তা দেখুন।";

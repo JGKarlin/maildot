@@ -549,3 +549,13 @@
 "Dot has not answered Mail Dot’s test requests." = "Dot chưa trả lời các yêu cầu thử của Mail Dot.";
 "Keep connected has run." = "Keep connected đã chạy.";
 "Waiting for the first run of Keep connected." = "Đang chờ Keep connected chạy lần đầu.";
+"A Mail Dot update is ready. It installs the next time you quit Mail." = "Bản cập nhật Mail Dot đã sẵn sàng. Bản cập nhật sẽ được cài đặt vào lần tới bạn thoát Mail.";
+"Version %@ is ready. It installs the next time you quit Mail." = "Phiên bản %@ đã sẵn sàng. Phiên bản này sẽ được cài đặt vào lần tới bạn thoát Mail.";
+"Install Now" = "Cài đặt bây giờ";
+"Check for Updates" = "Kiểm tra bản cập nhật";
+"Checking for updates…" = "Đang kiểm tra bản cập nhật…";
+"Version %@ · Up to date" = "Phiên bản %@ · Mới nhất";
+"Mail Dot could not reach Dot in ChatGPT. Sign in to ChatGPT with an account whose plan includes Dot, then press %@ again." = "Mail Dot không thể kết nối với Dot trong ChatGPT. Hãy đăng nhập ChatGPT bằng tài khoản có gói bao gồm Dot, rồi nhấn %@ lần nữa.";
+"macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS không cho phép Mail Dot hoạt động với Mail. Trong Cài đặt hệ thống, bên dưới Tự động hóa, hãy bật Mail cho Mail Dot.";
+"Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "Tiếp theo, hãy kết nối một tài khoản thư. Trong Mail, mở một thư bất kỳ, bấm vào biểu tượng Mail Dot ở đầu thư và chọn %@.";
+"Look at what Dot wrote in ChatGPT." = "Hãy xem Dot đã viết gì trong ChatGPT.";

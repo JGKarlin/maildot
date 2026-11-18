@@ -16,6 +16,12 @@ public enum SetupVerification {
         let from = (since ?? .distantPast).addingTimeInterval(-MailSettingsCoordinator.keepConnectedAnswerLimit)
         return settings.requests.contains { $0.kind == .keepConnected && $0.createdAt >= from && answeredByDot($0) }
     }
+    /// Both tests are answered: setup has proved itself, and only then is the owner's press forgotten. Forgetting it
+    /// earlier (when Dot reported done, or the first subscription arrived) turned the open setup window back to
+    /// "Ask Dot to Connect" while the tests were still out (installer review, 18 November 2026).
+    public static func verified(_ settings: MailSettings, since: Date?) -> Bool {
+        draftingAnswered(settings, since: since) && settingsAnswered(settings, since: since)
+    }
     /// Confirmed, or refused by Dot in its own report. A request closed because Dot never answered is not an answer.
     static func answeredByDot(_ request: MailSettingsRequest) -> Bool {
         request.status == .confirmed || (request.status == .failed && request.resultCode != nil && request.resultCode != "noAnswer")

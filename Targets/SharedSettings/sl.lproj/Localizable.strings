@@ -549,3 +549,13 @@
 "Dot has not answered Mail Dot’s test requests." = "Dot ni odgovoril na preizkusne zahteve Mail Dot.";
 "Keep connected has run." = "Keep connected se je izvedel.";
 "Waiting for the first run of Keep connected." = "Čakanje na prvo izvedbo Keep connected.";
+"A Mail Dot update is ready. It installs the next time you quit Mail." = "Posodobitev za Mail Dot je pripravljena. Namestila se bo, ko boste naslednjič zaprli Mail.";
+"Version %@ is ready. It installs the next time you quit Mail." = "Različica %@ je pripravljena. Namestila se bo, ko boste naslednjič zaprli Mail.";
+"Install Now" = "Namesti zdaj";
+"Check for Updates" = "Preveri posodobitve";
+"Checking for updates…" = "Preverjanje posodobitev…";
+"Version %@ · Up to date" = "Različica %@ · Posodobljeno";
+"Mail Dot could not reach Dot in ChatGPT. Sign in to ChatGPT with an account whose plan includes Dot, then press %@ again." = "Mail Dot ni mogel doseči Dota v ChatGPT. V ChatGPT se prijavite z računom, katerega paket vključuje Dot, nato znova pritisnite %@.";
+"macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS ne dovoli, da bi Mail Dot deloval z aplikacijo Mail. V Sistemskih nastavitvah pod Avtomatizacija vklopite Mail za Mail Dot.";
+"Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "Nato povežite poštni račun. V aplikaciji Mail odprite katero koli sporočilo, kliknite ikono Mail Dot v njegovi glavi in izberite %@.";
+"Look at what Dot wrote in ChatGPT." = "Poglejte, kaj je Dot napisal v ChatGPT.";

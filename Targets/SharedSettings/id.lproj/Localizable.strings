@@ -549,3 +549,13 @@
 "Dot has not answered Mail Dot’s test requests." = "Dot belum menjawab permintaan uji dari Mail Dot.";
 "Keep connected has run." = "Keep connected sudah berjalan.";
 "Waiting for the first run of Keep connected." = "Menunggu Keep connected berjalan pertama kali.";
+"A Mail Dot update is ready. It installs the next time you quit Mail." = "Pembaruan Mail Dot sudah siap. Pembaruan diinstal saat Anda keluar dari Mail berikutnya.";
+"Version %@ is ready. It installs the next time you quit Mail." = "Versi %@ sudah siap. Versi ini diinstal saat Anda keluar dari Mail berikutnya.";
+"Install Now" = "Instal Sekarang";
+"Check for Updates" = "Periksa Pembaruan";
+"Checking for updates…" = "Memeriksa pembaruan…";
+"Version %@ · Up to date" = "Versi %@ · Terbaru";
+"Mail Dot could not reach Dot in ChatGPT. Sign in to ChatGPT with an account whose plan includes Dot, then press %@ again." = "Mail Dot tidak dapat menjangkau Dot di ChatGPT. Masuk ke ChatGPT dengan akun yang paketnya mencakup Dot, lalu tekan %@ lagi.";
+"macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS tidak mengizinkan Mail Dot bekerja dengan Mail. Di Pengaturan Sistem, di bawah Automasi, nyalakan Mail untuk Mail Dot.";
+"Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "Selanjutnya, hubungkan akun email. Di Mail, buka pesan apa pun, klik ikon Mail Dot di header-nya, lalu pilih %@.";
+"Look at what Dot wrote in ChatGPT." = "Lihat apa yang ditulis Dot di ChatGPT.";

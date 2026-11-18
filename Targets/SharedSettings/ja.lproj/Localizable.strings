@@ -549,3 +549,13 @@
 "Dot has not answered Mail Dot’s test requests." = "DotはMail Dotのテスト依頼に応答していません。";
 "Keep connected has run." = "Keep connectedが実行されました。";
 "Waiting for the first run of Keep connected." = "Keep connectedの初回実行を待っています。";
+"A Mail Dot update is ready. It installs the next time you quit Mail." = "Mail Dot のアップデートの準備ができました。次に Mail を終了したときにインストールされます。";
+"Version %@ is ready. It installs the next time you quit Mail." = "バージョン %@ の準備ができました。次に Mail を終了したときにインストールされます。";
+"Install Now" = "今すぐインストール";
+"Check for Updates" = "アップデートを確認";
+"Checking for updates…" = "アップデートを確認中…";
+"Version %@ · Up to date" = "バージョン %@ · 最新";
+"Mail Dot could not reach Dot in ChatGPT. Sign in to ChatGPT with an account whose plan includes Dot, then press %@ again." = "Mail Dot は ChatGPT の Dot に接続できませんでした。Dot を含むプランのアカウントで ChatGPT にサインインしてから、もう一度「%@」を押してください。";
+"macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS が Mail Dot に Mail との連携を許可していません。「システム設定」の「オートメーション」で、Mail Dot の「Mail」をオンにしてください。";
+"Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "次に、メールアカウントを接続します。Mail で任意のメッセージを開き、ヘッダにある Mail Dot のアイコンをクリックして「%@」を選択してください。";
+"Look at what Dot wrote in ChatGPT." = "ChatGPT で Dot が書いた内容を確認してください。";

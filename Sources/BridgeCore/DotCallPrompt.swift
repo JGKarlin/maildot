@@ -1,21 +1,31 @@
 import Foundation
 
-/// The message Mail Dot sends to Dot, in the owner's name, just before it opens a call, so that Dot's
-/// conversation holds the reason for the call. It is sent before the call because a message sent during
-/// one is handled by Dot's written side and ignored by the voice (the owner's observation, 11 November
-/// 2026). The voice still opens with its own greeting; nothing sent from outside changes that.
+/// The message Mail Dot sends to Dot, in the owner's name, as it opens a call, so that Dot's conversation holds
+/// the reason for the call. Until 18 November 2026 it was sent before the call, because on 11 November a message
+/// sent during one was ignored by the voice; in the owner's trial of 18 November the voice greeted him without the
+/// request when the message came first, and acknowledged it at once when the message was sent into the open call,
+/// so it now goes into the call (`callOpen`). It says what Dot's next words are (owner's instruction, 18 November
+/// 2026): Dot says it has the Mail Dot request and, while it is still reading it, asks the owner to hold on; if it
+/// cannot read it, it says so. Only then comes what the call is about. The wording for an open call is the one the
+/// owner heard work; the other is kept for the earlier order.
 /// The text is fixed wording plus the request's identifier. It never contains anything from an email.
 public enum DotCallPrompt {
-    public static func text(for request:MailWorkflowRequest) -> String? {
+    /// What Dot's first words in the call are, whatever the call is about.
+    public static let opening="When the call opens, first tell me you have my Mail Dot request and, if you are still reading it, ask me to hold on while you look into it. If you cannot read it, say \"I couldn't load the Mail Dot context\"."
+    /// The same, for a message sent into a call that is already open (the other order, tried on the owner's Mac).
+    public static let openingInCall="Now tell me you have my Mail Dot request and, if you are still reading it, ask me to hold on while you look into it. If you cannot read it, say \"I couldn't load the Mail Dot context\"."
+    public static func text(for request:MailWorkflowRequest,callOpen:Bool=false) -> String? {
         guard request.action == .call else { return nil }
-        let read="Read Mail Dot request \(request.id) with get_mail_workflow now, so you know why before the call opens."
+        let read="Read Mail Dot request \(request.id) with get_mail_workflow now."
+        let calling=callOpen ? "I have just called you" : "I am about to call you"
+        let first=callOpen ? openingInCall : opening
         if request.questionID != nil {
-            return "Mail Dot: I am about to call you to answer the question you left for me. \(read) In the call, ask me that question first."
+            return "Mail Dot: \(calling) to answer the question you left for me. \(read) \(first) Then put that question to me."
         }
         if request.contextID != nil {
-            return "Mail Dot: I am about to call you from Mail about the message I have shared with you. \(read) In the call, ask first what I want done with it, including whether to draft and save or draft and send."
+            return "Mail Dot: \(calling) from Mail about the message I have shared with you. \(read) \(first) Then ask what I want done with it, including whether to draft and save or draft and send."
         }
-        return "Mail Dot: I am about to call you from Mail. This call is about my mail. \(read) In the call, ask first what I need."
+        return "Mail Dot: \(calling) from Mail. This call is about my mail. \(read) \(first) Then ask what I need help with in my mail."
     }
 }
 

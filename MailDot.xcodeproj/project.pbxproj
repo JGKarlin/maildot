@@ -37,6 +37,7 @@
 		8A55B050D0A7A1AE5D9C2FC0 /* NativeMailSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4E559E2C3AD85DD7C8C95B4 /* NativeMailSetupView.swift */; };
 		8D8A5885EBC9C60CA246F69D /* ConnectionViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC05BB45DD2FA050C9B773AB /* ConnectionViews.swift */; };
 		9AB1C1BB0619F49CF2CDB292 /* BridgeCore in Frameworks */ = {isa = PBXBuildFile; productRef = 7D69B97D91AED867DB320DF5 /* BridgeCore */; };
+		9DCEA6243C564F67B644D7AF /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = DB307AF719DFB42EA44F5F0D /* Sparkle */; };
 		A878235DFB71578A6DE1708F /* MailDotApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9124C0BC7081B074C6947CC /* MailDotApp.swift */; };
 		AC608DCED278E8D8697CA19F /* LaunchAgents in CopyFiles */ = {isa = PBXBuildFile; fileRef = 88C2CDD6C90861E09DA014D2 /* LaunchAgents */; };
 		AC764B9C667ECA611AF18AA5 /* RuntimeMain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26D4B5F7836E9B62A1CD2BB /* RuntimeMain.swift */; };
@@ -47,11 +48,12 @@
 		B868B696AEB7F7F704454343 /* MailDotAboutWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3F3D27595C87E032BEA605 /* MailDotAboutWindow.swift */; };
 		BBB5B1EFA5EA7C2384865E76 /* MailDotRemover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 064F4A52CB7DFB7B3295BA10 /* MailDotRemover.swift */; };
 		C049318B0520E542E435C71D /* LimitCounter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F005294568A7BD31EC37436D /* LimitCounter.swift */; };
+		C5156B9E133B6C0CE79B1C39 /* MailDotUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D0AA67400A609D9D89B409 /* MailDotUpdater.swift */; };
 		C89E90E6776B3D3E97DD5D68 /* MailDotThreadWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5149831378E25F1240A6B043 /* MailDotThreadWindow.swift */; };
 		CA596239658360B0A340650D /* MessageReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C8DF88D873F6C176FDADE4 /* MessageReportView.swift */; };
 		CB492A0DA4BADAA848ED5F39 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 29CA92CC90AD84429063762D /* InfoPlist.strings */; };
 		CBC0D16A8CD6D1376EEB9FB5 /* MailQuitWatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = F85740096CCCE6A5C6B729D7 /* MailQuitWatch.swift */; };
-		D201E8F5C5A589B44F95C3A0 /* MailDotRuntime in Embed Dependencies */ = {isa = PBXBuildFile; fileRef = 0ADC6062018B3349DDC45B6B /* MailDotRuntime */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D201E8F5C5A589B44F95C3A0 /* MailDotRuntime in Embed Dependencies */ = {isa = PBXBuildFile; fileRef = 0ADC6062018B3349DDC45B6B /* MailDotRuntime */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D6BA57C968AD049396875E7B /* BackgroundConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEC94660338DDB47E99558D1 /* BackgroundConnection.swift */; };
 		D7D3946EAD554C536074C91E /* MeetingCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034CA28D2AF12E9CCA039637 /* MeetingCalendar.swift */; };
 		D9A9AA14C605D7DC729A6901 /* NativeMailSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4E559E2C3AD85DD7C8C95B4 /* NativeMailSetupView.swift */; };
@@ -235,6 +237,7 @@
 		D07F7ECA36103F0FD727FA31 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D167464A135FC5BBAEAC250A /* ml */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ml; path = ml.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D2272B1481A2F190CAF45932 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		D5D0AA67400A609D9D89B409 /* MailDotUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailDotUpdater.swift; sourceTree = "<group>"; };
 		D872A1A6034983B99D69318C /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = sk.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E10F8D04A450B4130B0857E7 /* MailSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailSettingsView.swift; sourceTree = "<group>"; };
 		E62BD4E31CC35FC8A4F8C837 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -274,6 +277,7 @@
 			files = (
 				AD0D37ED33EE7716F70C18CC /* BridgeCore in Frameworks */,
 				69A8D6FE627782999A91C926 /* BridgeAutomation in Frameworks */,
+				9DCEA6243C564F67B644D7AF /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -383,6 +387,7 @@
 				3723A49E35D1CDB67B75AA73 /* MailDotOutsideClick.swift */,
 				064F4A52CB7DFB7B3295BA10 /* MailDotRemover.swift */,
 				98EE36F7DFA03E0ACC22A656 /* MailDotSetupWindow.swift */,
+				D5D0AA67400A609D9D89B409 /* MailDotUpdater.swift */,
 				F5889096BD610AB659B0C47D /* MailDotWindowCloser.swift */,
 				946BA106BA67BB34196C6D7C /* MailExtensionsPane.swift */,
 				850A70FF829DDEB95591739C /* MailIndexRunner.swift */,
@@ -429,6 +434,7 @@
 			packageProductDependencies = (
 				74B7EC4A2781F49F7C48EF6E /* BridgeCore */,
 				3E005AB239FA6960BB74C58E /* BridgeAutomation */,
+				DB307AF719DFB42EA44F5F0D /* Sparkle */,
 			);
 			productName = MailDot;
 			productReference = C333B72053D7F31D96613857 /* Mail Dot.app */;
@@ -573,6 +579,7 @@
 			mainGroup = 52FCAA2238FC6C58E6A36514;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				E5C5F64E6FF8C8B8A53EED77 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				D5ABF8864C8A536D47F27B7D /* XCLocalSwiftPackageReference "." */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -629,7 +636,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -euo pipefail\nSRC=\"$SRCROOT/Vendor/tunnel-client\"\nAPP=\"$TARGET_BUILD_DIR/$WRAPPER_NAME\"\nmkdir -p \"$APP/Contents/Resources/Licenses/SQLCipher\"\ncp \"$SRCROOT/Config/Licenses/SQLCipher/LICENSE\" \"$APP/Contents/Resources/Licenses/SQLCipher/LICENSE\"\nif [ ! -x \"$SRC/tunnel-client\" ]; then\n  echo \"warning: Vendor/tunnel-client is missing (run Tools/vendor-tunnel-client.sh); this build uses the tunnel client named in its runtime settings.\"\n  exit 0\nfi\nmkdir -p \"$APP/Contents/Helpers\" \"$APP/Contents/Resources/Licenses/tunnel-client\"\nditto \"$SRC/tunnel-client\" \"$APP/Contents/Helpers/tunnel-client\"\ncp \"$SRC/LICENSE\" \"$SRC/NOTICE\" \"$APP/Contents/Resources/Licenses/tunnel-client/\"\ncodesign --force --options runtime --timestamp=none --sign \"${EXPANDED_CODE_SIGN_IDENTITY:--}\" \"$APP/Contents/Helpers/tunnel-client\"\n";
+			shellScript = "set -euo pipefail\nSRC=\"$SRCROOT/Vendor/tunnel-client\"\nAPP=\"$TARGET_BUILD_DIR/$WRAPPER_NAME\"\nmkdir -p \"$APP/Contents/Resources/Licenses/SQLCipher\"\ncp \"$SRCROOT/Config/Licenses/SQLCipher/LICENSE\" \"$APP/Contents/Resources/Licenses/SQLCipher/LICENSE\"\n# Sparkle (automatic updates) is MIT-licensed; its notice travels with the app.\nmkdir -p \"$APP/Contents/Resources/Licenses/Sparkle\"\ncp \"$SRCROOT/Config/Licenses/Sparkle/LICENSE\" \"$APP/Contents/Resources/Licenses/Sparkle/LICENSE\"\nif [ ! -x \"$SRC/tunnel-client\" ]; then\n  echo \"warning: Vendor/tunnel-client is missing (run Tools/vendor-tunnel-client.sh); this build uses the tunnel client named in its runtime settings.\"\n  exit 0\nfi\nmkdir -p \"$APP/Contents/Helpers\" \"$APP/Contents/Resources/Licenses/tunnel-client\"\nditto \"$SRC/tunnel-client\" \"$APP/Contents/Helpers/tunnel-client\"\ncp \"$SRC/LICENSE\" \"$SRC/NOTICE\" \"$APP/Contents/Resources/Licenses/tunnel-client/\"\n# A Developer ID build is notarized, which needs a secure timestamp on every signature.\ncase \"$CODE_SIGN_IDENTITY\" in \"Developer ID\"*) STAMP=--timestamp ;; *) STAMP=--timestamp=none ;; esac\ncodesign --force --options runtime $STAMP --sign \"${EXPANDED_CODE_SIGN_IDENTITY:--}\" \"$APP/Contents/Helpers/tunnel-client\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -679,6 +686,7 @@
 				7C09BC4421420A372B4B45F7 /* MailDotSetupWindow.swift in Sources */,
 				82880DB326D9A5778D825665 /* MailDotStyle.swift in Sources */,
 				C89E90E6776B3D3E97DD5D68 /* MailDotThreadWindow.swift in Sources */,
+				C5156B9E133B6C0CE79B1C39 /* MailDotUpdater.swift in Sources */,
 				52080EA6575A5CCF9DA4AB0D /* MailDotWindowCloser.swift in Sources */,
 				B2BD86BBEC13F3FE87703113 /* MailExtensionsPane.swift in Sources */,
 				8513DBAD7963E05054EBC388 /* MailIndexRunner.swift in Sources */,
@@ -838,6 +846,7 @@
 		138590F0FFFE944BE4C6D62B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/Runtime.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -906,7 +915,7 @@
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 205;
+				CURRENT_PROJECT_VERSION = 216;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -1014,6 +1023,7 @@
 		DA40401E59ED3465EB1979D9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/Runtime.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1062,7 +1072,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 205;
+				CURRENT_PROJECT_VERSION = 216;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -1152,6 +1162,17 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		E5C5F64E6FF8C8B8A53EED77 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = exactVersion;
+				version = 2.10.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		3E005AB239FA6960BB74C58E /* BridgeAutomation */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1164,6 +1185,11 @@
 		7D69B97D91AED867DB320DF5 /* BridgeCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BridgeCore;
+		};
+		DB307AF719DFB42EA44F5F0D /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E5C5F64E6FF8C8B8A53EED77 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
 		};
 		FBDEE00C0D921FC6165F16A8 /* BridgeCore */ = {
 			isa = XCSwiftPackageProductDependency;

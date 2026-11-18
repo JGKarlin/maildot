@@ -98,14 +98,44 @@ import OSLog
         defer { restoreSpeakers() }
         // For a call, the reason is also left with Dot in writing first, so its conversation holds it.
         var refusals:[String:DotCallLauncher.SayRefusal]=[:]
-        var typed=false
-        for request in waiting {
-            guard let prompt=DotCallPrompt.text(for:request) else { continue }
-            typed=true
-            if let refusal=await DotCallLauncher.say(prompt) { refusals[request.id]=refusal }
+        var told:[MailWorkflowRequest]=[]
+        let trace=FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/Mail Dot/Logs/tool-calls.log")
+        // Each step Mail Dot takes for a call is noted with the request's own identifier, so one call can be followed
+        // from the press to Dot's reading of the request. Identifiers only: never what the call is about.
+        func step(_ text:String) { ToolCallLogStore.appendLine("\(Date().ISO8601Format()) call \(text)",to:trace) }
+        // The call opens first and the message goes into it (owner's trial, 18 November 2026: with the message sent
+        // ten seconds before the call the voice greeted him without it; sent into the open call, Dot acknowledged the
+        // request at once and asked him to hold on while she looked it up). The earlier order, message first, is kept
+        // for a test on a Mac.
+        let callFirst = !UserDefaults.standard.bool(forKey:CallHandoff.messageFirstKey)
+        func tell() async {
+            for request in waiting {
+                guard let prompt=DotCallPrompt.text(for:request,callOpen:callFirst) else { continue }
+                step("request=\(request.id) made=\(request.createdAt.ISO8601Format())")
+                if let refusal=await DotCallLauncher.say(prompt) { refusals[request.id]=refusal; step("request=\(request.id) message=notSent") }
+                else { told.append(request); step("request=\(request.id) message=sent") }
+            }
         }
-        if typed,refusals.isEmpty { try? await Task.sleep(for:.seconds(3)) }
+        if !callFirst {
+            await tell()
+            // The call is held, briefly at most, for Dot to read each request it was just told of; it opens on the
+            // read or at the limit. A message on screen is not Dot having read it, and neither is an open call
+            // (owner's report, 18 November 2026). Where Dot has not read it yet, its first words ask the owner to hold on.
+            if !told.isEmpty,let bridge=try? BridgeStore.shared() {
+                let log=ToolCallLogStore(bridgeDirectory:bridge.directory)
+                let limit=CallHandoff.limit(set:UserDefaults.standard.object(forKey:CallHandoff.limitKey) as? Double)
+                let results=await CallHandoff.wait(for:told,limit:limit,records:{ (try? log.read()) ?? [] },pause:{ try? await Task.sleep(for:.milliseconds(400)) })
+                for request in told {
+                    switch results[request.id] {
+                    case .read(let after)?: step("request=\(request.id) read=yes after=\(Int(after))s")
+                    default: step("request=\(request.id) read=notYet after=\(Int(limit))s")
+                    }
+                }
+            }
+        }
         let outcome=await DotCallLauncher.start()
+        step("launch requests=\(waiting.map(\.id).joined(separator:",")) started=\(outcome.started) order=\(callFirst ? "callFirst" : "messageFirst")")
+        if callFirst,outcome.started { await tell() }
         // The request itself is spoken into the call, where Dot's voice answers what it hears.
         var spoken:Set<String>=[]
         var voiceNote:String?
@@ -252,6 +282,9 @@ import OSLog
         if let event=NSAppleEventManager.shared().currentAppleEvent,event.eventClass == AEEventClass(kCoreEventClass),event.eventID == AEEventID(kAEOpenApplication) {
             let loginItem=event.paramDescriptor(forKeyword:AEKeyword(keyAEPropData))?.enumCodeValue == OSType(keyAELaunchedAsLogInItem)
             openedByPerson = !loginItem && CommandLine.arguments.count == 1
+            // An automatic update starts the new copy by itself. It shows the window again only if the person had it
+            // open when the update was installed; otherwise an update would put a window on screen unasked.
+            if MailDotUpdater.relaunchedAfterUpdate { openedByPerson = MailDotUpdater.takeReopenWindow() }
         }
         #if DEBUG
         if CommandLine.arguments.contains("--prepare-synthetic-native-message") || CommandLine.arguments.contains("--check-synthetic-body-roundtrip") { NSApplication.shared.setActivationPolicy(.prohibited) }
@@ -744,6 +777,7 @@ import OSLog
         if #available(macOS 14.2,*) { DotVoiceLine.removeStale() }
         AskDotController.shared.start()
         if !inert { MailQuitWatch.shared.start(); MailDotOutsideClick.shared.start() }
+        if !inert { MailDotUpdater.shared.start() }
         // A setup entry left in ChatGPT's settings by a run that ended without warning goes at the next start: no
         // setup window is open at this moment, and pressing Ask Dot to Continue writes it again (review, M9).
         if !inert { SetupCodexEntry.remove() }
@@ -758,7 +792,7 @@ import OSLog
                 await self.checkTriage()
                 await self.openRequestedReply()
                 self.retireCoveredGrants()
-                if !self.inert { await ConnectionWatch.tick(); SetupCodexEntry.tick(); MailIndexRunner.shared.tickLocal() }
+                if !self.inert { await ConnectionWatch.tick(); SetupCodexEntry.tick(); SetupCodexEntry.forgetWhenVerified(); MailIndexRunner.shared.tickLocal() }
                 self.speakReports()
                 self.withdrawStaleConfirmations()
                 try? await Task.sleep(for:.seconds(5))
@@ -786,7 +820,7 @@ import OSLog
             }
         }
         // Until Mail Dot has a connection, opening the app shows setup instead (owner request, 14 November 2026).
-        if openedByPerson { if MailDotSetupWindow.needed { MailDotSetupWindow.shared.show() } else { MailDotAboutWindow.shared.show() } }
+        if openedByPerson { if MailDotSetupWindow.shown { MailDotSetupWindow.shared.show() } else { MailDotAboutWindow.shared.show() } }
     }
     /// Removal is under way: nothing writes to Mail Dot's stores again.
     func stopForRemoval() { removing=true; worker?.cancel(); connectionWorker?.cancel() }
@@ -799,7 +833,7 @@ import OSLog
     /// Opening the app again shows its small about window.
     func applicationShouldHandleReopen(_ sender:NSApplication, hasVisibleWindows:Bool) -> Bool {
         guard !removing else { return false }
-        if MailDotSetupWindow.needed { MailDotSetupWindow.shared.show() } else { MailDotAboutWindow.shared.show() }
+        if MailDotSetupWindow.shown { MailDotSetupWindow.shared.show() } else { MailDotAboutWindow.shared.show() }
         return false
     }
     /// Once Mail Dot is removed, closing its last window ends it.

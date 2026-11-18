@@ -10,9 +10,10 @@ public actor EventHub {
     /// How long a subscription whose renewal is late may still be tried. ChatGPT renews on its own schedule and
     /// cannot reach a Mac that is asleep or off, so a missed renewal must not disable Mail Dot by itself.
     public static let renewalGrace: TimeInterval = 86_400
-    /// Dot's check runs every six hours. A subscription with less life left than one interval plus a margin
-    /// would lapse before the next run, so it is reported for renewal while it is still live.
-    public static let renewalLead: TimeInterval = DotHandlers.keepConnectedInterval + 600
+    /// What Dot's Keep connected run is told about renewal. ChatGPT renews an existing handler's subscription by
+    /// itself, and Dot's subscribe tool always creates a new handler (18 November 2026: renewing two expiring
+    /// subscriptions made two duplicates), so Dot acts only for an event with nothing left to deliver on.
+    public static let renewalInstruction = "ChatGPT renews the subscription of each existing Mail Dot handler by itself; do not renew it. Never call a subscribe tool for an event that already has a Mail Dot handler, enabled or paused, because that creates a duplicate handler. renewal_needed is true only when an event's state is missing: it has had no subscription to deliver on for a day. For each missing event only: if its Mail Dot handler exists but is paused, enable it; if it exists and is enabled, create nothing and tell the owner once that Mail Dot's handler for that event has stopped renewing; if it does not exist, create exactly one handler for it, subscribed with queue_id personal and ttlMs set to requested_lifetime_ms."
     /// A request that reached nobody within this time is closed, so that it cannot arrive hours later
     /// when the owner has moved on.
     public static let undeliveredLimit: TimeInterval = 900

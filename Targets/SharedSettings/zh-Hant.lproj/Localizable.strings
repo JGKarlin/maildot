@@ -549,3 +549,13 @@
 "Dot has not answered Mail Dot’s test requests." = "Dot 尚未回應 Mail Dot 的測試請求。";
 "Keep connected has run." = "Keep connected 已執行。";
 "Waiting for the first run of Keep connected." = "正在等待 Keep connected 首次執行。";
+"A Mail Dot update is ready. It installs the next time you quit Mail." = "Mail Dot 更新項目已準備就緒，會在你下次結束「郵件」時安裝。";
+"Version %@ is ready. It installs the next time you quit Mail." = "版本 %@ 已準備就緒，會在你下次結束「郵件」時安裝。";
+"Install Now" = "立即安裝";
+"Check for Updates" = "檢查更新項目";
+"Checking for updates…" = "正在檢查更新項目…";
+"Version %@ · Up to date" = "版本 %@ · 已是最新版本";
+"Mail Dot could not reach Dot in ChatGPT. Sign in to ChatGPT with an account whose plan includes Dot, then press %@ again." = "Mail Dot 無法在 ChatGPT 中聯絡到 Dot。請使用方案包含 Dot 的帳號登入 ChatGPT，然後再按一下「%@」。";
+"macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS 不允許 Mail Dot 與「郵件」搭配運作。請在「系統設定」的「自動化」下，為 Mail Dot 開啟「郵件」。";
+"Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "接下來請連接一個郵件帳號。在「郵件」中打開任一封郵件，按一下其標頭中的 Mail Dot 圖像，然後選擇「%@」。";
+"Look at what Dot wrote in ChatGPT." = "請查看 Dot 在 ChatGPT 中寫了什麼。";

@@ -133,7 +133,7 @@ The key that runs the connection is restricted to that one purpose. It cannot ru
 
 Dot runs in OpenAI's cloud, not on the Mac. When something happens in Mail that concerns Dot, such as the arrival of an important message or a press of a button in the panel, Mail Dot's helper notifies ChatGPT with a signed message over HTTPS, and Dot wakes, calls the tools it needs through the tunnel, and returns its result. The ChatGPT app therefore does not need to be open for drafting, search or reports. Mail Dot starts its connection at login and keeps it alive in the background, Dot's subscriptions to Mail Dot's notifications last a day, and a scheduled task in Dot named Keep connected checks every six hours and renews any that are running out.
 
-The ChatGPT app is needed on two occasions only: during first-time setup, when Mail Dot opens it to ask Dot for the connection, and for a voice call with Dot, which is a ChatGPT call that Mail Dot opens.
+The ChatGPT app is needed on two occasions only: during first-time setup, when Mail Dot opens it to ask Dot for the connection, and for a voice call with Dot, which is a ChatGPT call that Mail Dot opens. For a call, Mail Dot opens the call first and then passes Dot the request, which Dot acknowledges before looking into it. To find ChatGPT's message field and its Start call button in whatever language ChatGPT is shown, Mail Dot reads the names of those controls from the ChatGPT app's own files on the Mac.
 
 The Mac must be awake, logged in and online for Dot to reach Mail. Requests made while it sleeps wait until it wakes. The Connection tab of Mail Dot's settings shows the state of each thing the connection depends on.
 
@@ -159,13 +159,11 @@ Mail Dot places text in a message by operating Mail on the reader's behalf, and 
 
 ## Requirements
 
-Mail Dot needs a Mac with Apple silicon running macOS 14 or later, Apple Mail with at least one account, and a ChatGPT plan that includes Dot. A Gmail or iCloud account also needs its connector turned on in ChatGPT. It is developed and tested on macOS 27. The ChatGPT app for Mac is needed for setup and for voice calls.
+Mail Dot needs a Mac with Apple silicon running macOS 14 or later, Apple Mail with at least one account, and a ChatGPT plan that includes Dot. A Gmail or iCloud account also needs its connector turned on in ChatGPT. It is developed and tested on macOS 27. The ChatGPT app for Mac is needed for setup and for voice calls. During setup Dot works on the Mac and in the browser, so Dot must be able to work on this Mac, and setup uses the reader's OpenAI Platform account at platform.openai.com, where it creates the private connection. A ChatGPT workspace that does not allow custom plugins cannot complete setup.
 
 ## Installation and setup
 
-Download the installer, `Mail-Dot-0.4.205.pkg`, from the [Releases page](https://github.com/JGKarlin/maildot/releases), where its SHA-256 checksum is listed beside it. Quit Mail before opening it; the installer will not continue while Mail is open.
-
-macOS stops the installer at the first double-click. Open System Settings, click Privacy & Security, scroll down, and click Open Anyway; then click Open in the alert that follows.
+Download the installer, a file named like `Mail-Dot-0.4.216.pkg`, from the [Releases page](https://github.com/JGKarlin/maildot/releases), where its SHA-256 checksum is listed in the release notes. Quit Mail before opening it; the installer will not continue while Mail is open.
 
 The installer places Mail Dot in the Applications folder. Mail Dot then opens and shows a setup window with four steps, each of which it checks against the Mac for itself.
 
@@ -173,11 +171,19 @@ The installer places Mail Dot in the Applications folder. Mail Dot then opens an
 
 The first three steps are permissions that macOS reserves for the person at the keyboard. The first turns on Accessibility for Mail Dot, which lets it write to Dot in ChatGPT and start calls. The second allows Mail Dot to work with Mail, so that it can read the messages the reader chooses and place Dot's drafts. The third selects the Mail Dot checkbox in Mail's Settings, under Extensions, and Mail Dot opens that page.
 
-In the fourth step, Mail Dot opens ChatGPT and asks Dot to make the connection. Dot creates a private connection in the reader's OpenAI account and a key that can run only that connection, hands the key to Mail Dot, which keeps it in the Keychain, and adds Mail Dot to ChatGPT as a private plugin. The window shows each stage as Dot reaches it. Setup then ends on Mail Dot's own checks, not on Dot's word: Mail Dot confirms that it sees both of Dot's subscriptions, that Dot has answered a drafting test and a settings test through its handlers, and that the Keep connected task has run once. Dot reads no mail during setup. The reader may be asked to sign in to OpenAI and to approve Mail Dot's tools in ChatGPT.
+In the fourth step, Mail Dot opens ChatGPT and asks Dot to make the connection. Dot creates a private connection in the reader's OpenAI account and a key that can run only that connection, hands the key to Mail Dot, which keeps it in the Keychain, and adds Mail Dot to ChatGPT as a private plugin. The window shows each stage as Dot reaches it. Setup then ends on Mail Dot's own checks, not on Dot's word: Mail Dot confirms that it sees both of Dot's subscriptions, that Dot has answered a drafting test and a settings test through its handlers, and that the Keep connected task has run once. Dot reads no mail during setup. The reader may be asked to sign in to OpenAI and to approve Mail Dot's tools in ChatGPT. If ChatGPT is signed out or the account has no Dot, if the permission to work with Mail was refused, or if Dot stops partway, the setup window says what to do, and opening Mail Dot shows setup again until Dot has answered both tests.
+
+## Automatic updates
+
+Mail Dot keeps itself up to date. Once a day it asks this repository's latest release whether a newer version exists. When one does, Mail Dot downloads it from GitHub in the background and checks its signature against a key built into the app, so a file that did not come from this project is refused. A downloaded update waits until Mail quits and then installs; while it waits, the first line of the Connection tab in Mail Dot's settings says so. Mail Dot shows no window or notification of its own for an update. The first time the new version starts, it registers the Mail extension again and restarts its background helper.
+
+The installer gives the app to the person who installs it, so updates install without a password for that person. Another user account on the same Mac, or an account without administrator rights, is asked for an administrator password when an update installs.
+
+Updates use [Sparkle](https://sparkle-project.org), which is licensed under the MIT License; its licence travels inside the app and is listed in [NOTICE](NOTICE).
 
 ## Privacy
 
-The section [How Mail Dot protects mail](#how-mail-dot-protects-mail) states the essentials; this section adds the rest. Mail Dot has no server of its own and collects nothing. It contains no analytics and sends nothing to its publisher or developer. The text of a message goes to the reader's own ChatGPT account, and only when the reader shares it, when Mail Dot offers it for a draft, or when Dot looks it up to answer a question.
+The section [How Mail Dot protects mail](#how-mail-dot-protects-mail) states the essentials; this section adds the rest. Mail Dot has no server of its own and collects nothing. It contains no analytics and sends nothing to its publisher or developer. Its only connection besides the reader's own ChatGPT is the daily update check with GitHub described above. The text of a message goes to the reader's own ChatGPT account, and only when the reader shares it, when Mail Dot offers it for a draft, or when Dot looks it up to answer a question.
 
 Mail Dot stores its settings, Dot's drafts, Dot's reports and its search index on the Mac, in the reader's user account. The search index, which holds text of the mail in the accounts the reader lets Mail Dot read on the Mac, is encrypted with SQLCipher, with its key in the login Keychain. The index and the embeddings of Search by Meaning stay on the Mac; what leaves is only what Dot asks for to answer a question, as described above. Unticking an account removes its embeddings. Full Disk Access, which Search by Meaning requests, covers the whole disk as macOS defines it; Mail Dot reads only the Mail folder. The [privacy statement](PRIVACY.md) gives the details.
 
@@ -198,7 +204,7 @@ xcodebuild -project MailDot.xcodeproj -scheme MailDot -configuration Release -de
 swift test --disable-sandbox --disable-swift-testing
 ```
 
-The first build downloads SQLCipher from its publisher's release and verifies it against a checksum, so it needs a network connection.
+The first build downloads SQLCipher and Sparkle from their publishers and verifies SQLCipher against a checksum, so it needs a network connection.
 
 `Sources/BridgeCore` holds the tools, the stores and the protocol. `Sources/BridgeAutomation` holds the code that operates Mail. `Targets` holds the Mail extension, the background app, the helper and the connection launcher.
 
@@ -238,7 +244,7 @@ Mail Dot is free for noncommercial use. Readers who find it useful may [leave a 
 
 Mail Dot is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). The licence permits use, modification and sharing for noncommercial purposes, which include personal use, research, and use by educational, charitable and public organisations. It does not permit commercial use. Commercial licences are available from Hooner LLC; write to [mail_dot@icloud.com](mailto:mail_dot@icloud.com) to ask for one.
 
-Mail Dot includes software by others, which keeps its own licences; see [NOTICE](NOTICE). OpenAI's `tunnel-client` is used under the Apache License 2.0. SQLCipher 4.20.0, Copyright (c) 2025, ZETETIC LLC. All rights reserved. Used under the SQLCipher Community Edition Open Source License. https://www.zetetic.net/sqlcipher/
+Mail Dot includes software by others, which keeps its own licences; see [NOTICE](NOTICE). OpenAI's `tunnel-client` is used under the Apache License 2.0. SQLCipher 4.20.0, Copyright (c) 2025, ZETETIC LLC. All rights reserved. Used under the SQLCipher Community Edition Open Source License. https://www.zetetic.net/sqlcipher/ Sparkle 2.10.1, which handles updates, is used under the MIT License. https://sparkle-project.org
 
 Mail Dot is an independent project and is not made or endorsed by OpenAI or Apple. The software is provided as it is, without warranty of any kind.
 

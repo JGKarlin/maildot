@@ -41,5 +41,21 @@
 	<string>Mail Dot adds a meeting from a message to your calendar when you press Add to Calendar. It never reads your calendar.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2026 Hooner LLC. Developed by Jason G. Karlin.</string>
+	<key>SUAllowsAutomaticUpdates</key>
+	<true/>
+	<key>SUAutomaticallyUpdate</key>
+	<true/>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUEnableSystemProfiling</key>
+	<false/>
+	<key>SUFeedURL</key>
+	<string>https://github.com/JGKarlin/maildot/releases/latest/download/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>Pe53QjWi5xUqpu2sOk5zp1F9/eGL9ujZ/zfKDr+llwY=</string>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
+	<key>SUVerifyUpdateBeforeExtraction</key>
+	<true/>
 </dict>
 </plist>

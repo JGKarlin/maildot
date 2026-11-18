@@ -1,10 +1,18 @@
 # Privacy
 
-Hooner LLC publishes Mail Dot. This page states what Mail Dot does with mail and with data. It applies to Mail Dot 0.4.205 and later, and was last updated on 18 November 2026.
+Hooner LLC publishes Mail Dot. This page states what Mail Dot does with mail and with data. It applies to Mail Dot 0.4.216 and later, and was last updated on 18 November 2026.
 
 ## What Mail Dot collects
 
 Mail Dot collects nothing. It has no server of its own. It contains no tracking, analytics or advertising, and it sends nothing to Hooner LLC or to its developer.
+
+## Update checks
+
+Once a day Mail Dot asks github.com whether a newer version of Mail Dot exists, and when one does, it downloads it from GitHub. These requests carry only what any web request carries, such as the Mac's network address and the version of the app making the request, and nothing about the user's mail or accounts. GitHub's own privacy statement governs what GitHub receives.
+
+## ChatGPT's files on the Mac
+
+To find the message field and the Start call button in the ChatGPT app in whatever language it is shown, Mail Dot reads the names of those controls from the ChatGPT app's own files on the Mac. It reads them locally, keeps only the names, and sends them nowhere.
 
 ## Where mail goes
 

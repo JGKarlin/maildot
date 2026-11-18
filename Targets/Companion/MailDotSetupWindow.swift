@@ -14,6 +14,12 @@ import BridgeAutomation
     private var waitingForInstaller:Task<Void,Never>?
     /// Whether Mail Dot already has a connection on this Mac; setup is then not shown.
     nonisolated static var needed:Bool { !RuntimeSetup.isConfigured(paths:RuntimeSetup.Paths(home:FileManager.default.homeDirectoryForCurrentUser)) }
+    /// Setup was asked for and Dot has not yet answered both of Mail Dot's tests (installer review, 18 November
+    /// 2026): the connection may exist by now, but setup has not proved itself, so opening the app shows setup again
+    /// and not the About window.
+    nonisolated static var unfinished:Bool { (try? BridgeStore.shared()).map{ SetupThroughDot.askedAt(in:$0.directory) != nil } ?? false }
+    /// What opening the app shows: setup, until Mail Dot is connected and verified.
+    nonisolated static var shown:Bool { needed || unfinished }
     private static let installerID="com.apple.installer"
 
     func show() {
@@ -117,6 +123,8 @@ struct MailDotSetupView:View {
     var fixed:SetupFindings?
     @State private var found:SetupFindings
     @State private var note:String?
+    /// Dot's page could not be used at the last press: Show ChatGPT is offered beside the button.
+    @State private var unreachable=false
     @State private var busy=false
     init(fixed:SetupFindings?=nil) { self.fixed=fixed; _found=State(initialValue:fixed ?? SetupFindings()) }
     var body:some View {
@@ -134,6 +142,9 @@ struct MailDotSetupView:View {
                         .foregroundStyle(found.facts.keepConnectedRan ? Color.primary : MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true)
                 }
                 .accessibilityElement(children:.combine)
+                // What comes next is in Mail, and nothing else says so (installer review, 18 November 2026).
+                Text("Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose \(String(localized:"Accounts")).")
+                    .foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true)
                 HStack(spacing:12) {
                     Spacer()
                     Text("Mail Dot is connected to Dot.").fontWeight(.semibold)
@@ -249,7 +260,10 @@ struct MailDotSetupView:View {
             Button("Get ChatGPT") { NSWorkspace.shared.open(Self.chatGPTDownload) }.buttonStyle(.borderedProminent)
         case .ready:
             sentence("Dot creates a private connection on your OpenAI account and a key that runs only that connection. Mail Dot keeps the key in your Keychain. Dot reads none of your mail during setup.")
-            Button("Ask Dot to Connect") { ask(fresh:true) }.buttonStyle(.borderedProminent).disabled(busy)
+            HStack(spacing:10) {
+                if unreachable { Button("Show ChatGPT") { showChatGPT() } }
+                Button("Ask Dot to Connect") { ask(fresh:true) }.buttonStyle(.borderedProminent).disabled(busy)
+            }
         case .working(let reached):
             stages(reached:reached,pending:true)
         case .stalled(let last):
@@ -257,6 +271,8 @@ struct MailDotSetupView:View {
             if let last,SetupFlow.checks.contains(last) { Text("Dot has not answered Mail Dot’s test requests.").fixedSize(horizontal:false,vertical:true) }
             else if let last { Text("Dot has not answered since “\(Self.stageName(last)).”").fixedSize(horizontal:false,vertical:true) }
             else { Text("Dot has not answered.") }
+            // Why is nearly always in ChatGPT: an approval Dot waits for, a sign-in page, or Dot unable to work on this Mac.
+            Text("Look at what Dot wrote in ChatGPT.").fixedSize(horizontal:false,vertical:true)
             continueButtons
         case .blocked(let stopped,let last):
             stages(reached:last.flatMap(SetupFlow.stages.firstIndex).map{ $0+1 } ?? 0,pending:false)
@@ -311,7 +327,10 @@ struct MailDotSetupView:View {
                 for _ in 0..<40 where !NSRunningApplication.runningApplications(withBundleIdentifier:"com.apple.mail").contains(where:{ $0.isFinishedLaunching }) { try? await Task.sleep(for:.milliseconds(500)) }
             }
             let status=await MailAutomation().permissionStatus(requestConsent:true)
-            if status == -1743 { Self.open(pane:"Privacy_Automation") }
+            if status == -1743 {
+                note=String(localized:"macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot.")
+                Self.open(pane:"Privacy_Automation")
+            }
         }
     }
     /// The prompt adds Mail Dot to the Accessibility list; the switch is on that page of System Settings.
@@ -330,7 +349,7 @@ struct MailDotSetupView:View {
     /// if it is closed, and writes Dot the request: the whole of it the first time, and afterwards only what is
     /// left, so Dot does not make a second tunnel and key.
     private func ask(fresh:Bool) {
-        note=nil; busy=true
+        note=nil; unreachable=false; busy=true
         Task {
             defer { busy=false }
             do { try await BackgroundConnection.setEnabled(true) }
@@ -340,7 +359,13 @@ struct MailDotSetupView:View {
             let reached=SetupFlow.stages.filter{ stage in found.reports.contains{ $0.step == stage } }
             let text=fresh ? SetupThroughDot.request(name:name) : SetupThroughDot.continuation(name:name,completed:reached)
             if let refusal=await DotCallLauncher.say(text) {
-                note=String(localized:String.LocalizationValue(refusal.rawValue))
+                // No Message field on Dot's page: ChatGPT is signed out, has no account, or its plan has no Dot. Mail
+                // Dot cannot tell which, so the sentence names what to check (installer review, 18 November 2026).
+                if refusal == .noField {
+                    unreachable=true
+                    let button=fresh ? String(localized:"Ask Dot to Connect") : String(localized:"Ask Dot to Continue")
+                    note=String(localized:"Mail Dot could not reach Dot in ChatGPT. Sign in to ChatGPT with an account whose plan includes Dot, then press \(button) again.")
+                } else { note=String(localized:String.LocalizationValue(refusal.rawValue)) }
                 // The text is in ChatGPT's field and needs only Return: Dot is as good as asked.
                 guard refusal == .notSent else { return }
             }
@@ -383,8 +408,15 @@ enum SetupCodexEntry {
         let complete=reports.contains{ $0.step == "done" } || (!MailDotSetupWindow.needed && ConnectionWatch.listening(bridge))
         guard SetupThroughDot.shouldWithdraw(complete:complete,askedAt:SetupThroughDot.askedAt(in:bridge.directory),reports:reports) else { return }
         remove()
-        // An abandoned setup keeps what Dot reported and when it was asked, so that opening setup again offers to
-        // continue it and not to start a second tunnel and key.
-        if complete { SetupThroughDot.forgetAsked(in:bridge.directory) }
+    }
+    /// The owner's press is forgotten once Mail Dot has seen Dot answer both test requests, and not before: until
+    /// then the setup window shows its progress from it. An abandoned setup keeps what Dot reported and when it was
+    /// asked, so that opening setup again offers to continue it and not to start a second tunnel and key.
+    @MainActor static func forgetWhenVerified() {
+        guard let bridge=try? BridgeStore.shared(),let asked=SetupThroughDot.askedAt(in:bridge.directory),
+              !MailDotSetupWindow.needed,ConnectionWatch.listening(bridge),
+              let settings=try? MailSettingsStore(bridgeDirectory:bridge.directory).read(),
+              SetupVerification.verified(settings,since:asked) else { return }
+        SetupThroughDot.forgetAsked(in:bridge.directory)
     }
 }

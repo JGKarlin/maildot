@@ -502,4 +502,26 @@ final class SetupFlowTests: XCTestCase {
         XCTAssertEqual(MailSettingsNames.extensionsTitle(table: table, languages: ["de-DE"]), "Extensions", "a language without the tab falls back to English")
         XCTAssertNil(MailSettingsNames.extensionsTitle(table: ["en": ["Jv7.title": "Rules"]], languages: ["en"]), "a Mail without the tab: Mail Dot presses nothing")
     }
+
+    /// Installer review, 18 November 2026: the owner's press was forgotten as soon as Dot reported done, and the open
+    /// setup window then showed "Ask Dot to Connect" again while Mail Dot's two tests were still out.
+    func testThePressIsKeptUntilBothTestsAreAnswered() throws {
+        let asked = Date(timeIntervalSince1970: 1_800_000_000)
+        var facts = SetupFlow.Facts(); facts.connected = true; facts.settingsSubscribed = true
+        let finished = SetupFlow.stages.map { SetupThroughDot.Report(at: asked.addingTimeInterval(60).ISO8601Format(), step: $0) }
+        // With the press kept, the window shows the checks at work; without it, it would offer to start over.
+        XCTAssertEqual(SetupFlow.connection(facts, askedAt: asked, reports: finished, now: asked.addingTimeInterval(120)), .working(reached: 7))
+        XCTAssertEqual(SetupFlow.connection(facts, askedAt: nil, reports: finished, now: asked.addingTimeInterval(120)), .ready)
+        var settings = MailSettings()
+        XCTAssertFalse(SetupVerification.verified(settings, since: asked))
+        try SetupVerification.requestTests(settings: &settings, since: asked, now: asked.addingTimeInterval(90))
+        XCTAssertFalse(SetupVerification.verified(settings, since: asked), "asked is not answered")
+    }
+
+    /// The call log keeps only the fixed opening of a workflow refusal: never the accounts the coverage refusal names.
+    func testAWorkflowRefusalIsLoggedByItsFixedOpeningOnly() {
+        let fixed = "This answer was not saved: coverage must have one entry for every account in reach, and has none for "
+        XCTAssertLessThanOrEqual(MCPRouter.refusalOpeningLength, fixed.count)
+        XCTAssertEqual(MCPRouter.toolsWithRecordedRefusalOpening, ["report_mail_workflow", "get_mail_workflow"])
+    }
 }

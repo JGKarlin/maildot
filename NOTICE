@@ -21,6 +21,12 @@ the full text is in Config/Licenses/SQLCipher/LICENSE and, in the app, in
 Contents/Resources/Licenses/SQLCipher/LICENSE.
 https://www.zetetic.net/sqlcipher/
 
+Sparkle 2.10.1
+Copyright (c) 2006-2013 Andy Matuschak, and other contributors.
+Licensed under the MIT License; the full text is in Config/Licenses/Sparkle/LICENSE
+and, in the app, in Contents/Resources/Licenses/Sparkle/LICENSE.
+https://sparkle-project.org
+
 Mail Dot is an independent project. It is not made or endorsed by OpenAI
 or Apple. ChatGPT and Dot are products of OpenAI. Mail and macOS
 are products of Apple.

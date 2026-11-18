@@ -7,6 +7,8 @@ import AppKit
 @MainActor final class MailDotAboutWindow {
     static let shared=MailDotAboutWindow()
     private var window:NSWindow?
+    /// Whether the person has this window open now.
+    var isOpen:Bool { window?.isVisible == true }
     func show() {
         if window == nil {
             let made=NSWindow(contentRect:NSRect(origin:.zero,size:MailDotAboutView.size),styleMask:[.titled,.closable,.fullSizeContentView],backing:.buffered,defer:false)
@@ -30,8 +32,11 @@ import AppKit
 }
 
 struct MailDotAboutView:View {
-    static let size=CGSize(width:360,height:380)
+    static let size=CGSize(width:360,height:420)
     @State private var extensionOn:Bool?
+    @State private var mailRunning=true
+    /// Automatic updates (owner's approval of the mockup, 18 November 2026): one line under the extension's state.
+    @ObservedObject private var updater=MailDotUpdater.shared
     var body:some View {
         VStack(spacing:14) {
             Image(nsImage:NSApplication.shared.applicationIconImage).resizable().frame(width:96,height:96).accessibilityHidden(true)
@@ -43,6 +48,7 @@ struct MailDotAboutView:View {
             if extensionOn == false {
                 Button("Open Mail") { MailExtensionStatus.openMail() }.buttonStyle(.borderedProminent)
             }
+            updateLine
             Spacer(minLength:0)
             Button("Remove Mail Dot…") { MailDotRemover.start() }.controlSize(.small)
             Divider()
@@ -52,7 +58,28 @@ struct MailDotAboutView:View {
         .frame(width:Self.size.width,height:Self.size.height)
         .background(Color(nsColor:.windowBackgroundColor))
         .tint(MailDotStyle.tint)
-        .task { while !Task.isCancelled { let on=await MailExtensionStatus.isOn(); if on != extensionOn { extensionOn=on }; try? await Task.sleep(for:.seconds(2)) } }
+        .task { while !Task.isCancelled {
+            let on=await MailExtensionStatus.isOn(); if on != extensionOn { extensionOn=on }
+            let running=MailDotUpdater.mailRunning; if running != mailRunning { mailRunning=running }
+            try? await Task.sleep(for:.seconds(2))
+        } }
+    }
+    /// The version, and either Check for Updates or the update that waits for Mail to quit.
+    @ViewBuilder private var updateLine:some View {
+        if let ready=updater.readyVersion {
+            VStack(spacing:6) {
+                Text("Version \(ready) is ready. It installs the next time you quit Mail.").font(.callout).foregroundStyle(MailDotStyle.linkText)
+                    .multilineTextAlignment(.center).fixedSize(horizontal:false,vertical:true)
+                if !mailRunning { Button("Install Now") { updater.installNow() }.controlSize(.small) }
+            }
+        } else {
+            VStack(spacing:6) {
+                Group {
+                    if updater.checking { Text("Checking for updates…") } else { Text("Version \(updater.runningVersion) · Up to date") }
+                }.font(.callout).foregroundStyle(MailDotStyle.supporting)
+                Button("Check for Updates") { updater.checkNow() }.controlSize(.small).disabled(updater.checking)
+            }
+        }
     }
 }
 

@@ -549,3 +549,13 @@
 "Dot has not answered Mail Dot’s test requests." = "Dot ei ole vastannut Mail Dotin testipyyntöihin.";
 "Keep connected has run." = "Keep connected on suoritettu.";
 "Waiting for the first run of Keep connected." = "Odotetaan Keep connectedin ensimmäistä suoritusta.";
+"A Mail Dot update is ready. It installs the next time you quit Mail." = "Mail Dotin päivitys on valmis. Se asennetaan, kun lopetat Mailin seuraavan kerran.";
+"Version %@ is ready. It installs the next time you quit Mail." = "Versio %@ on valmis. Se asennetaan, kun lopetat Mailin seuraavan kerran.";
+"Install Now" = "Asenna nyt";
+"Check for Updates" = "Tarkista päivitykset";
+"Checking for updates…" = "Tarkistetaan päivityksiä…";
+"Version %@ · Up to date" = "Versio %@ · Ajan tasalla";
+"Mail Dot could not reach Dot in ChatGPT. Sign in to ChatGPT with an account whose plan includes Dot, then press %@ again." = "Mail Dot ei tavoittanut Dotia ChatGPT:ssä. Kirjaudu ChatGPT:hen tilillä, jonka tilaukseen Dot sisältyy, ja paina sitten %@ uudelleen.";
+"macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS ei anna Mail Dotin toimia Mailin kanssa. Laita Mail päälle Mail Dotille Järjestelmäasetusten Automaatio-kohdassa.";
+"Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "Yhdistä seuraavaksi sähköpostitili. Avaa Mailissa mikä tahansa viesti, klikkaa sen otsakkeessa Mail Dot ‑kuvaketta ja valitse %@.";
+"Look at what Dot wrote in ChatGPT." = "Katso, mitä Dot kirjoitti ChatGPT:ssä.";

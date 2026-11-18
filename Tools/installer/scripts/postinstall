@@ -6,6 +6,9 @@ LSREGISTER=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchSe
 user=$(/usr/bin/stat -f %Su /dev/console)
 [ -z "$user" ] || [ "$user" = root ] || [ "$user" = loginwindow ] && exit 0
 uid=$(/usr/bin/id -u "$user") || exit 0
+# The app belongs to the person who installed it, so that its automatic updates install without an administrator
+# password (owner's choice, 18 November 2026). macOS's App Management protection still keeps other apps from changing it.
+/usr/sbin/chown -R "$user":staff "$APP" >/dev/null 2>&1
 as_user() { /bin/launchctl asuser "$uid" /usr/bin/sudo -u "$user" "$@"; }
 as_user "$LSREGISTER" -f "$APP" >/dev/null 2>&1
 as_user /usr/bin/pluginkit -a "$APP/Contents/PlugIns/MailDotExtension.appex" >/dev/null 2>&1

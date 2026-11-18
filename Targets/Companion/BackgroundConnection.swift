@@ -1,5 +1,6 @@
 import Foundation
 import ServiceManagement
+import Security
 import BridgeCore
 import UserNotifications
 
@@ -22,6 +23,7 @@ import UserNotifications
             var request=URLRequest(url:base.appendingPathComponent("readyz")); request.timeoutInterval=2
             if let (_,response)=try? await session.data(for:request) { connected=(response as? HTTPURLResponse)?.statusCode == 200 }
         }
+        await reregisterIfSignatureChanged()
         let problem=runtimeProblem() ?? tunnelProblem()
         if problem == "configuration" || problem == "moved" { await reregisterIfStartedElsewhere() }
         var value:[String:Any] = ["enabled":service.status == .enabled || service.status == .requiresApproval,"needsApproval":service.status == .requiresApproval,
@@ -130,6 +132,32 @@ import UserNotifications
         lastProbe = .distantPast
     }
 
+    /// macOS binds a registered helper to the kind of signature Mail Dot had when it was registered: its launch
+    /// constraint names a development or a Developer ID signature. After Mail Dot is signed differently (the preview
+    /// builds were development-signed, releases from 18 November 2026 are Developer ID), launchd refuses to start the
+    /// helper ("spawn failed") until the service is registered again from the newly signed copy. Done once for each
+    /// signing certificate.
+    private static let registeredSigningKey="BackgroundRegisteredSigning"
+    static func reregisterIfSignatureChanged() async {
+        guard service.status == .enabled,let current=signingCertificate(),
+              UserDefaults.standard.string(forKey:registeredSigningKey) != current else { return }
+        do {
+            try await service.unregister()
+            try service.register()
+            UserDefaults.standard.set(current,forKey:registeredSigningKey)
+            lastError=""
+        } catch { lastError=error.localizedDescription }
+        lastProbe = .distantPast
+    }
+    /// The name on the certificate this copy of Mail Dot is signed with, such as "Developer ID Application: …".
+    static func signingCertificate() -> String? {
+        var code:SecCode?,staticCode:SecStaticCode?,info:CFDictionary?
+        guard SecCodeCopySelf([],&code) == errSecSuccess,let code,SecCodeCopyStaticCode(code,[],&staticCode) == errSecSuccess,let staticCode,
+              SecCodeCopySigningInformation(staticCode,SecCSFlags(rawValue:kSecCSSigningInformation),&info) == errSecSuccess,
+              let certificates=(info as? [String:Any])?[kSecCodeInfoCertificates as String] as? [SecCertificate],let leaf=certificates.first else { return nil }
+        return SecCertificateCopySubjectSummary(leaf) as String?
+    }
+
     /// The agent program the private tunnel profile names, by absolute path.
     private static func namedAgent() -> String? {
         guard let configuration=try? Data(contentsOf:runtime.appendingPathComponent("configuration.json")),
@@ -145,7 +173,8 @@ import UserNotifications
     static func setEnabled(_ enabled:Bool) async throws {
         do {
             if enabled { repairAgentPathIfMoved() }
-            if enabled { try service.register() }
+            // Registered once: a second press of Ask Dot to Continue must not fail on "already registered".
+            if enabled { if service.status != .enabled { try service.register() }; signingCertificate().map{ UserDefaults.standard.set($0,forKey:registeredSigningKey) } }
             else { try await service.unregister() }
             lastError=""
         } catch { lastError=error.localizedDescription; lastProbe = .distantPast; throw error }

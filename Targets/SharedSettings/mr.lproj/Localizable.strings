@@ -549,3 +549,13 @@
 "Dot has not answered Mail Dot’s test requests." = "Dot ने Mail Dot च्या चाचणी विनंत्यांना उत्तर दिलेले नाही.";
 "Keep connected has run." = "Keep connected चालले.";
 "Waiting for the first run of Keep connected." = "Keep connected पहिल्यांदा चालण्याची प्रतीक्षा आहे.";
+"A Mail Dot update is ready. It installs the next time you quit Mail." = "Mail Dot चे अपडेट तयार आहे. पुढच्या वेळी तुम्ही Mail बंद कराल तेव्हा ते इन्स्टॉल होईल.";
+"Version %@ is ready. It installs the next time you quit Mail." = "आवृत्ती %@ तयार आहे. पुढच्या वेळी तुम्ही Mail बंद कराल तेव्हा ती इन्स्टॉल होईल.";
+"Install Now" = "आता इन्स्टॉल करा";
+"Check for Updates" = "अपडेट तपासा";
+"Checking for updates…" = "अपडेट तपासत आहे…";
+"Version %@ · Up to date" = "आवृत्ती %@ · अद्ययावत";
+"Mail Dot could not reach Dot in ChatGPT. Sign in to ChatGPT with an account whose plan includes Dot, then press %@ again." = "Mail Dot ला ChatGPT मधील Dot पर्यंत पोहोचता आले नाही. ज्या खात्याच्या प्लॅनमध्ये Dot समाविष्ट आहे त्याने ChatGPT मध्ये साइन इन करा, नंतर पुन्हा %@ दाबा.";
+"macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS Mail Dot ला Mail सोबत काम करू देत नाही. सिस्टम सेटिंग्जमध्ये, ऑटोमेशनखाली, Mail Dot साठी Mail चालू करा.";
+"Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "पुढे, मेल खाते जोडा. Mail मध्ये कोणताही संदेश उघडा, त्याच्या हेडरमधील Mail Dot आयकॉनवर क्लिक करा आणि %@ निवडा.";
+"Look at what Dot wrote in ChatGPT." = "Dot ने ChatGPT मध्ये काय लिहिले ते पाहा.";

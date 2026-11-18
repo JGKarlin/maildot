@@ -89,9 +89,18 @@ struct ConnectionList:View {
     var fixed:ConnectionSnapshot?
     @State private var snapshot=ConnectionSnapshot()
     @State private var failure:String?
+    /// A downloaded update waiting for Mail to quit (owner's OK of the wording, 18 November 2026); shown only then.
+    @State private var updateReady:String?
     var body:some View {
         let lines=ConnectionLine.lines(fixed ?? snapshot)
         VStack(alignment:.leading,spacing:12) {
+            if updateReady != nil {
+                HStack(spacing:8) {
+                    Image(systemName:"arrow.down.circle").foregroundStyle(MailDotStyle.tint).accessibilityHidden(true)
+                    Text("A Mail Dot update is ready. It installs the next time you quit Mail.").font(.callout).foregroundStyle(MailDotStyle.supporting)
+                        .fixedSize(horizontal:false,vertical:true)
+                }.padding(.horizontal,10)
+            }
             Text("CONNECTION").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting).kerning(0.5).padding(.horizontal,10)
             VStack(spacing:0) {
                 ForEach(Array(lines.enumerated()),id:\.element.id) { index,line in
@@ -125,6 +134,9 @@ struct ConnectionList:View {
             while !Task.isCancelled {
                 let fresh=await ConnectionSnapshot.load()
                 if fresh != snapshot { snapshot=fresh }
+                let running=Bundle.main.object(forInfoDictionaryKey:"CFBundleShortVersionString") as? String ?? ""
+                let ready=(try? BridgeStore.shared()).flatMap { UpdateStatus.read(bridgeDirectory:$0.directory).waiting(runningVersion:running) }
+                if ready != updateReady { updateReady=ready }
                 try? await Task.sleep(for:.seconds(2))
             }
         }

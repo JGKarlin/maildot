@@ -549,3 +549,13 @@
 "Dot has not answered Mail Dot’s test requests." = "A Dot nem válaszolt a Mail Dot próbakéréseire.";
 "Keep connected has run." = "A Keep connected lefutott.";
 "Waiting for the first run of Keep connected." = "Várakozás a Keep connected első futására.";
+"A Mail Dot update is ready. It installs the next time you quit Mail." = "Elkészült egy Mail Dot-frissítés. A Mail következő bezárásakor települ.";
+"Version %@ is ready. It installs the next time you quit Mail." = "A(z) %@ verzió elkészült. A Mail következő bezárásakor települ.";
+"Install Now" = "Telepítés most";
+"Check for Updates" = "Frissítések keresése";
+"Checking for updates…" = "Frissítések keresése…";
+"Version %@ · Up to date" = "%@ verzió · Naprakész";
+"Mail Dot could not reach Dot in ChatGPT. Sign in to ChatGPT with an account whose plan includes Dot, then press %@ again." = "A Mail Dot nem érte el Dotot a ChatGPT-ben. Jelentkezzen be a ChatGPT-be olyan fiókkal, amelynek csomagja tartalmazza Dotot, majd nyomja meg újra a(z) %@ gombot.";
+"macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "A macOS nem engedi, hogy a Mail Dot együttműködjön a Maillel. A Rendszerbeállítások Automatizálás részében kapcsolja be a Mailt a Mail Dot számára.";
+"Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "Ezután csatlakoztasson egy e-mail-fiókot. A Mailben nyisson meg egy üzenetet, kattintson a fejlécében a Mail Dot ikonra, és válassza a(z) %@ lehetőséget.";
+"Look at what Dot wrote in ChatGPT." = "Nézze meg, mit írt Dot a ChatGPT-ben.";

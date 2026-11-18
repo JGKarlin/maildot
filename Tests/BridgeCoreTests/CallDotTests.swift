@@ -241,7 +241,7 @@ final class CallDotTests:XCTestCase {
         let request=try MailWorkflowRequest(action:.call,accountIDs:["gmail:profile"],contextID:UUID().uuidString)
         let prompt=try XCTUnwrap(DotCallPrompt.text(for:request))
         XCTAssertTrue(prompt.unicodeScalars.allSatisfy{$0.isASCII && $0.value >= 32},"one line of ASCII, so no input method can alter it")
-        XCTAssertLessThanOrEqual(prompt.count,400)
+        XCTAssertLessThanOrEqual(prompt.count,520,"set as the field's value in one step, so its length is bounded only to stay one short paragraph")
         XCTAssertNil(DotCallPrompt.text(for:try MailWorkflowRequest(action:.drafts,accountIDs:["gmail:profile"])))
     }
     func testOnceThePromptIsInTheCallTheBackgroundEventIsNotSentAsWell() throws {
@@ -419,5 +419,133 @@ final class CallDotTests:XCTestCase {
         XCTAssertTrue(standing.contains("ask_owner"))
         XCTAssertTrue(standing.contains("At the start of every voice call"))
         XCTAssertFalse(standing.contains("reply is open"),"the item open in Mail is a message")
+    }
+
+    /// Owner's test, 18 November 2026: with ChatGPT in Japanese Mail Dot found neither Start call nor the message
+    /// field. The names come from ChatGPT's own translation tables, under keys that are the same in every language.
+    func testControlNamesAreReadFromChatGPTsTablesInEveryLanguage() {
+        let japanese = Data(#"export const m={x(e){e.exports=JSON.parse('{"a.b":"キャンセル","chatgptConversations.composer.send.ariaLabel":"送信","restricted.orbit.voiceCall.calling":"発信中…","restricted.orbit.voiceCall.hangUp":"通話を終了","restricted.orbit.voiceCall.muteMic":"マイクをミュート","restricted.orbit.voiceCall.sidebarActive":"進行中の通話","restricted.orbit.voiceCall.start":"通話を開始","restricted.orbit.voiceCall.unmuteMic":"マイクのミュートを解除","restricted.orbit.voiceCall.setupWithName.dot":"{hasName, select, true {{name}} other {dot} }に電話する"}')}}"#.utf8)
+        let german = Data(#"{"restricted.orbit.voiceCall.start":"Anruf starten","restricted.orbit.voiceCall.hangUp":"Auflegen","composer.submitButtonTooltip.send":"Senden"}"#.utf8)
+        let other = Data(#"{"restricted.orbit.voiceCall.hangUp":"not a table: it lacks the start key"}"#.utf8)
+        let labels = ChatGPTLabels.reading(tables: [japanese, german, other])
+        XCTAssertEqual(labels.start, ["Start call", "通話を開始", "Anruf starten"])
+        XCTAssertEqual(labels.hangUp, ["Hang up", "通話を終了", "Auflegen"])
+        XCTAssertEqual(labels.send, ["Send", "送信", "Senden"])
+        XCTAssertTrue(labels.otherDuringCall.isSuperset(of: ["発信中…", "進行中の通話", "マイクをミュート", "マイクのミュートを解除", "Calling…"]))
+        XCTAssertEqual(DotCallControl.state(labels: ["通話を開始"], known: labels), .canStart)
+        XCTAssertEqual(DotCallControl.state(labels: ["通話を開始", "進行中の通話"], known: labels), .inCall, "a second press could hang up")
+        XCTAssertEqual(DotCallControl.state(labels: ["通話を開始"]), .absent, "English alone does not know it")
+        XCTAssertEqual(ChatGPTLabels.reading(tables: []), .english, "nothing read: the English names, as before")
+    }
+
+    /// A name that means "start" in one language and "in a call" in another is never a start name.
+    func testAStartNameThatIsAlsoADuringCallNameIsDropped() {
+        let one = Data(#"{"restricted.orbit.voiceCall.start":"Appel","restricted.orbit.voiceCall.hangUp":"Raccrocher"}"#.utf8)
+        let two = Data(#"{"restricted.orbit.voiceCall.start":"Starten","restricted.orbit.voiceCall.sidebarActive":"Appel"}"#.utf8)
+        let labels = ChatGPTLabels.reading(tables: [one, two])
+        XCTAssertFalse(labels.start.contains("Appel"))
+        XCTAssertEqual(DotCallControl.state(labels: ["Appel"], known: labels), .inCall)
+        XCTAssertTrue(labels.start.contains("Start call"))
+    }
+
+    // MARK: The call waits for Dot to have read the request (owner's report, 18 November 2026)
+
+    private func read(_ id:String,at:Date,tool:String="get_mail_workflow",outcome:ToolCallRecord.Outcome = .ok) -> ToolCallRecord {
+        ToolCallRecord(at:at,method:"tools/call",tool:tool,outcome:outcome,detail:nil,request:id)
+    }
+    /// A clock the test moves, and a record of Dot's calls that fills as time passes.
+    private final class Stage:@unchecked Sendable {
+        var now:Date; var arrivals:[(at:Date,record:ToolCallRecord)]=[]; var pauses=0
+        init(_ start:Date) { now=start }
+        var seen:[ToolCallRecord] { arrivals.filter{ $0.at <= now }.map(\.record) }
+    }
+
+    func testANormalLaunchOpensAsSoonAsDotHasReadTheRequest() async throws {
+        let start=Date(timeIntervalSince1970:1_800_000_000)
+        let request=try MailWorkflowRequest(action:.call,accountIDs:["gmail:profile"],createdAt:start)
+        let stage=Stage(start)
+        stage.arrivals=[(start.addingTimeInterval(4),read(request.id,at:start.addingTimeInterval(4)))]
+        let results=await CallHandoff.wait(for:[request],clock:{ stage.now },records:{ stage.seen },pause:{ stage.now.addTimeInterval(1); stage.pauses += 1 })
+        XCTAssertEqual(results[request.id],.read(after:4))
+        XCTAssertEqual(stage.pauses,4,"it ends on the read, not on a fixed delay")
+    }
+
+    func testADelayedHandoffStillOpensOnTheReadWithinTheLimit() async throws {
+        let start=Date(timeIntervalSince1970:1_800_000_000)
+        let request=try MailWorkflowRequest(action:.call,accountIDs:["gmail:profile"],createdAt:start)
+        let stage=Stage(start)
+        stage.arrivals=[(start.addingTimeInterval(43),read(request.id,at:start.addingTimeInterval(43)))]
+        let results=await CallHandoff.wait(for:[request],limit:45,clock:{ stage.now },records:{ stage.seen },pause:{ stage.now.addTimeInterval(1) })
+        XCTAssertEqual(results[request.id],.read(after:43),"with the hold set to 45 seconds, a read at 43, as for request B039210B, opens the call")
+        // With the hold as shipped the call has opened by then, and Dot's first words ask the owner to hold on.
+        let again=Stage(start); again.arrivals=stage.arrivals
+        let shipped=await CallHandoff.wait(for:[request],clock:{ again.now },records:{ again.seen },pause:{ again.now.addTimeInterval(1) })
+        XCTAssertEqual(shipped[request.id],.unread)
+    }
+
+    func testATimeoutEndsTheWaitAndNamesTheRequestUnread() async throws {
+        let start=Date(timeIntervalSince1970:1_800_000_000)
+        let request=try MailWorkflowRequest(action:.call,accountIDs:["gmail:profile"],createdAt:start)
+        let stage=Stage(start)
+        let results=await CallHandoff.wait(for:[request],clock:{ stage.now },records:{ stage.seen },pause:{ stage.now.addTimeInterval(1) })
+        XCTAssertEqual(results[request.id],.unread)
+        XCTAssertEqual(stage.now.timeIntervalSince(start),CallHandoff.limit,accuracy:1,"bounded")
+        // The hold is short: the owner is not kept waiting for a read that usually takes Dot longer.
+        XCTAssertLessThanOrEqual(CallHandoff.limit,15)
+        XCTAssertEqual(CallHandoff.limit(set:nil),CallHandoff.limit)
+        XCTAssertEqual(CallHandoff.limit(set:45),45,"a longer hold can be set for a test of the handoff")
+        XCTAssertEqual(CallHandoff.limit(set:600),CallHandoff.limit,"never an unbounded one")
+        XCTAssertEqual(CallHandoff.limit(set:0),0)
+    }
+
+    func testTwoCloseRequestsAreNeverConfusedAndAnOlderReadDoesNotCount() async throws {
+        let start=Date(timeIntervalSince1970:1_800_000_000)
+        let first=try MailWorkflowRequest(action:.call,accountIDs:["gmail:profile"],createdAt:start)
+        let second=try MailWorkflowRequest(action:.call,accountIDs:["gmail:profile"],createdAt:start.addingTimeInterval(2))
+        // Dot reads the first request; that says nothing about the second.
+        XCTAssertFalse(CallHandoff.acknowledged(second,records:[read(first.id,at:start.addingTimeInterval(5))]))
+        XCTAssertTrue(CallHandoff.acknowledged(first,records:[read(first.id,at:start.addingTimeInterval(5))]))
+        // A read recorded before the request was made, a refused read and another tool do not count.
+        XCTAssertFalse(CallHandoff.acknowledged(second,records:[read(second.id,at:start.addingTimeInterval(1))]),"stale: from before the request existed")
+        XCTAssertFalse(CallHandoff.acknowledged(second,records:[read(second.id,at:start.addingTimeInterval(6),outcome:.refused)]))
+        XCTAssertFalse(CallHandoff.acknowledged(second,records:[read(second.id,at:start.addingTimeInterval(6),tool:"report_mail_workflow")]))
+        // Both held together: the first is read, the second times out, and each is told apart.
+        let stage=Stage(start.addingTimeInterval(2))
+        stage.arrivals=[(start.addingTimeInterval(9),read(first.id,at:start.addingTimeInterval(9)))]
+        let results=await CallHandoff.wait(for:[first,second],limit:45,clock:{ stage.now },records:{ stage.seen },pause:{ stage.now.addTimeInterval(1) })
+        XCTAssertEqual(results[first.id],.read(after:7))
+        XCTAssertEqual(results[second.id],.unread)
+    }
+
+    /// Owner's instruction, 18 November 2026: on answering, Dot acknowledges the request and, if it needs more time,
+    /// asks the owner to hold on the line while it looks into it.
+    func testEveryCallMessageSaysWhatDotsFirstWordsAre() throws {
+        let general=try XCTUnwrap(DotCallPrompt.text(for:try MailWorkflowRequest(action:.call,accountIDs:["gmail:profile"])))
+        let message=try XCTUnwrap(DotCallPrompt.text(for:try MailWorkflowRequest(action:.call,accountIDs:["gmail:profile"],contextID:UUID().uuidString)))
+        let question=try XCTUnwrap(DotCallPrompt.text(for:try MailWorkflowRequest(action:.call,accountIDs:["gmail:profile"],questionID:UUID().uuidString)))
+        for text in [general,message,question] {
+            XCTAssertTrue(text.contains("first tell me you have my Mail Dot request"),text)
+            XCTAssertTrue(text.contains("ask me to hold on while you look into it"),text)
+            XCTAssertTrue(text.contains("I couldn't load the Mail Dot context"),text)
+            XCTAssertTrue(text.unicodeScalars.allSatisfy{ $0.isASCII && $0.value >= 32 })
+        }
+        XCTAssertTrue(general.contains("Then ask what I need help with in my mail"),general)
+        XCTAssertTrue(question.contains("Then put that question to me"),question)
+        XCTAssertTrue(MailWorkflowTools.instructions(for:nil).contains("ask the owner to hold on the line while you look into it"))
+    }
+
+    /// The order in use since the owner's trial of 18 November 2026: the message goes into the open call, worded as he
+    /// heard it work, and the earlier order is only for a test on a Mac.
+    func testAMessageSentIntoAnOpenCallSaysTheCallIsOpen() throws {
+        XCTAssertEqual(CallHandoff.messageFirstKey,"CallPromptBeforeLaunch","the earlier order is the one that needs a setting")
+        let request=try MailWorkflowRequest(action:.call,accountIDs:["gmail:profile"])
+        let text=try XCTUnwrap(DotCallPrompt.text(for:request,callOpen:true))
+        XCTAssertTrue(text.contains("I have just called you"),text)
+        XCTAssertFalse(text.contains("about to call"),text)
+        XCTAssertTrue(text.contains("Now tell me you have my Mail Dot request"),text)
+        XCTAssertEqual(text,"Mail Dot: I have just called you from Mail. This call is about my mail. Read Mail Dot request \(request.id) with get_mail_workflow now. Now tell me you have my Mail Dot request and, if you are still reading it, ask me to hold on while you look into it. If you cannot read it, say \"I couldn't load the Mail Dot context\". Then ask what I need help with in my mail.","exactly the words that worked in the owner's trial")
+        XCTAssertTrue(text.contains(request.id))
+        XCTAssertTrue(text.unicodeScalars.allSatisfy{ $0.isASCII && $0.value >= 32 })
+        XCTAssertLessThanOrEqual(text.count,520)
     }
 }

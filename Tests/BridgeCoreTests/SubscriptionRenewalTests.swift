@@ -168,31 +168,45 @@ import XCTest
         let states = Dictionary(uniqueKeysWithValues:(status["subscriptions"].array ?? []).compactMap { item in
             item["event"].string.flatMap { name in item["state"].string.map { (name,$0) } }
         })
-        XCTAssertEqual(states,["mail.settings_requested":"active","mail.workflow_requested":"overdue"])
-        XCTAssertEqual(status["renewal_needed"],true)
+        // An hour past expiry it is still delivered on, and ChatGPT renews it itself: Dot is not asked to.
+        XCTAssertEqual(states,["mail.settings_requested":"active","mail.workflow_requested":"expired"])
+        XCTAssertEqual(status["renewal_needed"],false)
         XCTAssertEqual(status["subscription_count"].integer,1)
         XCTAssertEqual(status["requested_lifetime_ms"].integer,86_400_000)
     }
 
-    func testShortSubscriptionPastHalfItsLifeIsReportedForRenewal() async throws {
+    /// 18 November 2026: Dot's run renewed two subscriptions in their last hour and its subscribe tool created two
+    /// duplicate handlers. A live subscription, however close to expiring, is never reported for renewal.
+    func testExpiringSubscriptionIsNotReportedForRenewal() async throws {
         let store = store(), recorder = RenewalRecorder()
         let hub = EventHub(store:store,sender:{ try await recorder.respond($0) })
         for name in EventHub.eventNames { _ = try await hub.subscribe(params(name,url:"https://chatgpt.com/" + name)) }
-        // A one-hour subscription with twenty minutes left: still live, but past the point where ChatGPT
-        // should have renewed it, so the check must repair it.
         try store.transaction { state in
             for index in state.subscriptions.indices {
-                state.subscriptions[index].verifiedAt = Date().addingTimeInterval(-2400)
-                state.subscriptions[index].expiresAt = Date().addingTimeInterval(1200)
+                state.subscriptions[index].verifiedAt = Date().addingTimeInterval(-86_000)
+                state.subscriptions[index].expiresAt = Date().addingTimeInterval(400)
             }
         }
-        let router = MCPRouter(store:store,statelessTunnel:true)
-        let line:JSONValue = ["jsonrpc":"2.0","id":1,"method":"tools/call","params":["name":"bridge_status","arguments":[:]]]
-        let raw = await router.response(try line.text())
-        let status = try JSONDecoder().decode(JSONValue.self,from:Data(try XCTUnwrap(raw).utf8))["result"]["structuredContent"]
-        XCTAssertEqual(status["renewal_needed"],true)
-        XCTAssertEqual(Set((status["subscriptions"].array ?? []).compactMap { $0["state"].string }),["overdue"])
+        let status = try await status(store)
+        XCTAssertEqual(status["renewal_needed"],false)
+        XCTAssertEqual(Set((status["subscriptions"].array ?? []).compactMap { $0["state"].string }),["active"])
         XCTAssertEqual(status["subscription_count"].integer,2)
+        let instruction = try XCTUnwrap(status["renewal_instruction"].string)
+        XCTAssertTrue(instruction.contains("Never call a subscribe tool for an event that already has a Mail Dot handler"))
+    }
+
+    /// Only an event with nothing left to deliver on, a day past expiry, is reported, as missing.
+    func testOnlyAnEventWithNothingToDeliverOnIsReportedMissing() async throws {
+        let store = store(), recorder = RenewalRecorder()
+        let hub = EventHub(store:store,sender:{ try await recorder.respond($0) })
+        for name in EventHub.eventNames { _ = try await hub.subscribe(params(name,url:"https://chatgpt.com/" + name)) }
+        try expire(store,url:"https://chatgpt.com/mail.workflow_requested",ago:EventHub.renewalGrace + 60)
+        let status = try await status(store)
+        let states = Dictionary(uniqueKeysWithValues:(status["subscriptions"].array ?? []).compactMap { item in
+            item["event"].string.flatMap { name in item["state"].string.map { (name,$0) } }
+        })
+        XCTAssertEqual(states,["mail.settings_requested":"active","mail.workflow_requested":"missing"])
+        XCTAssertEqual(status["renewal_needed"],true)
     }
 
     func testFreshOneHourSubscriptionIsNotReportedForRenewalAtEveryCheck() async throws {
@@ -234,29 +248,6 @@ extension SubscriptionRenewalTests {
             XCTAssertEqual(granted,86_400,accuracy:5,"asked for \(String(describing:ttl))")
             XCTAssertNotNil(answer["refreshBefore"].string)
         }
-    }
-
-    /// Dot's check runs every six hours, so a one-day subscription is due for renewal in its last six hours and ten minutes.
-    func testOneDaySubscriptionIsDueOnlyWithinOneCheckOfLapsing() async throws {
-        let store = store(), recorder = RenewalRecorder()
-        let hub = EventHub(store:store,sender:{ try await recorder.respond($0) })
-        for name in EventHub.eventNames { _ = try await hub.subscribe(params(name,url:"https://chatgpt.com/" + name)) }
-        func states(remaining:TimeInterval) async throws -> Set<String> {
-            try store.transaction { state in
-                for index in state.subscriptions.indices {
-                    state.subscriptions[index].verifiedAt = Date().addingTimeInterval(remaining - 86_400)
-                    state.subscriptions[index].expiresAt = Date().addingTimeInterval(remaining)
-                }
-            }
-            return Set((try await status(store)["subscriptions"].array ?? []).compactMap { $0["state"].string })
-        }
-        var found = try await states(remaining:86_000)
-        XCTAssertEqual(found,["active"])
-        found = try await states(remaining:7 * 3600)
-        XCTAssertEqual(found,["active"],"the next check, six hours on, still finds it live")
-        found = try await states(remaining:5 * 3600)
-        XCTAssertEqual(found,["overdue"],"it would lapse before the next check")
-        XCTAssertEqual(EventHub.renewalLead,DotHandlers.keepConnectedInterval + 600)
     }
 
     /// The event for a message shared from Mail is retired: it is not listed, not renewed and not sent.

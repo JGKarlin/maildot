@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- The launcher needs no entitlement. Without this file Xcode gives it com.apple.application-identifier, which a
+     Developer ID signature may carry only with a provisioning profile, and launchd then refuses to start it. -->
+<plist version="1.0">
+<dict/>
+</plist>

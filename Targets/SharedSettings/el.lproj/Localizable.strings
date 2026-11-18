@@ -549,3 +549,13 @@
 "Dot has not answered Mail Dot’s test requests." = "Το Dot δεν έχει απαντήσει στα δοκιμαστικά αιτήματα του Mail Dot.";
 "Keep connected has run." = "Το Keep connected εκτελέστηκε.";
 "Waiting for the first run of Keep connected." = "Αναμονή για την πρώτη εκτέλεση του Keep connected.";
+"A Mail Dot update is ready. It installs the next time you quit Mail." = "Μια ενημέρωση του Mail Dot είναι έτοιμη. Θα εγκατασταθεί την επόμενη φορά που θα τερματίσετε το Mail.";
+"Version %@ is ready. It installs the next time you quit Mail." = "Η έκδοση %@ είναι έτοιμη. Θα εγκατασταθεί την επόμενη φορά που θα τερματίσετε το Mail.";
+"Install Now" = "Εγκατάσταση τώρα";
+"Check for Updates" = "Έλεγχος για ενημερώσεις";
+"Checking for updates…" = "Έλεγχος για ενημερώσεις…";
+"Version %@ · Up to date" = "Έκδοση %@ · Ενημερωμένο";
+"Mail Dot could not reach Dot in ChatGPT. Sign in to ChatGPT with an account whose plan includes Dot, then press %@ again." = "Το Mail Dot δεν μπόρεσε να φτάσει στο Dot στο ChatGPT. Συνδεθείτε στο ChatGPT με λογαριασμό του οποίου το πρόγραμμα περιλαμβάνει το Dot και μετά πατήστε ξανά «%@».";
+"macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "Το macOS δεν επιτρέπει στο Mail Dot να συνεργαστεί με το Mail. Στις Ρυθμίσεις συστήματος, στον Αυτοματισμό, ενεργοποιήστε το Mail για το Mail Dot.";
+"Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "Στη συνέχεια, συνδέστε έναν λογαριασμό αλληλογραφίας. Στο Mail, ανοίξτε οποιοδήποτε μήνυμα, κάντε κλικ στο εικονίδιο Mail Dot στην κεφαλίδα του και επιλέξτε «%@».";
+"Look at what Dot wrote in ChatGPT." = "Δείτε τι έγραψε το Dot στο ChatGPT.";

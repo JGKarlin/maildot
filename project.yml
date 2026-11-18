@@ -12,7 +12,7 @@ settings:
     ENABLE_HARDENED_RUNTIME: YES
     # The version Mail shows in Settings › Extensions changes with every build (owner request, 14 November 2026).
     MARKETING_VERSION: 0.4.$(CURRENT_PROJECT_VERSION)
-    CURRENT_PROJECT_VERSION: 205
+    CURRENT_PROJECT_VERSION: 216
   configs:
     Release:
       # A development-signed build is otherwise given get-task-allow, which lets any process of the same
@@ -26,6 +26,10 @@ configFiles:
 packages:
   BridgeKit:
     path: .
+  # Automatic updates (owner's approval, 18 November 2026). Pinned; raised only on purpose.
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    exactVersion: 2.10.1
 targets:
   MailDot:
     type: application
@@ -45,11 +49,14 @@ targets:
         product: BridgeCore
       - package: BridgeKit
         product: BridgeAutomation
+      - package: Sparkle
       - target: MailDotExtension
         embed: true
       - target: MailDotRuntime
         embed: true
-        codeSign: true
+        # Already signed by its own target. Signing it again on copy gave it com.apple.application-identifier, which
+        # a Developer ID signature may carry only with a provisioning profile, so launchd refused to start it.
+        codeSign: false
         copy:
           destination: wrapper
           subpath: Contents/Helpers
@@ -71,6 +78,9 @@ targets:
           APP="$TARGET_BUILD_DIR/$WRAPPER_NAME"
           mkdir -p "$APP/Contents/Resources/Licenses/SQLCipher"
           cp "$SRCROOT/Config/Licenses/SQLCipher/LICENSE" "$APP/Contents/Resources/Licenses/SQLCipher/LICENSE"
+          # Sparkle (automatic updates) is MIT-licensed; its notice travels with the app.
+          mkdir -p "$APP/Contents/Resources/Licenses/Sparkle"
+          cp "$SRCROOT/Config/Licenses/Sparkle/LICENSE" "$APP/Contents/Resources/Licenses/Sparkle/LICENSE"
           if [ ! -x "$SRC/tunnel-client" ]; then
             echo "warning: Vendor/tunnel-client is missing (run Tools/vendor-tunnel-client.sh); this build uses the tunnel client named in its runtime settings."
             exit 0
@@ -78,7 +88,9 @@ targets:
           mkdir -p "$APP/Contents/Helpers" "$APP/Contents/Resources/Licenses/tunnel-client"
           ditto "$SRC/tunnel-client" "$APP/Contents/Helpers/tunnel-client"
           cp "$SRC/LICENSE" "$SRC/NOTICE" "$APP/Contents/Resources/Licenses/tunnel-client/"
-          codesign --force --options runtime --timestamp=none --sign "${EXPANDED_CODE_SIGN_IDENTITY:--}" "$APP/Contents/Helpers/tunnel-client"
+          # A Developer ID build is notarized, which needs a secure timestamp on every signature.
+          case "$CODE_SIGN_IDENTITY" in "Developer ID"*) STAMP=--timestamp ;; *) STAMP=--timestamp=none ;; esac
+          codesign --force --options runtime $STAMP --sign "${EXPANDED_CODE_SIGN_IDENTITY:--}" "$APP/Contents/Helpers/tunnel-client"
     settings:
       base:
         ENABLE_USER_SCRIPT_SANDBOXING: NO
@@ -97,6 +109,16 @@ targets:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSUIElement: true
+        # Sparkle: the signed update list on the public repository's latest release, checked once a day, always on,
+        # downloaded and installed without asking (installed only once Mail has quit), no system profile sent.
+        SUFeedURL: https://github.com/JGKarlin/maildot/releases/latest/download/appcast.xml
+        SUPublicEDKey: Pe53QjWi5xUqpu2sOk5zp1F9/eGL9ujZ/zfKDr+llwY=
+        SUEnableAutomaticChecks: true
+        SUAutomaticallyUpdate: true
+        SUAllowsAutomaticUpdates: true
+        SUScheduledCheckInterval: 86400
+        SUEnableSystemProfiling: false
+        SUVerifyUpdateBeforeExtraction: true
         NSCalendarsWriteOnlyAccessUsageDescription: Mail Dot adds a meeting from a message to your calendar when you press Add to Calendar. It never reads your calendar.
         NSAudioCaptureUsageDescription: Mail Dot plays its spoken request to Dot into the call silently. It captures only its own sound, never other apps or the microphone.
         NSAppleEventsUsageDescription: Mail Dot reads only the accounts and folders you authorize, connects replies you explicitly share, and applies or submits reviewed drafts after your approval.
@@ -141,6 +163,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: org.jgkarlin.MailBridge.Runtime
+        CODE_SIGN_ENTITLEMENTS: Config/Runtime.entitlements
         GENERATE_INFOPLIST_FILE: YES
   MailDotAgent:
     type: tool

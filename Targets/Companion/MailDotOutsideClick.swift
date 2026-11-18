@@ -26,21 +26,38 @@ import os
     func start() {
         guard tap == nil,monitor == nil else { return }
         Timer.scheduledTimer(withTimeInterval:0.5,repeats:true) { _ in MainActor.assumeIsolated { MailDotOutsideClick.shared.refresh() } }
-        let mask=CGEventMask(1 << CGEventType.leftMouseDown.rawValue) | CGEventMask(1 << CGEventType.leftMouseUp.rawValue)
-        if let port=CGEvent.tapCreate(tap:.cgSessionEventTap,place:.headInsertEventTap,options:.defaultTap,eventsOfInterest:mask,callback:{ _,type,event,_ in
-            MailDotOutsideClick.handle(type,event)
-        },userInfo:nil) {
-            tap=port
-            let source=CFMachPortCreateRunLoopSource(nil,port,0)
-            CFRunLoopAddSource(CFRunLoopGetMain(),source,.commonModes)
-            CGEvent.tapEnable(tap:port,enable:true)
-        } else {
-            // Without the tap the click still closes the window, but Mail sees it first and sounds its alert.
+        if !installTap() {
+            // Without the tap the click still closes the window, but Mail sees it first and sounds its alert. The same
+            // test decides: only a click on one of Mail's other windows closes it. Until 18 November 2026 this handler
+            // closed the window for a click anywhere, the window itself included: it runs when Mail Dot starts without
+            // Accessibility, as on a new installation, and from the moment the permission was given no button in the
+            // Mail Dot window could be pressed until Mail Dot was started again.
             monitor=NSEvent.addGlobalMonitorForEvents(matching:.leftMouseDown) { event in
                 let place=event.cgEvent?.location ?? .zero
+                guard MailDotOutsideClick.outside(place) else { return }
                 Task { @MainActor in await MailDotOutsideClick.shared.closeAndReplay(at:place,replay:true) }
             }
         }
+    }
+    /// The tap that holds a click back from Mail. It needs the Accessibility permission, so it is tried again from
+    /// `refresh` once the permission is there, and the simpler handler is then taken away.
+    @discardableResult private func installTap() -> Bool {
+        guard tap == nil else { return true }
+        let mask=CGEventMask(1 << CGEventType.leftMouseDown.rawValue) | CGEventMask(1 << CGEventType.leftMouseUp.rawValue)
+        guard let port=CGEvent.tapCreate(tap:.cgSessionEventTap,place:.headInsertEventTap,options:.defaultTap,eventsOfInterest:mask,callback:{ _,type,event,_ in
+            MailDotOutsideClick.handle(type,event)
+        },userInfo:nil) else { return false }
+        tap=port
+        let source=CFMachPortCreateRunLoopSource(nil,port,0)
+        CFRunLoopAddSource(CFRunLoopGetMain(),source,.commonModes)
+        CGEvent.tapEnable(tap:port,enable:true)
+        if let monitor { NSEvent.removeMonitor(monitor); self.monitor=nil }
+        return true
+    }
+    /// Whether a click at this point is on one of Mail's ordinary windows and outside the open Mail Dot window.
+    nonisolated static func outside(_ point:CGPoint) -> Bool {
+        guard let dialog=dialogFrame,!dialog.contains(point),standardFrames.contains(where:{ $0.contains(point) }) else { return false }
+        return frontOwner(at:point) == mailProcess
     }
 
     /// Decides on one click, at once. A click on one of Mail's ordinary windows while the Mail Dot window is open is held
@@ -56,8 +73,7 @@ import os
             return Unmanaged.passUnretained(event)
         }
         let point=event.location
-        guard let dialog=dialogFrame,!dialog.contains(point),standardFrames.contains(where:{ $0.contains(point) }),
-              frontOwner(at:point) == mailProcess else { return Unmanaged.passUnretained(event) }
+        guard outside(point) else { return Unmanaged.passUnretained(event) }
         swallowingUp=true
         Task { @MainActor in await MailDotOutsideClick.shared.closeAndReplay(at:point,replay:true) }
         return nil
@@ -88,7 +104,10 @@ import os
 
     /// Where the Mail Dot window and Mail's ordinary windows are now. No title is kept and no content is read.
     private func refresh() {
-        guard AXIsProcessTrusted(),let mail=NSRunningApplication.runningApplications(withBundleIdentifier:"com.apple.mail").first else {
+        guard AXIsProcessTrusted() else { Self.dialogFrame=nil; Self.standardFrames=[]; return }
+        // The permission may have been given since Mail Dot started (setup's first step): the tap is set up now.
+        if tap == nil { installTap() }
+        guard let mail=NSRunningApplication.runningApplications(withBundleIdentifier:"com.apple.mail").first else {
             Self.dialogFrame=nil; Self.standardFrames=[]; return
         }
         let app=AXUIElementCreateApplication(mail.processIdentifier)

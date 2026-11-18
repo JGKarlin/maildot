@@ -292,3 +292,13 @@
 "Dot has not answered Mail Dot’s test requests." = "Dot has not answered Mail Dot’s test requests.";
 "Keep connected has run." = "Keep connected has run.";
 "Waiting for the first run of Keep connected." = "Waiting for the first run of Keep connected.";
+"A Mail Dot update is ready. It installs the next time you quit Mail." = "A Mail Dot update is ready. It installs the next time you quit Mail.";
+"Version %@ is ready. It installs the next time you quit Mail." = "Version %@ is ready. It installs the next time you quit Mail.";
+"Install Now" = "Install Now";
+"Check for Updates" = "Check for Updates";
+"Checking for updates…" = "Checking for updates…";
+"Version %@ · Up to date" = "Version %@ · Up to date";
+"Mail Dot could not reach Dot in ChatGPT. Sign in to ChatGPT with an account whose plan includes Dot, then press %@ again." = "Mail Dot could not reach Dot in ChatGPT. Sign in to ChatGPT with an account whose plan includes Dot, then press %@ again.";
+"macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot." = "macOS is not letting Mail Dot work with Mail. In System Settings, under Automation, turn on Mail for Mail Dot.";
+"Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@." = "Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose %@.";
+"Look at what Dot wrote in ChatGPT." = "Look at what Dot wrote in ChatGPT.";

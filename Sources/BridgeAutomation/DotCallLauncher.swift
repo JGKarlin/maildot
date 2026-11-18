@@ -8,6 +8,13 @@ import BridgeCore
 /// presses Space on it, as the owner would from the keyboard. It reads only the labels of ChatGPT's controls, never conversations.
 @MainActor public enum DotCallLauncher {
     public static let chatGPTBundleID="com.openai.codex"
+    /// ChatGPT's names for its controls in every language it is shown in, read from the ChatGPT app itself
+    /// (see ChatGPTLabels). English alone until the app's files have been read.
+    private static var labels=ChatGPTLabels.english
+    /// Reads the names for this copy of ChatGPT; quick once read, since the result is kept until ChatGPT changes.
+    private static func learnLabels(_ location:URL) async {
+        labels=await Task.detached(priority:.userInitiated) { ChatGPTCatalog.labels(app:location) }.value
+    }
     /// The ChatGPT app's own address for the dots page.
     static let dotsAddress=URL(string:"codex://dots")!
 
@@ -40,6 +47,7 @@ import BridgeCore
         guard let location=NSWorkspace.shared.urlForApplication(withBundleIdentifier:chatGPTBundleID) else {
             note("outcome=missing"); return .notInstalled
         }
+        await learnLabels(location)
         var launched=false
         if running() == nil {
             launched=true
@@ -99,6 +107,7 @@ import BridgeCore
     /// alone sends it. Unsent text of the owner's is never overwritten.
     public static func say(_ text:String) async -> SayRefusal? {
         guard let location=NSWorkspace.shared.urlForApplication(withBundleIdentifier:chatGPTBundleID) else { return .noField }
+        await learnLabels(location)
         if running() == nil {
             let configuration=NSWorkspace.OpenConfiguration()
             configuration.addsToRecentItems=false
@@ -138,8 +147,10 @@ import BridgeCore
             visited += 1
             let role=attribute(element,kAXRoleAttribute) as? String
             let label=(attribute(element,kAXTitleAttribute) as? String).flatMap{$0.isEmpty ? nil : $0} ?? (attribute(element,kAXDescriptionAttribute) as? String)
-            if role == "AXTextArea",label == "Message" { field=element }
-            if role == "AXButton",label == "Send" { send=element }
+            // The message field is named in ChatGPT's language; it is the page's one editor, which the web page
+            // marks as such whatever the language (seen 18 November 2026 with ChatGPT in Japanese).
+            if role == "AXTextArea",label == "Message" || (attribute(element,"AXDOMClassList") as? [String])?.contains("ProseMirror") == true { field=element }
+            if role == "AXButton",let label,labels.send.contains(label) { send=element }
             for child in attribute(element,kAXChildrenAttribute) as? [AXUIElement] ?? [] { walk(child,depth+1) }
         }
         for window in attribute(root,kAXWindowsAttribute) as? [AXUIElement] ?? [] { walk(window,0) }
@@ -158,8 +169,9 @@ import BridgeCore
     /// Ends the call from Mail Dot's side by pressing ChatGPT's Hang up, if a call is showing.
     @discardableResult public static func hangUp() async -> Bool {
         guard let app=running(),AXIsProcessTrusted() else { return false }
+        if let location=app.bundleURL { await learnLabels(location) }
         let found=controls(in:app)
-        guard let control=found.elements.first(where:{$0.label == "Hang up"})?.element else { return false }
+        guard let control=found.elements.first(where:{labels.hangUp.contains($0.label)})?.element else { return false }
         return await operate(control,in:app)
     }
 
@@ -222,8 +234,8 @@ import BridgeCore
         let deadline=Date().addingTimeInterval(seconds)
         while true {
             let found=controls(in:app)
-            let state=DotCallControl.state(labels:found.elements.map(\.label))
-            let sighting=Sighting(state:state,start:found.elements.first{$0.label == DotCallControl.start}?.element,visited:found.visited)
+            let state=DotCallControl.state(labels:found.elements.map(\.label),known:labels)
+            let sighting=Sighting(state:state,start:found.elements.first{labels.start.contains($0.label)}?.element,visited:found.visited)
             if wanted.map({$0 == state}) ?? (state != .absent) { return sighting }
             if Date() >= deadline { return sighting }
             try? await Task.sleep(for:.milliseconds(400))
@@ -240,7 +252,7 @@ import BridgeCore
             visited += 1
             if let role=attribute(element,kAXRoleAttribute) as? String,["AXCheckBox","AXButton","AXMenuButton"].contains(role) {
                 for name in [kAXTitleAttribute,kAXDescriptionAttribute] {
-                    if let label=attribute(element,name) as? String,DotCallControl.all.contains(label) { found.append((label,element)); break }
+                    if let label=attribute(element,name) as? String,labels.all.contains(label) { found.append((label,element)); break }
                 }
             }
             for child in attribute(element,kAXChildrenAttribute) as? [AXUIElement] ?? [] { walk(child,depth+1) }
@@ -295,11 +307,11 @@ import BridgeCore
     /// actions and call labels only.
     public static func probeControlTree() -> String {
         guard let app=running(),AXIsProcessTrusted() else { return "not available" }
-        guard let control=controls(in:app).elements.first(where:{$0.label == DotCallControl.start})?.element else { return "no Start call control" }
+        guard let control=controls(in:app).elements.first(where:{labels.start.contains($0.label)})?.element else { return "no Start call control" }
         func describe(_ e:AXUIElement) -> String {
             var names:CFArray?
             AXUIElementCopyActionNames(e,&names)
-            let label=[kAXTitleAttribute,kAXDescriptionAttribute].compactMap{attribute(e,$0) as? String}.filter{DotCallControl.all.contains($0)}.first ?? ""
+            let label=[kAXTitleAttribute,kAXDescriptionAttribute].compactMap{attribute(e,$0) as? String}.filter{labels.all.contains($0)}.first ?? ""
             var size=CGSize.zero
             if let value=attribute(e,kAXSizeAttribute) { AXValueGetValue(value as! AXValue,.cgSize,&size) }
             return "\(attribute(e,kAXRoleAttribute) as? String ?? "?")/\(attribute(e,kAXSubroleAttribute) as? String ?? "-") actions=\(names as? [String] ?? []) label=\(label) size=\(Int(size.width))x\(Int(size.height)) enabled=\(String(describing:attribute(e,kAXEnabledAttribute) as? Bool)) focused=\(String(describing:attribute(e,kAXFocusedAttribute) as? Bool)) dom=\((attribute(e,"AXDOMClassList") as? [String])?.count ?? -1) domRole=\(attribute(e,"AXDOMRole") as? String ?? "-")"
@@ -485,7 +497,7 @@ import BridgeCore
         guard let app=running() else { return "ChatGPT is not running" }
         guard AXIsProcessTrusted() else { return "no Accessibility access" }
         let found=controls(in:app)
-        return "labels=\(found.elements.map(\.label)) state=\(DotCallControl.state(labels:found.elements.map(\.label))) visited=\(found.visited) frontmost=\(app.isActive)"
+        return "labels=\(found.elements.map(\.label)) state=\(DotCallControl.state(labels:found.elements.map(\.label),known:labels)) visited=\(found.visited) frontmost=\(app.isActive)"
     }
     #endif
 }
