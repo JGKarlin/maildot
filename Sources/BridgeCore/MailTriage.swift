@@ -267,11 +267,13 @@ public struct MailTriageState:Codable,Sendable {
         if entries.count > Self.keep { entries.removeFirst(entries.count-Self.keep) }
         return true
     }
-    /// Dot's queue (owner request, 13 November 2026): messages are offered to Dot one at a time, so that it is never
-    /// flooded with requests all at once; the next goes only when Dot has answered or Mail Dot has stopped
-    /// waiting (15 minutes). The queue is the waiting entries themselves, kept on disk, so it survives a
-    /// restart, and nothing in it is dropped: a message waits its turn.
-    public static let inFlightLimit=1
+    /// Dot's queue (owner request, 13 November 2026): Dot is never flooded with requests all at once. Until 18
+    /// November 2026 messages went one at a time, each its own notice to ChatGPT and its own turn, about a minute
+    /// apiece, so mail that arrived while Mail was closed took as many minutes as there were messages. The owner
+    /// chose a batch (18 November 2026): up to this many are offered together, ChatGPT is told of the first alone,
+    /// and Dot is handed each next one as it reports the last (see MailWorkflowState's chain). The queue is the
+    /// waiting entries themselves, kept on disk, so it survives a restart, and nothing in it is dropped.
+    public static let inFlightLimit=6
     /// The waiting messages in the order Dot gets them: those the owner asked about first, then those the
     /// owner opened (most recently opened first), then mail sent to the owner directly, then mail they were
     /// copied on, each newest first.
@@ -332,6 +334,13 @@ public struct MailTriageState:Codable,Sendable {
     public mutating func markAsked(_ id:String,requestID:String,now:Date=Date()) {
         guard let index=entries.firstIndex(where:{$0.id == id}) else { return }
         entries[index].outcome = .asked; entries[index].requestID=requestID; entries[index].askedAt=now
+    }
+    /// The fifteen minutes Dot has for a message count from when Dot takes it, and for messages waiting behind it in
+    /// the batch from Dot's last sign of work: a message that is only waiting its turn is not one Dot left unanswered.
+    public mutating func noteDotAtWork(requestIDs:Set<String>,now:Date=Date()) {
+        for index in entries.indices where entries[index].outcome == .asked {
+            if let id=entries[index].requestID,requestIDs.contains(id) { entries[index].askedAt=now }
+        }
     }
     /// How long Dot may take to answer about a message before Mail Dot stops waiting.
     public static let answerLimit:TimeInterval=15*60

@@ -1,6 +1,6 @@
 # Privacy
 
-Hooner LLC publishes Mail Dot. This page states what Mail Dot does with mail and with data. It applies to Mail Dot 0.4.217 and later, and was last updated on 18 November 2026.
+Hooner LLC publishes Mail Dot. This page states what Mail Dot does with mail and with data. It applies to Mail Dot 0.4.218 and later, and was last updated on 18 November 2026.
 
 ## What Mail Dot collects
 

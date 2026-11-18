@@ -18,17 +18,33 @@ final class DotQueueTests:XCTestCase {
         state.entries[state.entries.firstIndex{$0.id == mid.id}!].outcome = .skipped
         try state.ask(mid.id)
         XCTAssertEqual(state.queueForDot().first?.subject,"mid","one the owner asked about comes before all")
-        XCTAssertEqual(state.dueForDot().map(\.subject),["mid"],"and only one is offered at a time")
+        XCTAssertEqual(state.dueForDot().map(\.subject),["mid","old","new"],"offered together as one batch, the owner's first (owner's choice, 18 November 2026)")
     }
     func testAnUnansweredRequestFreesItsPlaceAfterTheLimit() {
         var state=MailTriageState()
         let now=Date()
+        let batch=(0..<MailTriageState.inFlightLimit).map{ entry("a\($0)",received:now.addingTimeInterval(Double(-$0))) }
+        let late=entry("late",received:now.addingTimeInterval(-600))
+        batch.forEach{ state.record($0) }; state.record(late)
+        XCTAssertEqual(state.dueForDot(now:now).count,MailTriageState.inFlightLimit,"a whole batch is offered")
+        for (index,one) in batch.enumerated() { state.markAsked(one.id,requestID:"r\(index)",now:now) }
+        XCTAssertTrue(state.dueForDot(now:now).isEmpty,"the next waits while Dot works on the batch")
+        state.expireUnanswered(now:now.addingTimeInterval(16*60))
+        XCTAssertFalse(state.dueForDot(now:now.addingTimeInterval(16*60)).isEmpty,"after 15 minutes the queue moves on")
+    }
+    /// A message waiting its turn behind one Dot is working on is not unanswered: its fifteen minutes start when Dot
+    /// was last seen at work on the batch.
+    func testAMessageWaitingInTheBatchIsNotCountedUnansweredWhileDotWorks() {
+        var state=MailTriageState()
+        let now=Date()
         let a=entry("a",received:now),b=entry("b",received:now.addingTimeInterval(-60))
         state.record(a); state.record(b)
-        state.markAsked(a.id,requestID:"r1",now:now)
-        XCTAssertTrue(state.dueForDot(now:now).isEmpty,"b waits while Dot works on a")
-        state.expireUnanswered(now:now.addingTimeInterval(16*60))
-        XCTAssertEqual(state.dueForDot(now:now.addingTimeInterval(16*60)).count,1,"after 15 minutes the queue moves on")
+        state.markAsked(a.id,requestID:"r1",now:now); state.markAsked(b.id,requestID:"r2",now:now)
+        // Twelve minutes on, Dot reports on a and is handed b.
+        state.accept(requestID:"r1",stage:.ready,summary:"No reply needed.")
+        state.noteDotAtWork(requestIDs:["r2"],now:now.addingTimeInterval(12*60))
+        XCTAssertEqual(state.expireUnanswered(now:now.addingTimeInterval(16*60)),0,"b has had four minutes, not sixteen")
+        XCTAssertEqual(state.expireUnanswered(now:now.addingTimeInterval(28*60)),1)
     }
 }
 

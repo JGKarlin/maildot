@@ -165,6 +165,9 @@ public struct MailWorkflowRequest:Codable,Sendable,Identifiable {
     public var event=BridgeEvent()
     /// How many times the request was announced to Dot again because no session started on it (see EventHub).
     public var redeliveries:Int?
+    /// One of a batch of arriving messages offered together (see MailWorkflowState's chain): ChatGPT is not told of
+    /// it at once, because Dot is handed it when it reports on the one before.
+    public var chained:Bool?
     /// The worker handling this request (release review, 14 November 2026). A listener on the Mac and Dot in the cloud
     /// can both take requests; the first to take one holds it for ten minutes and the other leaves it alone.
     public struct Claim:Codable,Sendable,Equatable { public var worker:String; public var at:Date }

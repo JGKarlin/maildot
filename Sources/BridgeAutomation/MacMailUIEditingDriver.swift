@@ -481,15 +481,33 @@ actor MacMailUIEditingDriver:MailUIEditingDriver {
             throw BridgeFailure("Mail did not focus the bound message body. Nothing was typed by this check.")
         }
     }
-    /// The message's window. A message with a subject is found by it, as its window is titled with it. A new
-    /// message without one has no such title: it is the window bound earlier, or, when first bound, the one
-    /// Mail has in front, which is where the owner opened the Mail Dot panel.
+    /// The message's window, chosen as ComposeWindowChoice says: the window bound earlier, the one titled with the
+    /// subject, or, where that leaves several or none, the message being written that Mail has in front. One window
+    /// or none is returned.
     private func composeWindows(_ app:AXUIElement,subject:String,bound:AXUIElement?) throws -> [AXUIElement] {
         let windows=try children(app,attribute:kAXWindowsAttribute,limit:20)
-        if !subject.isEmpty { return windows.filter { value($0,kAXTitleAttribute) as? String == subject } }
-        if let bound { return windows.filter { CFEqual($0,bound) } }
-        guard let main=value(app,kAXMainWindowAttribute),CFGetTypeID(main) == AXUIElementGetTypeID() else { return [] }
-        return [main as! AXUIElement]
+        let main=value(app,kAXMainWindowAttribute).flatMap{ CFGetTypeID($0) == AXUIElementGetTypeID() ? ($0 as! AXUIElement) : nil }
+        let candidates=windows.map{ window in
+            ComposeWindowChoice.Candidate(title:value(window,kAXTitleAttribute) as? String,isMain:main.map{ CFEqual($0,window) } ?? false,isBound:bound.map{ CFEqual($0,window) } ?? false)
+        }
+        var asked=0
+        let chosen=ComposeWindowChoice.choose(candidates,subject:subject) { index in asked += 1; return hasSendButton(windows[index]) }
+        if asked > 0 { MailEditorDiagnostics.note("window chosen among \(windows.count) by its Send button: \(chosen == nil ? "none" : "found") (asked \(asked))") }
+        return chosen.map{ [windows[$0]] } ?? []
+    }
+    /// Whether a window is a message being written: it has Mail's Send button. Looked for near the top of the window,
+    /// within a small limit, and never read beyond roles and the button's own identifier.
+    private func hasSendButton(_ window:AXUIElement) -> Bool {
+        var queue:[(AXUIElement,Int)]=[(window,0)],visited=0
+        let deadline=Date().addingTimeInterval(1.5)
+        while !queue.isEmpty,visited < 200,Date() < deadline {
+            let (item,depth)=queue.removeFirst(); visited += 1
+            guard let role=role(item) else { continue }
+            if role == kAXButtonRole,value(item,kAXIdentifierAttribute) as? String == "send" { return true }
+            if role == "AXWebArea" || depth >= 6 { continue }
+            queue.append(contentsOf:((try? children(item,limit:200-visited)) ?? []).map{ ($0,depth+1) })
+        }
+        return false
     }
     private func sameTarget(_ target:Target,subject:String) throws {
         let current=try locate(pid:target.pid,subject:subject,bound:target.window)
@@ -498,7 +516,7 @@ actor MacMailUIEditingDriver:MailUIEditingDriver {
     private func locate(pid:pid_t,subject:String,bound:AXUIElement?=nil) throws -> Target {
         let app=AXUIElementCreateApplication(pid)
         let windows=try composeWindows(app,subject:subject,bound:bound)
-        guard windows.count == 1,let window=windows.first else { throw BridgeFailure(subject.isEmpty ? "Mail Dot could not find this new message's window. Click in it, then try again." : "Mail Dot found no window, or more than one, titled with this message's subject. Close any other window with the same title, such as the original message opened in a window of its own, so that only this message remains, then try again.") }
+        guard windows.count == 1,let window=windows.first else { throw BridgeFailure(subject.isEmpty ? "Mail Dot could not find this new message's window. Click in it, then try again." : "Mail Dot could not find this message's window. Click in it, then try again.") }
         let deadline=Date().addingTimeInterval(3)
         var queue:[(AXUIElement,Int)]=[(window,0)],visited=0,bodies:[AXUIElement]=[],popovers:[AXUIElement]=[],sendButtons:[AXUIElement]=[],unreadable=0
         defer { if unreadable > 0 { MailEditorDiagnostics.note("editor discovery passed over \(unreadable) element(s) without a role") } }

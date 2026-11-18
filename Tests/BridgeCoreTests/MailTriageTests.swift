@@ -81,13 +81,20 @@ final class MailTriageTests:XCTestCase {
         state.record(off)
         XCTAssertEqual(state.dueForDot().map(\.messageID),["a@example.invalid"])
         for index in 0..<(MailTriageState.hourlyLimit+10) { state.record(MailTriageEntry(messageID:"m\(index)@example.invalid",sender:"p\(index)@example.invalid",senderName:nil,subject:"z",receivedAt:nil,verdict:verdict,automatic:true)) }
-        // One at a time; each answered before the next, up to the hourly limit.
+        // A batch at a time (owner's choice, 18 November 2026): never more in flight than the batch, and no more
+        // offered until Dot has answered some, up to the hourly limit.
+        XCTAssertEqual(MailTriageState.inFlightLimit,6)
         for _ in 0..<(MailTriageState.hourlyLimit+10) {
-            guard let entry=state.dueForDot().first else { break }
-            XCTAssertEqual(state.dueForDot().count,1,"never more than one request in flight")
-            state.markAsked(entry.id,requestID:UUID().uuidString)
-            XCTAssertTrue(state.dueForDot().isEmpty,"the next waits for Dot's answer")
-            state.accept(requestID:state.entries.first{$0.id == entry.id}!.requestID!,stage:.ready,summary:"No reply needed.")
+            let due=state.dueForDot()
+            guard !due.isEmpty else { break }
+            XCTAssertLessThanOrEqual(due.count,MailTriageState.inFlightLimit,"never more than one batch in flight")
+            for entry in due { state.markAsked(entry.id,requestID:UUID().uuidString) }
+            XCTAssertTrue(state.dueForDot().isEmpty,"a full batch: the next waits for Dot's answers")
+            // Dot answers one: exactly one more is offered, while the hour's limit allows.
+            let first=state.entries.first{$0.id == due[0].id}!.requestID!
+            state.accept(requestID:first,stage:.ready,summary:"No reply needed.")
+            XCTAssertLessThanOrEqual(state.dueForDot().count,1)
+            for entry in due.dropFirst() { state.accept(requestID:state.entries.first{$0.id == entry.id}!.requestID!,stage:.ready,summary:"No reply needed.") }
         }
         XCTAssertEqual(state.entries.filter{$0.outcome == .noDraft}.count,MailTriageState.hourlyLimit)
         XCTAssertTrue(state.dueForDot().isEmpty,"no more than the hourly limit is offered")
@@ -190,5 +197,51 @@ final class MailTriageTests:XCTestCase {
         other.record(entry)
         try other.discardDraft(entry.id)
         XCTAssertNil(other.draft(forMessageID:"e@example.invalid"))
+    }
+
+    // MARK: The batch (owner's choice, 18 November 2026)
+
+    private func chainStore() throws -> (MailWorkflowStore,URL,[MailWorkflowAccount]) {
+        let root=FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true)
+        return (MailWorkflowStore(bridgeDirectory:root),root,[])
+    }
+    private func chained(_ at:Date,first:Bool) throws -> MailWorkflowRequest {
+        var request=try MailWorkflowRequest(action:.draftCheck,accountIDs:["gmail:profile"],triageID:UUID().uuidString,createdAt:at)
+        if !first { request.chained=true; request.event.nextAttemptAt=at.addingTimeInterval(MailWorkflowState.chainPlaceWait) }
+        return request
+    }
+
+    /// ChatGPT is told of the first message alone; the others wait to be handed over, each a place later.
+    func testOnlyTheFirstOfABatchIsAnnouncedAtOnce() throws {
+        let now=Date()
+        var state=MailWorkflowState()
+        let first=try chained(now,first:true),second=try chained(now.addingTimeInterval(1),first:false),third=try chained(now.addingTimeInterval(2),first:false)
+        state.requests=[first,second,third]
+        XCTAssertEqual(state.chainWaiting(now:now).map(\.id),[second.id,third.id])
+        XCTAssertEqual(state.chainNext(now:now)?.id,second.id,"the one handed over next")
+        // Dot reports on the first and is handed the second: the notices of those still waiting are put off.
+        let put=state.deferChain(first:MailWorkflowState.chainTakeWait,now:now.addingTimeInterval(30))
+        XCTAssertEqual(put,[second.id,third.id])
+        let due=state.requests.map{ $0.event.nextAttemptAt.timeIntervalSince(now) }
+        XCTAssertEqual(due[1],30+MailWorkflowState.chainTakeWait,accuracy:1)
+        XCTAssertEqual(due[2],30+MailWorkflowState.chainTakeWait+MailWorkflowState.chainPlaceWait,accuracy:1,"each a place later")
+        XCTAssertEqual(due[0],0,accuracy:1,"the first was announced at once and is left alone")
+    }
+
+    /// A chain Dot does not follow costs nothing: a message Dot has taken, one already announced and one finished are
+    /// no longer waiting to be handed over.
+    func testAMessageTakenAnnouncedOrFinishedLeavesTheChain() throws {
+        let now=Date()
+        var state=MailWorkflowState()
+        var taken=try chained(now,first:false),announced=try chained(now.addingTimeInterval(1),first:false)
+        let waiting=try chained(now.addingTimeInterval(2),first:false)
+        taken.take(worker:"w",now:now)
+        announced.event.receiptAt=now; announced.event.attempts=1
+        state.requests=[taken,announced,waiting]
+        XCTAssertEqual(state.chainWaiting(now:now).map(\.id),[waiting.id])
+        XCTAssertEqual(MailWorkflowState.chainPlaceWait,75,"the pace of one message at a time, as before")
+        XCTAssertTrue(MailWorkflowTools.draftCheckInstructions.contains("next_request_id"))
+        XCTAssertTrue(MailWorkflowTools.chainInstruction.contains("Do not end your turn"))
     }
 }

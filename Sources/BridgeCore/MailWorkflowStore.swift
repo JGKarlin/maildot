@@ -36,6 +36,38 @@ public struct MailWorkflowState:Codable,Sendable {
                 && request.claim == nil && now.timeIntervalSince(request.createdAt) < MailWorkflowRequest.ownerPriorityWindow
         }
     }
+    // MARK: The chain (owner's choice of a batch, 18 November 2026)
+
+    /// How long each place in a new batch waits before ChatGPT is told of that message by a notice of its own, if
+    /// Dot has not been handed it by then: the pace of one message at a time, so a chain Dot does not follow costs
+    /// nothing against how things were.
+    public static let chainPlaceWait:TimeInterval=75
+    /// After a report, Dot is expected to take the next message within this long.
+    public static let chainTakeWait:TimeInterval=45
+    /// While Dot works on one message, the ones behind it wait at least this long.
+    public static let chainWorkWait:TimeInterval=180
+
+    /// The messages of a batch that Dot has not been handed and ChatGPT has not been told of, oldest first.
+    public func chainWaiting(now:Date=Date()) -> [MailWorkflowRequest] {
+        requests.filter{ $0.chained == true && $0.action == .draftCheck && $0.stage == .pending && !$0.hasActiveClaim(now:now) && $0.event.receiptAt == nil && $0.event.attempts == 0 }
+            .sorted{ $0.createdAt < $1.createdAt }
+    }
+    /// Puts off the notices of the waiting messages: the first by `first`, each one after it by a place more. A
+    /// notice not yet sent is made afresh, so that its age is counted from now. Returns the requests put off.
+    @discardableResult public mutating func deferChain(first:TimeInterval,now:Date=Date()) -> [String] {
+        let waiting=chainWaiting(now:now)
+        for (place,request) in waiting.enumerated() {
+            guard let index=requests.firstIndex(where:{$0.id == request.id}) else { continue }
+            var event=BridgeEvent()
+            event.occurredAt=now
+            event.nextAttemptAt=now.addingTimeInterval(first+Double(place)*Self.chainPlaceWait)
+            requests[index].event=event
+        }
+        return waiting.map(\.id)
+    }
+    /// The message Dot is handed next when it has reported on one: the first still waiting.
+    public func chainNext(now:Date=Date()) -> MailWorkflowRequest? { chainWaiting(now:now).first }
+
     /// The worker takes the request, unless another holds it. Returns whether it is this worker's now.
     @discardableResult public mutating func take(_ id:String,worker:String,now:Date=Date()) -> Bool {
         guard let index=requests.firstIndex(where:{$0.id == id}),![.ready,.failed].contains(requests[index].stage),

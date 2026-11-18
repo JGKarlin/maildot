@@ -1115,6 +1115,10 @@ import OSLog
         // A request the owner made themselves and Dot has not started goes first: nothing automatic is added in front of it.
         let ownerWaiting = !((try? MailWorkflowStore(bridgeDirectory:bridge.directory).read())?.ownerRequestsWaiting().isEmpty ?? true)
         if !ownerWaiting,let state=try? store.read() {
+            // A batch (owner's choice, 18 November 2026): the messages offered in this pass go together. ChatGPT is told
+            // of the first; each later one is handed to Dot as it reports on the one before, and is announced by a notice
+            // of its own only if Dot has not taken it by then. A message the owner asked about is never made to wait so.
+            var place=state.entries.filter{ $0.outcome == .asked }.count
             for entry in state.dueForDot() where settings.dotActive || entry.askedByOwner {
                 if !entry.askedByOwner {
                     let to=entry.recipients ?? []
@@ -1134,9 +1138,15 @@ import OSLog
                 do {
                     let available=try MailWorkflowAccount.available(settings:settings,native:NativeMailStore(bridgeDirectory:bridge.directory).read())
                     guard !available.isEmpty else { break }
-                    let request=try MailWorkflowRequest(action:.draftCheck,accountIDs:DotCallCommands.scope(available),triageID:entry.id)
-                    try MailWorkflowStore(bridgeDirectory:bridge.directory).transaction { try $0.enqueue(request,allowedAccountIDs:Set(available.map(\.id))) }
-                    try store.transaction { $0.markAsked(entry.id,requestID:request.id) }
+                    var request=try MailWorkflowRequest(action:.draftCheck,accountIDs:DotCallCommands.scope(available),triageID:entry.id)
+                    if place > 0,!entry.askedByOwner {
+                        request.chained=true
+                        request.event.nextAttemptAt=Date().addingTimeInterval(Double(place)*MailWorkflowState.chainPlaceWait)
+                    }
+                    let offered=request
+                    try MailWorkflowStore(bridgeDirectory:bridge.directory).transaction { try $0.enqueue(offered,allowedAccountIDs:Set(available.map(\.id))) }
+                    try store.transaction { $0.markAsked(entry.id,requestID:offered.id) }
+                    place += 1
                     changed=true
                 } catch {
                     // Said in the log: a refusal here used to leave new mail on Drafting without a trace.
