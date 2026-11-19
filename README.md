@@ -157,7 +157,7 @@ Once a day Mail Dot asks this repository's latest release whether a newer versio
 
 ## Limits
 
-Drafts are plain text. Placing a draft in Mail requires a Latin keyboard layout to be selected at that moment. Search by Meaning covers the languages for which macOS supplies a model; a message in another language is still found by its words. The interface follows the system language in 47 languages, all but English and Japanese machine-translated and not yet reviewed by native speakers. Because Mail Dot operates Mail on your behalf, an update to macOS or ChatGPT can interrupt it until Mail Dot is updated in turn.
+Drafts are plain text. Placing a draft in Mail requires a Latin keyboard layout to be selected at that moment. Search by Meaning covers the languages for which macOS supplies a model; a message in another language is still found by its words. The interface follows the system language in 47 languages. Because Mail Dot operates Mail on your behalf, an update to macOS or ChatGPT can interrupt it until Mail Dot is updated in turn.
 
 ## Removing Mail Dot
 
