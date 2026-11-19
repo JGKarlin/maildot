@@ -1,10 +1,14 @@
 # Changes
 
+## 0.4.221, 19 November 2026
+
+- The No reply needed status opens with a circled minus (⊖), so it no longer reads as a hyphen.
+
+While Mail Dot is in development, each release replaces the one before it on the Releases page.
+
 ## 0.4.220, 19 November 2026
 
 - While Dot checks a received message, the Mail Dot pane and the banner show the message's place in Dot's queue, such as Checking · 4 ahead, and say when Dot is reading it.
-
-While Mail Dot is in development, each release replaces the one before it on the Releases page.
 
 ## 0.4.219, 19 November 2026
 

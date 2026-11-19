@@ -241,7 +241,7 @@
 "✎ Drafting" = "✎ กำลังร่าง";
 "✓ Draft ready" = "✓ ฉบับร่างพร้อมแล้ว";
 "?⃝ Question for you" = "?⃝ คำถามสำหรับคุณ";
-"− No reply needed" = "− ไม่ต้องตอบกลับ";
+"⊖ No reply needed" = "⊖ ไม่ต้องตอบกลับ";
 "⚠︎ Dot couldn’t check" = "⚠︎ Dot ตรวจสอบไม่ได้";
 "📤 Reply sent" = "📤 ส่งคำตอบแล้ว";
 "ℹ︎ Note from Dot" = "ℹ︎ หมายเหตุจาก Dot";

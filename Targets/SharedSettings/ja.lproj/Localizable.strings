@@ -241,7 +241,7 @@
 "✎ Drafting" = "✎ 下書き中";
 "✓ Draft ready" = "✓ 下書き完了";
 "?⃝ Question for you" = "?⃝ 質問があります";
-"− No reply needed" = "− 返信不要";
+"⊖ No reply needed" = "⊖ 返信不要";
 "⚠︎ Dot couldn’t check" = "⚠︎ Dotは確認できませんでした";
 "📤 Reply sent" = "📤 返信を送信済み";
 "ℹ︎ Note from Dot" = "ℹ︎ Dotからのメモ";

@@ -21,7 +21,7 @@ public enum MailDotBanner: Equatable, Sendable {
         case .drafting: String(localized: "✎ Drafting")
         case .draftReady: String(localized: "✓ Draft ready")
         case .question: String(localized: "?⃝ Question for you")
-        case .noReplyNeeded: String(localized: "− No reply needed")
+        case .noReplyNeeded: String(localized: "⊖ No reply needed")
         case .couldNotCheck: String(localized: "⚠︎ Dot couldn’t check")
         case .replied: String(localized: "↩︎ Replied")
         case .ccOnly: String(localized: "⊕ Cc only")
