@@ -59,7 +59,7 @@ import BridgeCore
         if record == nil,let id=headers.messageID,let entry=ReportIndex.shared.triage(forMessageID:id),let state=MailDotBanner(entry) {
             // While Dot cannot take requests, a message waiting on it says so, not "Drafting" (owner approval, 14
             // November 2026); the Mail Dot window names the reason.
-            banner=MEDecodedMessageBanner(title:state.shown(ReportIndex.shared.dotAvailability()).title,primaryActionTitle:state.action,dismissable:false)
+            banner=MEDecodedMessageBanner(title:state.shown(ReportIndex.shared.dotAvailability()).title(place:ReportIndex.shared.queuePlace(entry)),primaryActionTitle:state.action,dismissable:false)
             context="triage:"+entry.id
         }
         // A message the owner was only copied on that names them goes to Dot after all.
@@ -166,6 +166,20 @@ private final class ReportIndex:@unchecked Sendable {
         let modified=(try? FileManager.default.attributesOfItem(atPath:store.directory.appendingPathComponent("triage.json").path)[.modificationDate]) as? Date
         if triageState == nil || modified != triageStamp { triageState=try? store.read(); triageStamp=modified }
         return triageState?.entry(forMessageID:id)
+    }
+    private var workflowStamp:Date?
+    private var workflowState:MailWorkflowState?
+    /// The message's place in Dot's queue, from the triage state read above and Dot's requests, read again only when
+    /// their file changes.
+    func queuePlace(_ entry:MailTriageEntry) -> DotQueuePlace? {
+        guard [.pending,.asked].contains(entry.outcome) else { return nil }
+        lock.lock(); defer { lock.unlock() }
+        guard let triageState,let bridge=try? BridgeStore.shared().directory else { return nil }
+        let store=MailWorkflowStore(bridgeDirectory:bridge)
+        let modified=(try? FileManager.default.attributesOfItem(atPath:bridge.appendingPathComponent("Workflow/workflow.json").path)[.modificationDate]) as? Date
+        if workflowState == nil || modified != workflowStamp { workflowState=try? store.read(); workflowStamp=modified }
+        guard let workflowState else { return nil }
+        return DotQueuePlace.of(entry,triage:triageState,workflow:workflowState)
     }
 }
 

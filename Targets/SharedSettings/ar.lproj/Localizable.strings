@@ -536,6 +536,9 @@
 "Not needed for Gmail or iCloud." = "غير مطلوب لـ Gmail أو iCloud.";
 "↻ Checking" = "↻ جارٍ التحقق";
 "Dot is checking this message…" = "يتحقق Dot من هذه الرسالة…";
+"Dot is reading this message…" = "يقرأ Dot هذه الرسالة…";
+"In Dot’s current batch" = "ضمن الدفعة الحالية لدى Dot";
+"%lld ahead" = "قبلها: %lld";
 "You" = "أنت";
 "1 request ahead of yours" = "طلب واحد قبل هذا الطلب";
 "%lld requests ahead of yours" = "عدد الطلبات قبل هذا الطلب: %lld";

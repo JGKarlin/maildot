@@ -536,6 +536,9 @@
 "Not needed for Gmail or iCloud." = "Δεν χρειάζεται για Gmail ή iCloud.";
 "↻ Checking" = "↻ Έλεγχος";
 "Dot is checking this message…" = "Το Dot ελέγχει αυτό το μήνυμα…";
+"Dot is reading this message…" = "Το Dot διαβάζει αυτό το μήνυμα…";
+"In Dot’s current batch" = "Στην τρέχουσα δέσμη του Dot";
+"%lld ahead" = "%lld πριν από αυτό";
 "You" = "Εσείς";
 "1 request ahead of yours" = "1 αίτημα πριν από αυτό";
 "%lld requests ahead of yours" = "%lld αιτήματα πριν από αυτό";

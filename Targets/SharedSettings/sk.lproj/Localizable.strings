@@ -536,6 +536,9 @@
 "Not needed for Gmail or iCloud." = "Pre Gmail ani iCloud nie je potrebné.";
 "↻ Checking" = "↻ Kontroluje sa";
 "Dot is checking this message…" = "Dot kontroluje túto správu…";
+"Dot is reading this message…" = "Dot číta túto správu…";
+"In Dot’s current batch" = "V aktuálnej dávke Dot";
+"%lld ahead" = "Pred ňou: %lld";
 "You" = "Vy";
 "1 request ahead of yours" = "1 požiadavka pred touto";
 "%lld requests ahead of yours" = "Požiadaviek pred touto: %lld";

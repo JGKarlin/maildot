@@ -536,6 +536,9 @@
 "Not needed for Gmail or iCloud." = "Gmail 或 iCloud 无需开启。";
 "↻ Checking" = "↻ 检查中";
 "Dot is checking this message…" = "Dot 正在检查这封邮件…";
+"Dot is reading this message…" = "Dot 正在阅读这封邮件…";
+"In Dot’s current batch" = "在 Dot 当前这一批中";
+"%lld ahead" = "前面还有 %lld 个";
 "You" = "你";
 "1 request ahead of yours" = "前面还有 1 个请求";
 "%lld requests ahead of yours" = "前面还有 %lld 个请求";

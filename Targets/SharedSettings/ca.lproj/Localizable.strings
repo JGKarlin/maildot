@@ -536,6 +536,9 @@
 "Not needed for Gmail or iCloud." = "No cal per al Gmail ni l’iCloud.";
 "↻ Checking" = "↻ Comprovant";
 "Dot is checking this message…" = "El Dot està comprovant aquest missatge…";
+"Dot is reading this message…" = "El Dot està llegint aquest missatge…";
+"In Dot’s current batch" = "Al lot actual del Dot";
+"%lld ahead" = "%lld al davant";
 "You" = "Tu";
 "1 request ahead of yours" = "1 sol·licitud abans d’aquesta";
 "%lld requests ahead of yours" = "%lld sol·licituds abans d’aquesta";

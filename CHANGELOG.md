@@ -1,11 +1,15 @@
 # Changes
 
+## 0.4.220, 19 November 2026
+
+- While Dot checks a received message, the Mail Dot pane and the banner show the message's place in Dot's queue, such as Checking · 4 ahead, and say when Dot is reading it.
+
+While Mail Dot is in development, each release replaces the one before it on the Releases page.
+
 ## 0.4.219, 19 November 2026
 
 - The banner on a message opens with a plain symbol in the banner's own colour, such as ↻ Checking or ⊕ Cc only, instead of an emoji.
 - Settings and the installer describe Dot as ChatGPT's always-on agent.
-
-While Mail Dot is in development, each release replaces the one before it on the Releases page.
 
 ## 0.4.218, 18 November 2026
 

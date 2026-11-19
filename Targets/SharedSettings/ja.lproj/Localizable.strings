@@ -536,6 +536,9 @@
 "Not needed for Gmail or iCloud." = "GmailやiCloudには不要です。";
 "↻ Checking" = "↻ 確認中";
 "Dot is checking this message…" = "Dotがこのメッセージを確認しています…";
+"Dot is reading this message…" = "Dotがこのメッセージを読んでいます…";
+"In Dot’s current batch" = "Dotの現在のまとめ処理中";
+"%lld ahead" = "前に%lld件";
 "You" = "あなた";
 "1 request ahead of yours" = "先行するリクエスト：1件";
 "%lld requests ahead of yours" = "先行するリクエスト：%lld件";

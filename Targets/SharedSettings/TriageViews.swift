@@ -78,6 +78,15 @@ import BridgeCore
             ((try? MailTriageStore.shared().read())?.reportRule(for:sender),(try? MailSettingsStore.shared().read())?.senderNote(for:sender)?.items.isEmpty == false)
         }.value
     }
+    /// Where one message stands in Dot's queue, read from the queue of arriving mail and the requests Dot has.
+    static func queuePlace(_ id:String) async -> DotQueuePlace? {
+        await Task.detached {
+            guard let triage=try? MailTriageStore.shared().read(),let entry=triage.entries.first(where:{$0.id == id}),
+                  [.pending,.asked].contains(entry.outcome),let directory=try? BridgeStore.shared().directory else { return nil }
+            let workflow=(try? MailWorkflowStore(bridgeDirectory:directory).read()) ?? MailWorkflowState()
+            return DotQueuePlace.of(entry,triage:triage,workflow:workflow)
+        }.value
+    }
     static func load() async -> (entries:[MailTriageEntry],rules:[String:MailTriage.Rule],automatic:Bool) {
         await Task.detached {
             let state=(try? MailTriageStore.shared().read()) ?? MailTriageState()

@@ -536,6 +536,9 @@
 "Not needed for Gmail or iCloud." = "Không cần cho Gmail hoặc iCloud.";
 "↻ Checking" = "↻ Đang kiểm tra";
 "Dot is checking this message…" = "Dot đang kiểm tra thư này…";
+"Dot is reading this message…" = "Dot đang đọc thư này…";
+"In Dot’s current batch" = "Trong lượt hiện tại của Dot";
+"%lld ahead" = "%lld phía trước";
 "You" = "Bạn";
 "1 request ahead of yours" = "1 yêu cầu trước yêu cầu này";
 "%lld requests ahead of yours" = "%lld yêu cầu trước yêu cầu này";

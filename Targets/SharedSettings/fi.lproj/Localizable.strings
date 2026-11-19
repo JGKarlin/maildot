@@ -536,6 +536,9 @@
 "Not needed for Gmail or iCloud." = "Ei tarvita Gmailille tai iCloudille.";
 "↻ Checking" = "↻ Tarkistetaan";
 "Dot is checking this message…" = "Dot tarkistaa tätä viestiä…";
+"Dot is reading this message…" = "Dot lukee tätä viestiä…";
+"In Dot’s current batch" = "Dotin nykyisessä erässä";
+"%lld ahead" = "%lld ennen tätä";
 "You" = "Sinä";
 "1 request ahead of yours" = "1 pyyntö ennen tätä";
 "%lld requests ahead of yours" = "%lld pyyntöä ennen tätä";

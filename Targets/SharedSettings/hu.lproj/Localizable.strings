@@ -536,6 +536,9 @@
 "Not needed for Gmail or iCloud." = "Gmailhez vagy iCloudhoz nem szükséges.";
 "↻ Checking" = "↻ Ellenőrzés";
 "Dot is checking this message…" = "Dot ellenőrzi ezt az üzenetet…";
+"Dot is reading this message…" = "Dot olvassa ezt az üzenetet…";
+"In Dot’s current batch" = "Dot jelenlegi kötegében";
+"%lld ahead" = "%lld áll előtte";
 "You" = "Te";
 "1 request ahead of yours" = "1 kérés áll előtte";
 "%lld requests ahead of yours" = "%lld kérés áll előtte";

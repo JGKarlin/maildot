@@ -536,6 +536,9 @@
 "Not needed for Gmail or iCloud." = "Nu este necesar pentru Gmail sau iCloud.";
 "↻ Checking" = "↻ Se verifică";
 "Dot is checking this message…" = "Dot verifică acest mesaj…";
+"Dot is reading this message…" = "Dot citește acest mesaj…";
+"In Dot’s current batch" = "În lotul curent al lui Dot";
+"%lld ahead" = "Înainte: %lld";
 "You" = "Tu";
 "1 request ahead of yours" = "1 cerere înaintea acesteia";
 "%lld requests ahead of yours" = "Cereri înaintea acesteia: %lld";

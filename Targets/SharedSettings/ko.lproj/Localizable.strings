@@ -536,6 +536,9 @@
 "Not needed for Gmail or iCloud." = "Gmail이나 iCloud에는 필요하지 않습니다.";
 "↻ Checking" = "↻ 확인 중";
 "Dot is checking this message…" = "Dot이 이 메시지를 확인하는 중…";
+"Dot is reading this message…" = "Dot이 이 메시지를 읽는 중…";
+"In Dot’s current batch" = "Dot의 현재 묶음에 포함됨";
+"%lld ahead" = "앞에 %lld건";
 "You" = "나";
 "1 request ahead of yours" = "앞선 요청 1건";
 "%lld requests ahead of yours" = "앞선 요청 %lld건";

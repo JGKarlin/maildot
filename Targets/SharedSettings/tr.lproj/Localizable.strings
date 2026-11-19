@@ -536,6 +536,9 @@
 "Not needed for Gmail or iCloud." = "Gmail veya iCloud için gerekmez.";
 "↻ Checking" = "↻ Kontrol ediliyor";
 "Dot is checking this message…" = "Dot bu iletiyi kontrol ediyor…";
+"Dot is reading this message…" = "Dot bu iletiyi okuyor…";
+"In Dot’s current batch" = "Dot’un şu anki grubunda";
+"%lld ahead" = "Önünde %lld";
 "You" = "Siz";
 "1 request ahead of yours" = "Bundan önce 1 istek";
 "%lld requests ahead of yours" = "Bundan önce %lld istek";

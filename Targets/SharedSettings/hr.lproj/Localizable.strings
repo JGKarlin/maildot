@@ -536,6 +536,9 @@
 "Not needed for Gmail or iCloud." = "Nije potrebno za Gmail ili iCloud.";
 "↻ Checking" = "↻ Provjera";
 "Dot is checking this message…" = "Dot provjerava ovu poruku…";
+"Dot is reading this message…" = "Dot čita ovu poruku…";
+"In Dot’s current batch" = "U Dotovoj trenutačnoj skupini";
+"%lld ahead" = "Ispred: %lld";
 "You" = "Vi";
 "1 request ahead of yours" = "1 zahtjev prije ovoga";
 "%lld requests ahead of yours" = "Zahtjeva prije ovoga: %lld";

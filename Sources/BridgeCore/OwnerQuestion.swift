@@ -97,10 +97,14 @@ extension MailWorkflowState {
     /// does not, nor one nobody started that is old enough to be closed as undelivered.
     public func requestsAhead(of id:String,now:Date=Date()) -> Int {
         guard let target=requests.first(where:{$0.id == id}),![.ready,.failed].contains(target.stage) else { return 0 }
-        return requests.filter { other in
-            other.id != id && other.createdAt < target.createdAt && [.pending,.working].contains(other.stage)
-                && (other.hasActiveClaim(now:now) || (other.claim == nil && now.timeIntervalSince(other.createdAt) < MailWorkflowRequest.ownerPriorityWindow))
-        }.count
+        return requests.filter { other in other.id != id && other.createdAt < target.createdAt && isLive(other,now:now) }.count
+    }
+    /// How many requests Dot has that are still to be done, counted as `requestsAhead` counts them: the place of a
+    /// message not yet handed to Dot starts behind all of them.
+    public func liveRequestCount(now:Date=Date()) -> Int { requests.filter{ isLive($0,now:now) }.count }
+    private func isLive(_ request:MailWorkflowRequest,now:Date) -> Bool {
+        [.pending,.working].contains(request.stage)
+            && (request.hasActiveClaim(now:now) || (request.claim == nil && now.timeIntervalSince(request.createdAt) < MailWorkflowRequest.ownerPriorityWindow))
     }
     public mutating func requestReply(accountIDs:[String],allowedAccountIDs:Set<String>,contextID:String,now:Date=Date()) throws -> MailWorkflowRequest {
         requests.removeAll{$0.action == .reply && ($0.contextID == contextID || [.ready,.failed].contains($0.stage))}

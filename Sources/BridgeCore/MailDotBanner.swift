@@ -30,6 +30,12 @@ public enum MailDotBanner: Equatable, Sendable {
         case .dotUnavailable: String(localized: "⏾ Dot unavailable")
         }
     }
+    /// The title with the message's place in Dot's queue after it, while it waits behind others: "Checking · 4 ahead"
+    /// (owner request, 19 November 2026). Mail redraws the banner a few seconds after any message's state changes.
+    public func title(place:DotQueuePlace?) -> String {
+        guard [.checking,.drafting].contains(self),let ahead=place?.ahead else { return title }
+        return title+" · "+String(localized:"\(ahead) ahead")
+    }
     /// The banner's one button opens the Mail Dot window, and says so in every state (owner request, 13 November 2026:
     /// "Answer" read as if it answered something).
     /// Mail draws the button from text alone, so its icon is a character (owner choice, 14 November 2026: a small window

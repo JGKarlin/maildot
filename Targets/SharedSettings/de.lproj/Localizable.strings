@@ -536,6 +536,9 @@
 "Not needed for Gmail or iCloud." = "Für Gmail oder iCloud nicht nötig.";
 "↻ Checking" = "↻ Wird geprüft";
 "Dot is checking this message…" = "Dot prüft diese Nachricht …";
+"Dot is reading this message…" = "Dot liest diese Nachricht …";
+"In Dot’s current batch" = "In Dots aktuellem Stapel";
+"%lld ahead" = "%lld davor";
 "You" = "Du";
 "1 request ahead of yours" = "1 Anfrage vor dieser";
 "%lld requests ahead of yours" = "%lld Anfragen vor dieser";

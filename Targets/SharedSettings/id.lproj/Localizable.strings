@@ -536,6 +536,9 @@
 "Not needed for Gmail or iCloud." = "Tidak diperlukan untuk Gmail atau iCloud.";
 "↻ Checking" = "↻ Memeriksa";
 "Dot is checking this message…" = "Dot sedang memeriksa pesan ini…";
+"Dot is reading this message…" = "Dot sedang membaca pesan ini…";
+"In Dot’s current batch" = "Dalam kelompok Dot saat ini";
+"%lld ahead" = "%lld di depan";
 "You" = "Anda";
 "1 request ahead of yours" = "1 permintaan sebelum ini";
 "%lld requests ahead of yours" = "%lld permintaan sebelum ini";

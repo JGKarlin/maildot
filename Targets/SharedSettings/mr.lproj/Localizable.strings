@@ -536,6 +536,9 @@
 "Not needed for Gmail or iCloud." = "Gmail किंवा iCloud साठी आवश्यक नाही.";
 "↻ Checking" = "↻ तपासणी सुरू";
 "Dot is checking this message…" = "Dot हा संदेश तपासत आहे…";
+"Dot is reading this message…" = "Dot हा संदेश वाचत आहे…";
+"In Dot’s current batch" = "Dot च्या सध्याच्या बॅचमध्ये";
+"%lld ahead" = "पुढे %lld";
 "You" = "तुम्ही";
 "1 request ahead of yours" = "याआधी 1 विनंती";
 "%lld requests ahead of yours" = "याआधी %lld विनंत्या";

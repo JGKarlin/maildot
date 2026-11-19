@@ -36,6 +36,8 @@ struct MailDotThreadWindow:View {
     @State private var settings=false
     @State private var line:(text:String,failed:Bool)?
     @State private var loaded=false
+    /// Where the message stands in Dot's queue while Dot checks it (owner request, 19 November 2026).
+    @State private var place:DotQueuePlace?
 
     private var shown:MailDotWindowLayout { Self.fits(layout) ? layout : .briefing }
     var body:some View {
@@ -55,14 +57,14 @@ struct MailDotThreadWindow:View {
                     DotUnavailableLine(snapshot:connection,act:act)
                     Divider()
                 }
-                if entry.dotWorking { ThreadWorkingStrip(words:entry.workingWords) } else if entry.reportPending { ThreadWorkingStrip(words:"Dot is writing the report…") }
+                if entry.dotWorking { ThreadWorkingStrip(words:entry.workingText(place)) } else if entry.reportPending { ThreadWorkingStrip(words:String(localized:"Dot is writing the report…")) }
                 switch shown {
                 case .briefing: ScrollView { BriefingLayout(entry:entry,act:act).padding(16) }
                 case .storyline: ScrollView { StorylineLayout(entry:entry,act:act).padding(16) }
                 case .ledger: LedgerLayout(entry:entry,act:act)
                 }
                 Divider()
-                ThreadActionBar(entry:entry,line:line,act:act) { settings=true }
+                ThreadActionBar(entry:entry,line:line,act:act,place:place) { settings=true }
             } else {
                 Text(loaded ? "Mail Dot no longer lists this message." : "Loading…").foregroundStyle(MailDotStyle.supporting).frame(maxWidth:.infinity,maxHeight:.infinity)
             }
@@ -119,6 +121,8 @@ struct MailDotThreadWindow:View {
         let fresh=await TriageCommands.load()
         let found=fresh.entries.first{$0.id == entryID}
         if found != entry { entry=found }
+        let foundPlace=await TriageCommands.queuePlace(entryID)
+        if foundPlace != place { place=foundPlace }
         rule=found.flatMap{fresh.rules[$0.sender]}
         if let sender=found?.sender {
             let choices=await TriageCommands.senderChoices(sender)
@@ -191,8 +195,18 @@ extension MailTriageEntry {
     }
     /// Dot is working on this message: waiting its turn or asked and not yet answered.
     var dotWorking:Bool { outcome == .pending || outcome == .asked }
-    /// What Dot is doing, in words: a draft the owner asked for comes first (owner decision, 15 November 2026).
-    var workingWords:LocalizedStringKey { draftRequested == true || ownerAnswer != nil ? "Dot is writing the draft…" : "Dot is checking this message…" }
+    /// What Dot is doing, in words: a draft the owner asked for comes first (owner decision, 15 November 2026). While
+    /// the message waits, its place in Dot's queue follows (owner request, 19 November 2026).
+    func workingText(_ place:DotQueuePlace?) -> String {
+        let drafting=draftRequested == true || ownerAnswer != nil
+        let base=drafting ? String(localized:"Dot is writing the draft…") : String(localized:"Dot is checking this message…")
+        switch place {
+        case .reading: return drafting ? base : String(localized:"Dot is reading this message…")
+        case .inBatch(let ahead) where ahead > 0 && !drafting: return String(localized:"In Dot’s current batch")+" · "+String(localized:"\(ahead) ahead")
+        case .waiting(let ahead) where ahead > 0, .inBatch(let ahead) where ahead > 0: return base+" · "+String(localized:"\(ahead) ahead")
+        default: return base
+        }
+    }
     /// What Dot did: the report's list, or else the Done: lines of its answer.
     var shownWork:[ThreadReport.Work] {
         if let work=report?.work,!work.isEmpty { return work.filter{!$0.needsOwner}+work.filter(\.needsOwner) }
@@ -202,11 +216,11 @@ extension MailTriageEntry {
 
 /// A slim strip at the top of the window while Dot works on the message, visible however far the window is scrolled.
 struct ThreadWorkingStrip:View {
-    var words:LocalizedStringKey="Dot is updating this report…"
+    var words=String(localized:"Dot is updating this report…")
     var body:some View {
         HStack(spacing:8) {
             ProgressView().controlSize(.small)
-            Text(words).font(.callout).statusChange(String(describing:words))
+            Text(words).font(.callout).statusChange(words)
             Spacer(minLength:0)
         }
         .padding(.horizontal,16).padding(.vertical,7)
@@ -548,6 +562,7 @@ struct ThreadActionBar:View {
     let entry:MailTriageEntry
     let line:(text:String,failed:Bool)?
     let act:ThreadAct
+    var place:DotQueuePlace?=nil
     var openSettings:() -> Void = {}
     var body:some View {
         VStack(alignment:.leading,spacing:6) {
@@ -587,8 +602,8 @@ struct ThreadActionBar:View {
                 if entry.dotWorking {
                     // While Dot works on the message (owner request, 13 November 2026): a spinner and words saying so,
                     // until Dot's answer arrives.
-                    Text(entry.workingWords).font(.caption).foregroundStyle(MailDotStyle.supporting).lineLimit(1).statusChange(String(describing:entry.workingWords))
-                    ProgressView().controlSize(.small).frame(width:28,height:22).accessibilityLabel(Text(entry.workingWords))
+                    Text(entry.workingText(place)).font(.caption).foregroundStyle(MailDotStyle.supporting).lineLimit(1).statusChange(entry.workingText(place))
+                    ProgressView().controlSize(.small).frame(width:28,height:22).accessibilityLabel(Text(entry.workingText(place)))
                 }
             }
             .controlSize(.small)
