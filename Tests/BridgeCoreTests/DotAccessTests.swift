@@ -261,7 +261,7 @@ final class ConnectionTests: XCTestCase {
         XCTAssertEqual(MailDotBanner.drafting.shown(.available),.drafting)
         XCTAssertEqual(MailDotBanner.draftReady.shown(.notConnected),.draftReady,"a draft already made is still ready")
         XCTAssertEqual(MailDotBanner.noReplyNeeded.shown(.notYetAnswered),.dotUnavailable)
-        XCTAssertEqual(MailDotBanner.dotUnavailable.title,"💤 Dot unavailable")
+        XCTAssertEqual(MailDotBanner.dotUnavailable.title,"⏾ Dot unavailable")
     }
     func testOnlyTheListenersOwnWorkShowsItIsPresent() throws {
         var state=MailWorkflowState(); let now=Date()

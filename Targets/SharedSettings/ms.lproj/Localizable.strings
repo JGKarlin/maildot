@@ -238,13 +238,13 @@
 "Sending your request to Dot" = "Menghantar permintaan anda kepada Dot";
 "Dot is reading the message" = "Dot sedang membaca mesej";
 "ChatGPT is starting Dot" = "ChatGPT sedang memulakan Dot";
-"⏳ Drafting" = "⏳ Mendraf";
-"✅ Draft ready" = "✅ Draf sedia";
-"❓ Question for you" = "❓ Soalan untuk anda";
-"➖ No reply needed" = "➖ Tiada balasan diperlukan";
-"⚠️ Dot couldn’t check" = "⚠️ Dot tidak dapat menyemak";
+"✎ Drafting" = "✎ Mendraf";
+"✓ Draft ready" = "✓ Draf sedia";
+"?⃝ Question for you" = "?⃝ Soalan untuk anda";
+"− No reply needed" = "− Tiada balasan diperlukan";
+"⚠︎ Dot couldn’t check" = "⚠︎ Dot tidak dapat menyemak";
 "📤 Reply sent" = "📤 Balasan dihantar";
-"ℹ️ Note from Dot" = "ℹ️ Nota daripada Dot";
+"ℹ︎ Note from Dot" = "ℹ︎ Nota daripada Dot";
 "Accounts" = "Akaun";
 "Drafting Rules" = "Peraturan draf";
 "Dot is tidying this rule" = "Dot sedang merapikan peraturan ini";
@@ -254,10 +254,10 @@
 "Do not attach this file" = "Jangan lampirkan fail ini";
 "Do not attach %@" = "Jangan lampirkan %@";
 "No Reply" = "Tiada Balasan";
-"↩️ Replied" = "↩️ Sudah dibalas";
+"↩︎ Replied" = "↩︎ Sudah dibalas";
 "Open Mail Dot" = "Buka Mail Dot";
-"👥 Cc only" = "👥 Cc sahaja";
-"⏸ Not drafted" = "⏸ Tiada draf";
+"⊕ Cc only" = "⊕ Cc sahaja";
+"⏸︎ Not drafted" = "⏸︎ Tiada draf";
 
 /* The Mail Dot window's three layouts and Add to Calendar (build 129). */
 "%@ to %@" = "%@ hingga %@";
@@ -432,7 +432,7 @@
 "No past questions" = "Tiada soalan lalu";
 "Clear" = "Kosongkan";
 "Not yet read" = "Belum dibaca";
-"💤 Dot unavailable" = "💤 Dot tidak tersedia";
+"⏾ Dot unavailable" = "⏾ Dot tidak tersedia";
 "Accessibility" = "Kebolehcapaian";
 "Allowed" = "Dibenarkan";
 "Not allowed" = "Tidak dibenarkan";
@@ -500,7 +500,6 @@
 "Lets Mail Dot read the messages you choose and place Dot’s drafts." = "Membolehkan Mail Dot membaca mesej yang anda pilih dan meletakkan draf Dot.";
 "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot." = "Membolehkan Mail Dot menulis kepada Dot dalam ChatGPT dan memulakan panggilan dengan Dot.";
 "The app Dot lives in. It needs to be open only for a call with Dot." = "App tempat Dot berada. Ia hanya perlu dibuka untuk panggilan dengan Dot.";
-"Your ChatGPT assistant, reached through Mail Dot’s private connection." = "Pembantu ChatGPT anda, dicapai melalui sambungan peribadi Mail Dot.";
 "Not needed for Gmail or other accounts with a ChatGPT connector." = "Tidak diperlukan untuk Gmail atau akaun lain dengan penyambung ChatGPT.";
 "Remove Mail Dot…" = "Keluarkan Mail Dot…";
 "Quit Mail to remove Mail Dot." = "Keluar daripada Mail untuk mengeluarkan Mail Dot.";
@@ -535,7 +534,7 @@
 "Asking Dot to confirm the connection…" = "Meminta Dot mengesahkan sambungan…";
 "Dot could not confirm the connection" = "Dot tidak dapat mengesahkan sambungan";
 "Not needed for Gmail or iCloud." = "Tidak diperlukan untuk Gmail atau iCloud.";
-"🔎 Checking" = "🔎 Menyemak";
+"↻ Checking" = "↻ Menyemak";
 "Dot is checking this message…" = "Dot sedang menyemak mesej ini…";
 "You" = "Anda";
 "1 request ahead of yours" = "1 permintaan sebelum ini";
@@ -567,3 +566,4 @@
 "Show Setup" = "Tunjukkan Persediaan";
 "Dot is setting up Mail Dot" = "Dot sedang menyediakan Mail Dot";
 "Mail Dot’s setup has stopped" = "Persediaan Mail Dot telah terhenti";
+"ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "Ejen ChatGPT yang sentiasa aktif, dicapai melalui sambungan peribadi Mail Dot.";

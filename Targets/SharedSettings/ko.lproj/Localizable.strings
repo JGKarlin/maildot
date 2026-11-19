@@ -238,13 +238,13 @@
 "Sending your request to Dot" = "Dot에게 요청을 보내는 중";
 "Dot is reading the message" = "Dot이 메시지를 읽는 중";
 "ChatGPT is starting Dot" = "ChatGPT가 Dot을 시작하는 중";
-"⏳ Drafting" = "⏳ 작성 중";
-"✅ Draft ready" = "✅ 초안 준비됨";
-"❓ Question for you" = "❓ 질문이 있습니다";
-"➖ No reply needed" = "➖ 답장 필요 없음";
-"⚠️ Dot couldn’t check" = "⚠️ Dot이 확인하지 못함";
+"✎ Drafting" = "✎ 작성 중";
+"✓ Draft ready" = "✓ 초안 준비됨";
+"?⃝ Question for you" = "?⃝ 질문이 있습니다";
+"− No reply needed" = "− 답장 필요 없음";
+"⚠︎ Dot couldn’t check" = "⚠︎ Dot이 확인하지 못함";
 "📤 Reply sent" = "📤 답장 보냄";
-"ℹ️ Note from Dot" = "ℹ️ Dot의 메모";
+"ℹ︎ Note from Dot" = "ℹ︎ Dot의 메모";
 "Accounts" = "계정";
 "Drafting Rules" = "작성 규칙";
 "Dot is tidying this rule" = "Dot이 이 규칙을 다듬는 중";
@@ -254,10 +254,10 @@
 "Do not attach this file" = "이 파일 첨부 안 함";
 "Do not attach %@" = "%@ 첨부 안 함";
 "No Reply" = "답장 안 함";
-"↩️ Replied" = "↩️ 답장함";
+"↩︎ Replied" = "↩︎ 답장함";
 "Open Mail Dot" = "Mail Dot 열기";
-"👥 Cc only" = "👥 참조만";
-"⏸ Not drafted" = "⏸ 초안 없음";
+"⊕ Cc only" = "⊕ 참조만";
+"⏸︎ Not drafted" = "⏸︎ 초안 없음";
 
 /* The Mail Dot window's three layouts and Add to Calendar (build 129). */
 "%@ to %@" = "%@~%@";
@@ -432,7 +432,7 @@
 "No past questions" = "지난 질문이 없습니다";
 "Clear" = "지우기";
 "Not yet read" = "아직 읽지 않음";
-"💤 Dot unavailable" = "💤 Dot 사용 불가";
+"⏾ Dot unavailable" = "⏾ Dot 사용 불가";
 "Accessibility" = "손쉬운 사용";
 "Allowed" = "허용됨";
 "Not allowed" = "허용 안 됨";
@@ -500,7 +500,6 @@
 "Lets Mail Dot read the messages you choose and place Dot’s drafts." = "Mail Dot이 사용자가 선택한 메시지를 읽고 Dot의 초안을 넣을 수 있게 합니다.";
 "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot." = "Mail Dot이 ChatGPT에서 Dot에게 메시지를 쓰고 Dot과의 통화를 시작할 수 있게 합니다.";
 "The app Dot lives in. It needs to be open only for a call with Dot." = "Dot이 있는 앱입니다. Dot과 통화할 때만 열려 있으면 됩니다.";
-"Your ChatGPT assistant, reached through Mail Dot’s private connection." = "사용자의 ChatGPT 어시스턴트로, Mail Dot의 전용 연결을 통해 연결됩니다.";
 "Not needed for Gmail or other accounts with a ChatGPT connector." = "Gmail 등 ChatGPT 커넥터가 있는 계정에는 필요하지 않습니다.";
 "Remove Mail Dot…" = "Mail Dot 제거…";
 "Quit Mail to remove Mail Dot." = "Mail Dot을 제거하려면 Mail을 종료하십시오.";
@@ -535,7 +534,7 @@
 "Asking Dot to confirm the connection…" = "Dot에게 연결 확인을 요청하는 중…";
 "Dot could not confirm the connection" = "Dot이 연결을 확인하지 못했습니다";
 "Not needed for Gmail or iCloud." = "Gmail이나 iCloud에는 필요하지 않습니다.";
-"🔎 Checking" = "🔎 확인 중";
+"↻ Checking" = "↻ 확인 중";
 "Dot is checking this message…" = "Dot이 이 메시지를 확인하는 중…";
 "You" = "나";
 "1 request ahead of yours" = "앞선 요청 1건";
@@ -567,3 +566,4 @@
 "Show Setup" = "설정 보기";
 "Dot is setting up Mail Dot" = "Dot이 Mail Dot을 설정하는 중";
 "Mail Dot’s setup has stopped" = "Mail Dot 설정이 중단되었습니다";
+"ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "ChatGPT의 상시 가동 에이전트로, Mail Dot의 비공개 연결을 통해 연결됩니다.";

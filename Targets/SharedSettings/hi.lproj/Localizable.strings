@@ -238,13 +238,13 @@
 "Sending your request to Dot" = "आपका अनुरोध Dot को भेजा जा रहा है";
 "Dot is reading the message" = "Dot संदेश पढ़ रहा है";
 "ChatGPT is starting Dot" = "ChatGPT Dot को शुरू कर रहा है";
-"⏳ Drafting" = "⏳ ड्राफ़्ट बन रहा है";
-"✅ Draft ready" = "✅ ड्राफ़्ट तैयार";
-"❓ Question for you" = "❓ आपके लिए प्रश्न";
-"➖ No reply needed" = "➖ जवाब की ज़रूरत नहीं";
-"⚠️ Dot couldn’t check" = "⚠️ Dot जाँच नहीं सका";
+"✎ Drafting" = "✎ ड्राफ़्ट बन रहा है";
+"✓ Draft ready" = "✓ ड्राफ़्ट तैयार";
+"?⃝ Question for you" = "?⃝ आपके लिए प्रश्न";
+"− No reply needed" = "− जवाब की ज़रूरत नहीं";
+"⚠︎ Dot couldn’t check" = "⚠︎ Dot जाँच नहीं सका";
 "📤 Reply sent" = "📤 जवाब भेजा गया";
-"ℹ️ Note from Dot" = "ℹ️ Dot का नोट";
+"ℹ︎ Note from Dot" = "ℹ︎ Dot का नोट";
 "Accounts" = "खाते";
 "Drafting Rules" = "ड्राफ़्टिंग नियम";
 "Dot is tidying this rule" = "Dot इस नियम को सुधार रहा है";
@@ -254,10 +254,10 @@
 "Do not attach this file" = "यह फ़ाइल अटैच न करें";
 "Do not attach %@" = "%@ अटैच न करें";
 "No Reply" = "कोई जवाब नहीं";
-"↩️ Replied" = "↩️ जवाब दिया गया";
+"↩︎ Replied" = "↩︎ जवाब दिया गया";
 "Open Mail Dot" = "Mail Dot खोलें";
-"👥 Cc only" = "👥 केवल Cc";
-"⏸ Not drafted" = "⏸ ड्राफ़्ट नहीं बना";
+"⊕ Cc only" = "⊕ केवल Cc";
+"⏸︎ Not drafted" = "⏸︎ ड्राफ़्ट नहीं बना";
 
 /* The Mail Dot window's three layouts and Add to Calendar (build 129). */
 "%@ to %@" = "%@ से %@";
@@ -432,7 +432,7 @@
 "No past questions" = "कोई पिछला प्रश्न नहीं";
 "Clear" = "साफ़ करें";
 "Not yet read" = "अभी तक नहीं पढ़ा गया";
-"💤 Dot unavailable" = "💤 Dot उपलब्ध नहीं";
+"⏾ Dot unavailable" = "⏾ Dot उपलब्ध नहीं";
 "Accessibility" = "ऐक्सेसिबिलिटी";
 "Allowed" = "अनुमति है";
 "Not allowed" = "अनुमति नहीं";
@@ -500,7 +500,6 @@
 "Lets Mail Dot read the messages you choose and place Dot’s drafts." = "Mail Dot को आपके चुने हुए संदेश पढ़ने और Dot के ड्राफ़्ट रखने देता है।";
 "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot." = "Mail Dot को ChatGPT में Dot को लिखने और Dot के साथ कॉल शुरू करने देता है।";
 "The app Dot lives in. It needs to be open only for a call with Dot." = "वह ऐप जिसमें Dot रहता है। इसे केवल Dot के साथ कॉल के लिए खुला होना चाहिए।";
-"Your ChatGPT assistant, reached through Mail Dot’s private connection." = "आपका ChatGPT सहायक, जिस तक Mail Dot के निजी कनेक्शन से पहुँचा जाता है।";
 "Not needed for Gmail or other accounts with a ChatGPT connector." = "Gmail या ChatGPT कनेक्टर वाले अन्य खातों के लिए ज़रूरी नहीं।";
 "Remove Mail Dot…" = "Mail Dot हटाएँ…";
 "Quit Mail to remove Mail Dot." = "Mail Dot हटाने के लिए Mail बंद करें।";
@@ -535,7 +534,7 @@
 "Asking Dot to confirm the connection…" = "Dot से कनेक्शन की पुष्टि करने को कहा जा रहा है…";
 "Dot could not confirm the connection" = "Dot कनेक्शन की पुष्टि नहीं कर सका";
 "Not needed for Gmail or iCloud." = "Gmail या iCloud के लिए ज़रूरी नहीं।";
-"🔎 Checking" = "🔎 जाँच जारी";
+"↻ Checking" = "↻ जाँच जारी";
 "Dot is checking this message…" = "Dot यह संदेश जाँच रहा है…";
 "You" = "आप";
 "1 request ahead of yours" = "इससे पहले 1 अनुरोध";
@@ -567,3 +566,4 @@
 "Show Setup" = "सेटअप दिखाएँ";
 "Dot is setting up Mail Dot" = "Dot, Mail Dot को सेट अप कर रहा है";
 "Mail Dot’s setup has stopped" = "Mail Dot का सेटअप रुक गया है";
+"ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "ChatGPT का हमेशा चालू रहने वाला एजेंट, Mail Dot के निजी कनेक्शन से पहुँचा जाता है।";

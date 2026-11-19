@@ -72,7 +72,7 @@ struct ConnectionLine:Identifiable {
         case "mail": "Lets Mail Dot read the messages you choose and place Dot’s drafts."
         case "accessibility": "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot."
         case "chatgpt": "The app Dot lives in. It needs to be open only for a call with Dot."
-        default: "Your ChatGPT assistant, reached through Mail Dot’s private connection."
+        default: "ChatGPT’s always-on agent, reached through Mail Dot’s private connection."
         }
     }
     private static func dot(_ snapshot:ConnectionSnapshot,_ found:ConnectionState) -> ConnectionLine {

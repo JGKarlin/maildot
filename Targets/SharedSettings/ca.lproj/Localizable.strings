@@ -238,13 +238,13 @@
 "Sending your request to Dot" = "Enviant la vostra petició al Dot";
 "Dot is reading the message" = "El Dot està llegint el missatge";
 "ChatGPT is starting Dot" = "El ChatGPT està iniciant el Dot";
-"⏳ Drafting" = "⏳ Redactant";
-"✅ Draft ready" = "✅ Esborrany a punt";
-"❓ Question for you" = "❓ Pregunta per a vós";
-"➖ No reply needed" = "➖ No cal resposta";
-"⚠️ Dot couldn’t check" = "⚠️ El Dot no ho ha pogut comprovar";
+"✎ Drafting" = "✎ Redactant";
+"✓ Draft ready" = "✓ Esborrany a punt";
+"?⃝ Question for you" = "?⃝ Pregunta per a vós";
+"− No reply needed" = "− No cal resposta";
+"⚠︎ Dot couldn’t check" = "⚠︎ El Dot no ho ha pogut comprovar";
 "📤 Reply sent" = "📤 Resposta enviada";
-"ℹ️ Note from Dot" = "ℹ️ Nota del Dot";
+"ℹ︎ Note from Dot" = "ℹ︎ Nota del Dot";
 "Accounts" = "Comptes";
 "Drafting Rules" = "Regles de redacció";
 "Dot is tidying this rule" = "El Dot està polint aquesta regla";
@@ -254,10 +254,10 @@
 "Do not attach this file" = "No adjuntis aquest fitxer";
 "Do not attach %@" = "No adjuntis %@";
 "No Reply" = "Sense resposta";
-"↩️ Replied" = "↩️ Respost";
+"↩︎ Replied" = "↩︎ Respost";
 "Open Mail Dot" = "Obre el Mail Dot";
-"👥 Cc only" = "👥 Només en còpia";
-"⏸ Not drafted" = "⏸ Sense esborrany";
+"⊕ Cc only" = "⊕ Només en còpia";
+"⏸︎ Not drafted" = "⏸︎ Sense esborrany";
 
 /* The Mail Dot window's three layouts and Add to Calendar (build 129). */
 "%@ to %@" = "Del %@ al %@";
@@ -432,7 +432,7 @@
 "No past questions" = "Cap pregunta anterior";
 "Clear" = "Esborra";
 "Not yet read" = "Encara no llegit";
-"💤 Dot unavailable" = "💤 Dot no disponible";
+"⏾ Dot unavailable" = "⏾ Dot no disponible";
 "Accessibility" = "Accessibilitat";
 "Allowed" = "Permès";
 "Not allowed" = "No permès";
@@ -500,7 +500,6 @@
 "Lets Mail Dot read the messages you choose and place Dot’s drafts." = "Permet que el Mail Dot llegeixi els missatges que tries i hi col·loqui els esborranys del Dot.";
 "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot." = "Permet que el Mail Dot escrigui al Dot al ChatGPT i iniciï trucades amb el Dot.";
 "The app Dot lives in. It needs to be open only for a call with Dot." = "L’app on viu el Dot. Només cal que estigui oberta per a una trucada amb el Dot.";
-"Your ChatGPT assistant, reached through Mail Dot’s private connection." = "El teu assistent del ChatGPT, al qual s’arriba per la connexió privada del Mail Dot.";
 "Not needed for Gmail or other accounts with a ChatGPT connector." = "No cal per al Gmail ni per a altres comptes amb un connector del ChatGPT.";
 "Remove Mail Dot…" = "Elimina el Mail Dot…";
 "Quit Mail to remove Mail Dot." = "Surt del Mail per eliminar el Mail Dot.";
@@ -535,7 +534,7 @@
 "Asking Dot to confirm the connection…" = "Es demana al Dot que confirmi la connexió…";
 "Dot could not confirm the connection" = "El Dot no ha pogut confirmar la connexió";
 "Not needed for Gmail or iCloud." = "No cal per al Gmail ni l’iCloud.";
-"🔎 Checking" = "🔎 Comprovant";
+"↻ Checking" = "↻ Comprovant";
 "Dot is checking this message…" = "El Dot està comprovant aquest missatge…";
 "You" = "Tu";
 "1 request ahead of yours" = "1 sol·licitud abans d’aquesta";
@@ -567,3 +566,4 @@
 "Show Setup" = "Mostrar la configuració";
 "Dot is setting up Mail Dot" = "Dot està configurant Mail Dot";
 "Mail Dot’s setup has stopped" = "La configuració de Mail Dot s’ha aturat";
+"ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "L’agent sempre actiu de ChatGPT, al qual s’arriba per la connexió privada de Mail Dot.";

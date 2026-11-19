@@ -238,13 +238,13 @@
 "Sending your request to Dot" = "Ваш запит надсилається Dot";
 "Dot is reading the message" = "Dot читає лист";
 "ChatGPT is starting Dot" = "ChatGPT запускає Dot";
-"⏳ Drafting" = "⏳ Складання";
-"✅ Draft ready" = "✅ Чернетка готова";
-"❓ Question for you" = "❓ Запитання до вас";
-"➖ No reply needed" = "➖ Відповідь не потрібна";
-"⚠️ Dot couldn’t check" = "⚠️ Dot не зміг перевірити";
+"✎ Drafting" = "✎ Складання";
+"✓ Draft ready" = "✓ Чернетка готова";
+"?⃝ Question for you" = "?⃝ Запитання до вас";
+"− No reply needed" = "− Відповідь не потрібна";
+"⚠︎ Dot couldn’t check" = "⚠︎ Dot не зміг перевірити";
 "📤 Reply sent" = "📤 Відповідь надіслано";
-"ℹ️ Note from Dot" = "ℹ️ Примітка від Dot";
+"ℹ︎ Note from Dot" = "ℹ︎ Примітка від Dot";
 "Accounts" = "Облікові записи";
 "Drafting Rules" = "Правила складання";
 "Dot is tidying this rule" = "Dot уточнює це правило";
@@ -254,10 +254,10 @@
 "Do not attach this file" = "Не прикріплювати цей файл";
 "Do not attach %@" = "Не прикріплювати %@";
 "No Reply" = "Без відповіді";
-"↩️ Replied" = "↩️ Відповідь надіслано";
+"↩︎ Replied" = "↩︎ Відповідь надіслано";
 "Open Mail Dot" = "Відкрити Mail Dot";
-"👥 Cc only" = "👥 Лише копія";
-"⏸ Not drafted" = "⏸ Без чернетки";
+"⊕ Cc only" = "⊕ Лише копія";
+"⏸︎ Not drafted" = "⏸︎ Без чернетки";
 
 /* The Mail Dot window's three layouts and Add to Calendar (build 129). */
 "%@ to %@" = "%@ – %@";
@@ -432,7 +432,7 @@
 "No past questions" = "Немає попередніх запитань";
 "Clear" = "Очистити";
 "Not yet read" = "Ще не прочитано";
-"💤 Dot unavailable" = "💤 Dot недоступний";
+"⏾ Dot unavailable" = "⏾ Dot недоступний";
 "Accessibility" = "Доступність";
 "Allowed" = "Дозволено";
 "Not allowed" = "Не дозволено";
@@ -500,7 +500,6 @@
 "Lets Mail Dot read the messages you choose and place Dot’s drafts." = "Дає змогу Mail Dot читати вибрані вами листи та розміщувати чернетки Dot.";
 "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot." = "Дає змогу Mail Dot писати Dot у ChatGPT і починати виклики з Dot.";
 "The app Dot lives in. It needs to be open only for a call with Dot." = "Програма, у якій живе Dot. Вона має бути відкрита лише для виклику з Dot.";
-"Your ChatGPT assistant, reached through Mail Dot’s private connection." = "Ваш асистент ChatGPT, доступний через приватне з’єднання Mail Dot.";
 "Not needed for Gmail or other accounts with a ChatGPT connector." = "Не потрібно для Gmail та інших облікових записів із конектором ChatGPT.";
 "Remove Mail Dot…" = "Видалити Mail Dot…";
 "Quit Mail to remove Mail Dot." = "Закрийте Пошту, щоб видалити Mail Dot.";
@@ -535,7 +534,7 @@
 "Asking Dot to confirm the connection…" = "Dot просять підтвердити підключення…";
 "Dot could not confirm the connection" = "Dot не вдалося підтвердити підключення";
 "Not needed for Gmail or iCloud." = "Не потрібно для Gmail чи iCloud.";
-"🔎 Checking" = "🔎 Перевірка";
+"↻ Checking" = "↻ Перевірка";
 "Dot is checking this message…" = "Dot перевіряє цей лист…";
 "You" = "Ви";
 "1 request ahead of yours" = "1 запит перед цим";
@@ -567,3 +566,4 @@
 "Show Setup" = "Показати налаштування";
 "Dot is setting up Mail Dot" = "Dot налаштовує Mail Dot";
 "Mail Dot’s setup has stopped" = "Налаштування Mail Dot зупинено";
+"ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "Постійно активний агент ChatGPT, доступний через приватне з’єднання Mail Dot.";

@@ -1,11 +1,16 @@
 # Changes
 
+## 0.4.219, 19 November 2026
+
+- The banner on a message opens with a plain symbol in the banner's own colour, such as ↻ Checking or ⊕ Cc only, instead of an emoji.
+- Settings and the installer describe Dot as ChatGPT's always-on agent.
+
+While Mail Dot is in development, each release replaces the one before it on the Releases page.
+
 ## 0.4.218, 18 November 2026
 
 - A reply or draft window is found without asking the reader to close other windows.
 - Arriving mail is offered to Dot in batches of up to six, handed over one after another.
-
-While Mail Dot is in development, each release replaces the one before it on the Releases page.
 
 ## 0.4.217, 18 November 2026: first release
 

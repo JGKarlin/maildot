@@ -1,8 +1,13 @@
 import Foundation
 
-/// What Mail Dot's banner on a message says: the state alone, opened by a symbol that shows in color, and a
-/// button worded for it (owner request, 12 November 2026). Mail lets an extension set only the banner's text and its
-/// button's words; its icon and color are always Mail's, so the symbol is the only visual cue per state.
+/// What Mail Dot's banner on a message says: the state alone, opened by a symbol, and a button worded for it (owner
+/// request, 12 November 2026). Mail lets an extension set only the banner's text and its button's words; its icon and
+/// color are always Mail's, so the symbol is the only visual cue per state.
+///
+/// The symbols are plain text characters drawn in the banner's own text colour, not emoji (owner decision, 19 November
+/// 2026). An SF Symbol cannot be used: the banner takes plain strings only, and the system font carries none of SF
+/// Symbols' private characters, so they would show as empty boxes. Those that have an emoji form carry U+FE0E, which
+/// asks for the text form.
 public enum MailDotBanner: Equatable, Sendable {
     case checking, drafting, draftReady, question, noReplyNeeded, couldNotCheck, replied, ccOnly, notDrafted, note
     /// Dot cannot take requests now (owner approval, 14 November 2026); the Mail Dot window names the reason.
@@ -12,17 +17,17 @@ public enum MailDotBanner: Equatable, Sendable {
         switch self {
         // While Dot decides whether a message needs a reply, it says Checking; Drafting only once a reply is being
         // written, because the owner asked for one or answered Dot (owner decision, 16 November 2026).
-        case .checking: String(localized: "🔎 Checking")
-        case .drafting: String(localized: "⏳ Drafting")
-        case .draftReady: String(localized: "✅ Draft ready")
-        case .question: String(localized: "❓ Question for you")
-        case .noReplyNeeded: String(localized: "➖ No reply needed")
-        case .couldNotCheck: String(localized: "⚠️ Dot couldn’t check")
-        case .replied: String(localized: "↩️ Replied")
-        case .ccOnly: String(localized: "👥 Cc only")
-        case .notDrafted: String(localized: "⏸ Not drafted")
-        case .note: String(localized: "ℹ️ Note from Dot")
-        case .dotUnavailable: String(localized: "💤 Dot unavailable")
+        case .checking: String(localized: "↻ Checking")
+        case .drafting: String(localized: "✎ Drafting")
+        case .draftReady: String(localized: "✓ Draft ready")
+        case .question: String(localized: "?⃝ Question for you")
+        case .noReplyNeeded: String(localized: "− No reply needed")
+        case .couldNotCheck: String(localized: "⚠︎ Dot couldn’t check")
+        case .replied: String(localized: "↩︎ Replied")
+        case .ccOnly: String(localized: "⊕ Cc only")
+        case .notDrafted: String(localized: "⏸︎ Not drafted")
+        case .note: String(localized: "ℹ︎ Note from Dot")
+        case .dotUnavailable: String(localized: "⏾ Dot unavailable")
         }
     }
     /// The banner's one button opens the Mail Dot window, and says so in every state (owner request, 13 November 2026:

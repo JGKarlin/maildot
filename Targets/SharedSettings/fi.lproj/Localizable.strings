@@ -238,13 +238,13 @@
 "Sending your request to Dot" = "Lähetetään pyyntöäsi Dotille";
 "Dot is reading the message" = "Dot lukee viestiä";
 "ChatGPT is starting Dot" = "ChatGPT käynnistää Dotia";
-"⏳ Drafting" = "⏳ Laaditaan";
-"✅ Draft ready" = "✅ Luonnos valmis";
-"❓ Question for you" = "❓ Kysymys sinulle";
-"➖ No reply needed" = "➖ Vastausta ei tarvita";
-"⚠️ Dot couldn’t check" = "⚠️ Dot ei voinut tarkistaa";
+"✎ Drafting" = "✎ Laaditaan";
+"✓ Draft ready" = "✓ Luonnos valmis";
+"?⃝ Question for you" = "?⃝ Kysymys sinulle";
+"− No reply needed" = "− Vastausta ei tarvita";
+"⚠︎ Dot couldn’t check" = "⚠︎ Dot ei voinut tarkistaa";
 "📤 Reply sent" = "📤 Vastaus lähetetty";
-"ℹ️ Note from Dot" = "ℹ️ Dotin huomautus";
+"ℹ︎ Note from Dot" = "ℹ︎ Dotin huomautus";
 "Accounts" = "Tilit";
 "Drafting Rules" = "Luonnostelusäännöt";
 "Dot is tidying this rule" = "Dot hioo tätä sääntöä";
@@ -254,10 +254,10 @@
 "Do not attach this file" = "Älä liitä tätä tiedostoa";
 "Do not attach %@" = "Älä liitä tiedostoa %@";
 "No Reply" = "Ei vastausta";
-"↩️ Replied" = "↩️ Vastattu";
+"↩︎ Replied" = "↩︎ Vastattu";
 "Open Mail Dot" = "Avaa Mail Dot";
-"👥 Cc only" = "👥 Vain kopio";
-"⏸ Not drafted" = "⏸ Ei luonnosta";
+"⊕ Cc only" = "⊕ Vain kopio";
+"⏸︎ Not drafted" = "⏸︎ Ei luonnosta";
 
 /* The Mail Dot window's three layouts and Add to Calendar (build 129). */
 "%@ to %@" = "%@–%@";
@@ -432,7 +432,7 @@
 "No past questions" = "Ei aiempia kysymyksiä";
 "Clear" = "Tyhjennä";
 "Not yet read" = "Ei vielä luettu";
-"💤 Dot unavailable" = "💤 Dot ei ole käytettävissä";
+"⏾ Dot unavailable" = "⏾ Dot ei ole käytettävissä";
 "Accessibility" = "Käyttöapu";
 "Allowed" = "Sallittu";
 "Not allowed" = "Ei sallittu";
@@ -500,7 +500,6 @@
 "Lets Mail Dot read the messages you choose and place Dot’s drafts." = "Antaa Mail Dotin lukea valitsemasi viestit ja sijoittaa Dotin luonnokset.";
 "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot." = "Antaa Mail Dotin kirjoittaa Dotille ChatGPT:ssä ja aloittaa puhelut Dotin kanssa.";
 "The app Dot lives in. It needs to be open only for a call with Dot." = "Appi, jossa Dot toimii. Sen tarvitsee olla auki vain Dotin kanssa käytävää puhelua varten.";
-"Your ChatGPT assistant, reached through Mail Dot’s private connection." = "ChatGPT-avustajasi, johon saadaan yhteys Mail Dotin yksityisellä yhteydellä.";
 "Not needed for Gmail or other accounts with a ChatGPT connector." = "Ei tarvita Gmailille eikä muille tileille, joilla on ChatGPT-liitin.";
 "Remove Mail Dot…" = "Poista Mail Dot…";
 "Quit Mail to remove Mail Dot." = "Lopeta Mail poistaaksesi Mail Dotin.";
@@ -535,7 +534,7 @@
 "Asking Dot to confirm the connection…" = "Pyydetään Dotia vahvistamaan yhteys…";
 "Dot could not confirm the connection" = "Dot ei voinut vahvistaa yhteyttä";
 "Not needed for Gmail or iCloud." = "Ei tarvita Gmailille tai iCloudille.";
-"🔎 Checking" = "🔎 Tarkistetaan";
+"↻ Checking" = "↻ Tarkistetaan";
 "Dot is checking this message…" = "Dot tarkistaa tätä viestiä…";
 "You" = "Sinä";
 "1 request ahead of yours" = "1 pyyntö ennen tätä";
@@ -567,3 +566,4 @@
 "Show Setup" = "Näytä käyttöönotto";
 "Dot is setting up Mail Dot" = "Dot ottaa Mail Dotia käyttöön";
 "Mail Dot’s setup has stopped" = "Mail Dotin käyttöönotto pysähtyi";
+"ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "ChatGPT:n aina päällä oleva agentti, jonka Mail Dot tavoittaa yksityisen yhteytensä kautta.";

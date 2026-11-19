@@ -238,13 +238,13 @@
 "Sending your request to Dot" = "Dotに依頼を送っています";
 "Dot is reading the message" = "Dotがメッセージを読んでいます";
 "ChatGPT is starting Dot" = "ChatGPTがDotを起動しています";
-"⏳ Drafting" = "⏳ 下書き中";
-"✅ Draft ready" = "✅ 下書き完了";
-"❓ Question for you" = "❓ 質問があります";
-"➖ No reply needed" = "➖ 返信不要";
-"⚠️ Dot couldn’t check" = "⚠️ Dotは確認できませんでした";
+"✎ Drafting" = "✎ 下書き中";
+"✓ Draft ready" = "✓ 下書き完了";
+"?⃝ Question for you" = "?⃝ 質問があります";
+"− No reply needed" = "− 返信不要";
+"⚠︎ Dot couldn’t check" = "⚠︎ Dotは確認できませんでした";
 "📤 Reply sent" = "📤 返信を送信済み";
-"ℹ️ Note from Dot" = "ℹ️ Dotからのメモ";
+"ℹ︎ Note from Dot" = "ℹ︎ Dotからのメモ";
 "Accounts" = "アカウント";
 "Drafting Rules" = "下書きのルール";
 "Dot is tidying this rule" = "Dotがこのルールを整えています";
@@ -254,10 +254,10 @@
 "Do not attach this file" = "このファイルを添付しない";
 "Do not attach %@" = "%@を添付しない";
 "No Reply" = "返信しない";
-"↩️ Replied" = "↩️ 返信済み";
+"↩︎ Replied" = "↩︎ 返信済み";
 "Open Mail Dot" = "Mail Dotを開く";
-"👥 Cc only" = "👥 Ccのみ";
-"⏸ Not drafted" = "⏸ 下書きなし";
+"⊕ Cc only" = "⊕ Ccのみ";
+"⏸︎ Not drafted" = "⏸︎ 下書きなし";
 
 /* The Mail Dot window's three layouts and Add to Calendar (build 129). */
 "%@ to %@" = "%@〜%@";
@@ -432,7 +432,7 @@
 "No past questions" = "過去の質問はありません";
 "Clear" = "消去";
 "Not yet read" = "未読";
-"💤 Dot unavailable" = "💤 Dotは利用できません";
+"⏾ Dot unavailable" = "⏾ Dotは利用できません";
 "Accessibility" = "アクセシビリティ";
 "Allowed" = "許可済み";
 "Not allowed" = "未許可";
@@ -500,7 +500,6 @@
 "Lets Mail Dot read the messages you choose and place Dot’s drafts." = "Mail Dotが、選択したメッセージを読み取り、Dotの下書きを配置できるようにします。";
 "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot." = "Mail DotがChatGPTでDotにメッセージを書き、Dotとの通話を開始できるようにします。";
 "The app Dot lives in. It needs to be open only for a call with Dot." = "Dotが動作するアプリです。開いておく必要があるのはDotと通話するときだけです。";
-"Your ChatGPT assistant, reached through Mail Dot’s private connection." = "あなたのChatGPTアシスタントです。Mail Dotの専用接続を通じてつながります。";
 "Not needed for Gmail or other accounts with a ChatGPT connector." = "GmailなどChatGPTコネクタのあるアカウントには不要です。";
 "Remove Mail Dot…" = "Mail Dotを削除…";
 "Quit Mail to remove Mail Dot." = "Mail Dotを削除するには“メール”を終了してください。";
@@ -535,7 +534,7 @@
 "Asking Dot to confirm the connection…" = "Dotに接続の確認を依頼しています…";
 "Dot could not confirm the connection" = "Dotは接続を確認できませんでした";
 "Not needed for Gmail or iCloud." = "GmailやiCloudには不要です。";
-"🔎 Checking" = "🔎 確認中";
+"↻ Checking" = "↻ 確認中";
 "Dot is checking this message…" = "Dotがこのメッセージを確認しています…";
 "You" = "あなた";
 "1 request ahead of yours" = "先行するリクエスト：1件";
@@ -567,3 +566,4 @@
 "Show Setup" = "設定を表示";
 "Dot is setting up Mail Dot" = "Dot が Mail Dot を設定しています";
 "Mail Dot’s setup has stopped" = "Mail Dot の設定が停止しました";
+"ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "ChatGPT の常時稼働エージェント。Mail Dot のプライベート接続を通じて利用します。";

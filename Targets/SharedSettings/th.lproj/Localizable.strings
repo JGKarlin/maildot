@@ -238,13 +238,13 @@
 "Sending your request to Dot" = "กำลังส่งคำขอของคุณถึง Dot";
 "Dot is reading the message" = "Dot กำลังอ่านข้อความ";
 "ChatGPT is starting Dot" = "ChatGPT กำลังเริ่ม Dot";
-"⏳ Drafting" = "⏳ กำลังร่าง";
-"✅ Draft ready" = "✅ ฉบับร่างพร้อมแล้ว";
-"❓ Question for you" = "❓ คำถามสำหรับคุณ";
-"➖ No reply needed" = "➖ ไม่ต้องตอบกลับ";
-"⚠️ Dot couldn’t check" = "⚠️ Dot ตรวจสอบไม่ได้";
+"✎ Drafting" = "✎ กำลังร่าง";
+"✓ Draft ready" = "✓ ฉบับร่างพร้อมแล้ว";
+"?⃝ Question for you" = "?⃝ คำถามสำหรับคุณ";
+"− No reply needed" = "− ไม่ต้องตอบกลับ";
+"⚠︎ Dot couldn’t check" = "⚠︎ Dot ตรวจสอบไม่ได้";
 "📤 Reply sent" = "📤 ส่งคำตอบแล้ว";
-"ℹ️ Note from Dot" = "ℹ️ หมายเหตุจาก Dot";
+"ℹ︎ Note from Dot" = "ℹ︎ หมายเหตุจาก Dot";
 "Accounts" = "บัญชี";
 "Drafting Rules" = "กฎการร่าง";
 "Dot is tidying this rule" = "Dot กำลังเกลากฎนี้";
@@ -254,10 +254,10 @@
 "Do not attach this file" = "ไม่แนบไฟล์นี้";
 "Do not attach %@" = "ไม่แนบ %@";
 "No Reply" = "ไม่ตอบ";
-"↩️ Replied" = "↩️ ตอบกลับแล้ว";
+"↩︎ Replied" = "↩︎ ตอบกลับแล้ว";
 "Open Mail Dot" = "เปิด Mail Dot";
-"👥 Cc only" = "👥 สำเนาเท่านั้น";
-"⏸ Not drafted" = "⏸ ไม่ได้ร่าง";
+"⊕ Cc only" = "⊕ สำเนาเท่านั้น";
+"⏸︎ Not drafted" = "⏸︎ ไม่ได้ร่าง";
 
 /* The Mail Dot window's three layouts and Add to Calendar (build 129). */
 "%@ to %@" = "%@ ถึง %@";
@@ -432,7 +432,7 @@
 "No past questions" = "ไม่มีคำถามที่ผ่านมา";
 "Clear" = "ล้าง";
 "Not yet read" = "ยังไม่ได้อ่าน";
-"💤 Dot unavailable" = "💤 Dot ไม่พร้อมใช้งาน";
+"⏾ Dot unavailable" = "⏾ Dot ไม่พร้อมใช้งาน";
 "Accessibility" = "การช่วยการเข้าถึง";
 "Allowed" = "อนุญาตแล้ว";
 "Not allowed" = "ไม่อนุญาต";
@@ -500,7 +500,6 @@
 "Lets Mail Dot read the messages you choose and place Dot’s drafts." = "ให้ Mail Dot อ่านข้อความที่คุณเลือกและวางแบบร่างของ Dot";
 "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot." = "ให้ Mail Dot เขียนถึง Dot ใน ChatGPT และเริ่มการโทรกับ Dot";
 "The app Dot lives in. It needs to be open only for a call with Dot." = "แอปที่ Dot อยู่ ต้องเปิดไว้เฉพาะเมื่อโทรกับ Dot เท่านั้น";
-"Your ChatGPT assistant, reached through Mail Dot’s private connection." = "ผู้ช่วย ChatGPT ของคุณ ซึ่งติดต่อผ่านการเชื่อมต่อส่วนตัวของ Mail Dot";
 "Not needed for Gmail or other accounts with a ChatGPT connector." = "ไม่จำเป็นสำหรับ Gmail หรือบัญชีอื่นที่มีตัวเชื่อมต่อ ChatGPT";
 "Remove Mail Dot…" = "ลบ Mail Dot…";
 "Quit Mail to remove Mail Dot." = "ออกจากเมลเพื่อลบ Mail Dot";
@@ -535,7 +534,7 @@
 "Asking Dot to confirm the connection…" = "กำลังขอให้ Dot ยืนยันการเชื่อมต่อ…";
 "Dot could not confirm the connection" = "Dot ยืนยันการเชื่อมต่อไม่ได้";
 "Not needed for Gmail or iCloud." = "ไม่จำเป็นสำหรับ Gmail หรือ iCloud";
-"🔎 Checking" = "🔎 กำลังตรวจสอบ";
+"↻ Checking" = "↻ กำลังตรวจสอบ";
 "Dot is checking this message…" = "Dot กำลังตรวจสอบข้อความนี้…";
 "You" = "คุณ";
 "1 request ahead of yours" = "มีคำขอก่อนหน้า 1 รายการ";
@@ -567,3 +566,4 @@
 "Show Setup" = "แสดงการตั้งค่า";
 "Dot is setting up Mail Dot" = "Dot กำลังตั้งค่า Mail Dot";
 "Mail Dot’s setup has stopped" = "การตั้งค่า Mail Dot หยุดลง";
+"ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "เอเจนต์ที่ทำงานตลอดเวลาของ ChatGPT ซึ่งเข้าถึงได้ผ่านการเชื่อมต่อส่วนตัวของ Mail Dot";

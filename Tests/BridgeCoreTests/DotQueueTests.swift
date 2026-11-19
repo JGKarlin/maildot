@@ -58,7 +58,7 @@ final class AlreadyRepliedTests:XCTestCase {
         state.accept(requestID:"r1",stage:.ready,summary:"Already replied: Alex answered at 13:44.")
         XCTAssertEqual(state.entries[0].outcome,.replied,"never No reply needed")
         XCTAssertEqual(MailDotBanner(state.entries[0]),.replied)
-        XCTAssertEqual(MailDotBanner.replied.title,"↩️ Replied")
+        XCTAssertEqual(MailDotBanner.replied.title,"↩︎ Replied")
     }
 }
 
@@ -72,7 +72,7 @@ final class EveryMessageHasABannerTests:XCTestCase {
         var entry=MailTriageEntry(messageID:"c@example.invalid",sender:"a@example.invalid",senderName:nil,subject:"FYI",receivedAt:Date(),verdict:verdict,automatic:true)
         XCTAssertEqual(entry.outcome,.skipped)
         XCTAssertEqual(MailDotBanner(entry),.ccOnly)
-        XCTAssertEqual(MailDotBanner.ccOnly.title,"👥 Cc only")
+        XCTAssertEqual(MailDotBanner.ccOnly.title,"⊕ Cc only")
         XCTAssertEqual(MailDotBanner.ccOnly.action,"⧉ Open Mail Dot","so the owner can still ask Dot")
         entry.outcome = .held
         XCTAssertEqual(MailDotBanner(entry),.notDrafted)

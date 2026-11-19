@@ -238,13 +238,13 @@
 "Sending your request to Dot" = "A kérés küldése Dotnak";
 "Dot is reading the message" = "Dot olvassa az üzenetet";
 "ChatGPT is starting Dot" = "A ChatGPT elindítja Dotot";
-"⏳ Drafting" = "⏳ Írás folyamatban";
-"✅ Draft ready" = "✅ Piszkozat kész";
-"❓ Question for you" = "❓ Kérdés Önnek";
-"➖ No reply needed" = "➖ Nem kell válaszolni";
-"⚠️ Dot couldn’t check" = "⚠️ Dot nem tudta ellenőrizni";
+"✎ Drafting" = "✎ Írás folyamatban";
+"✓ Draft ready" = "✓ Piszkozat kész";
+"?⃝ Question for you" = "?⃝ Kérdés Önnek";
+"− No reply needed" = "− Nem kell válaszolni";
+"⚠︎ Dot couldn’t check" = "⚠︎ Dot nem tudta ellenőrizni";
 "📤 Reply sent" = "📤 Válasz elküldve";
-"ℹ️ Note from Dot" = "ℹ️ Megjegyzés Dottól";
+"ℹ︎ Note from Dot" = "ℹ︎ Megjegyzés Dottól";
 "Accounts" = "Fiókok";
 "Drafting Rules" = "Írási szabályok";
 "Dot is tidying this rule" = "Dot pontosítja ezt a szabályt";
@@ -254,10 +254,10 @@
 "Do not attach this file" = "Ne csatolja ezt a fájlt";
 "Do not attach %@" = "Ne csatolja: %@";
 "No Reply" = "Nincs válasz";
-"↩️ Replied" = "↩️ Megválaszolva";
+"↩︎ Replied" = "↩︎ Megválaszolva";
 "Open Mail Dot" = "Mail Dot megnyitása";
-"👥 Cc only" = "👥 Csak másolat";
-"⏸ Not drafted" = "⏸ Nincs piszkozat";
+"⊕ Cc only" = "⊕ Csak másolat";
+"⏸︎ Not drafted" = "⏸︎ Nincs piszkozat";
 
 /* The Mail Dot window's three layouts and Add to Calendar (build 129). */
 "%@ to %@" = "%@ – %@";
@@ -432,7 +432,7 @@
 "No past questions" = "Nincsenek korábbi kérdések";
 "Clear" = "Törlés";
 "Not yet read" = "Még nem olvasott";
-"💤 Dot unavailable" = "💤 Dot nem érhető el";
+"⏾ Dot unavailable" = "⏾ Dot nem érhető el";
 "Accessibility" = "Kisegítő lehetőségek";
 "Allowed" = "Engedélyezve";
 "Not allowed" = "Nincs engedélyezve";
@@ -500,7 +500,6 @@
 "Lets Mail Dot read the messages you choose and place Dot’s drafts." = "Lehetővé teszi, hogy a Mail Dot elolvassa az Ön által kiválasztott üzeneteket, és elhelyezze Dot piszkozatait.";
 "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot." = "Lehetővé teszi, hogy a Mail Dot írjon Dotnak a ChatGPT-ben, és hívásokat indítson Dottal.";
 "The app Dot lives in. It needs to be open only for a call with Dot." = "Az alkalmazás, amelyben Dot él. Csak a Dottal folytatott híváshoz kell nyitva lennie.";
-"Your ChatGPT assistant, reached through Mail Dot’s private connection." = "Az Ön ChatGPT-asszisztense, amely a Mail Dot privát kapcsolatán keresztül érhető el.";
 "Not needed for Gmail or other accounts with a ChatGPT connector." = "A Gmailhez és más, ChatGPT-összekötővel rendelkező fiókokhoz nem szükséges.";
 "Remove Mail Dot…" = "Mail Dot eltávolítása…";
 "Quit Mail to remove Mail Dot." = "A Mail Dot eltávolításához lépjen ki a Mailből.";
@@ -535,7 +534,7 @@
 "Asking Dot to confirm the connection…" = "Dot megerősítést kap a kapcsolatról…";
 "Dot could not confirm the connection" = "Dot nem tudta megerősíteni a kapcsolatot";
 "Not needed for Gmail or iCloud." = "Gmailhez vagy iCloudhoz nem szükséges.";
-"🔎 Checking" = "🔎 Ellenőrzés";
+"↻ Checking" = "↻ Ellenőrzés";
 "Dot is checking this message…" = "Dot ellenőrzi ezt az üzenetet…";
 "You" = "Te";
 "1 request ahead of yours" = "1 kérés áll előtte";
@@ -567,3 +566,4 @@
 "Show Setup" = "Beállítás megjelenítése";
 "Dot is setting up Mail Dot" = "Dot beállítja a Mail Dotot";
 "Mail Dot’s setup has stopped" = "A Mail Dot beállítása leállt";
+"ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "A ChatGPT mindig aktív ügynöke, a Mail Dot privát kapcsolatán keresztül érhető el.";

@@ -238,13 +238,13 @@
 "Sending your request to Dot" = "正在将你的请求发送给 Dot";
 "Dot is reading the message" = "Dot 正在阅读邮件";
 "ChatGPT is starting Dot" = "ChatGPT 正在启动 Dot";
-"⏳ Drafting" = "⏳ 正在起草";
-"✅ Draft ready" = "✅ 草稿已就绪";
-"❓ Question for you" = "❓ 有问题问你";
-"➖ No reply needed" = "➖ 无需回复";
-"⚠️ Dot couldn’t check" = "⚠️ Dot 无法检查";
+"✎ Drafting" = "✎ 正在起草";
+"✓ Draft ready" = "✓ 草稿已就绪";
+"?⃝ Question for you" = "?⃝ 有问题问你";
+"− No reply needed" = "− 无需回复";
+"⚠︎ Dot couldn’t check" = "⚠︎ Dot 无法检查";
 "📤 Reply sent" = "📤 回复已发送";
-"ℹ️ Note from Dot" = "ℹ️ Dot 的备注";
+"ℹ︎ Note from Dot" = "ℹ︎ Dot 的备注";
 "Accounts" = "账户";
 "Drafting Rules" = "起草规则";
 "Dot is tidying this rule" = "Dot 正在整理此规则";
@@ -254,10 +254,10 @@
 "Do not attach this file" = "不附加此文件";
 "Do not attach %@" = "不附加 %@";
 "No Reply" = "不回复";
-"↩️ Replied" = "↩️ 已回复";
+"↩︎ Replied" = "↩︎ 已回复";
 "Open Mail Dot" = "打开 Mail Dot";
-"👥 Cc only" = "👥 仅抄送";
-"⏸ Not drafted" = "⏸ 未起草";
+"⊕ Cc only" = "⊕ 仅抄送";
+"⏸︎ Not drafted" = "⏸︎ 未起草";
 
 /* The Mail Dot window's three layouts and Add to Calendar (build 129). */
 "%@ to %@" = "%@至%@";
@@ -432,7 +432,7 @@
 "No past questions" = "没有过去的提问";
 "Clear" = "清除";
 "Not yet read" = "尚未阅读";
-"💤 Dot unavailable" = "💤 Dot 不可用";
+"⏾ Dot unavailable" = "⏾ Dot 不可用";
 "Accessibility" = "辅助功能";
 "Allowed" = "已允许";
 "Not allowed" = "未允许";
@@ -500,7 +500,6 @@
 "Lets Mail Dot read the messages you choose and place Dot’s drafts." = "让 Mail Dot 读取你选取的邮件，并放入 Dot 的草稿。";
 "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot." = "让 Mail Dot 在 ChatGPT 中给 Dot 写信息，并发起与 Dot 的通话。";
 "The app Dot lives in. It needs to be open only for a call with Dot." = "Dot 所在的 App。只有与 Dot 通话时才需要打开它。";
-"Your ChatGPT assistant, reached through Mail Dot’s private connection." = "你的 ChatGPT 助理，通过 Mail Dot 的专用连接与其联系。";
 "Not needed for Gmail or other accounts with a ChatGPT connector." = "Gmail 或其他带有 ChatGPT 连接器的账户无需开启。";
 "Remove Mail Dot…" = "移除 Mail Dot…";
 "Quit Mail to remove Mail Dot." = "退出“邮件”以移除 Mail Dot。";
@@ -535,7 +534,7 @@
 "Asking Dot to confirm the connection…" = "正在请 Dot 确认连接…";
 "Dot could not confirm the connection" = "Dot 无法确认连接";
 "Not needed for Gmail or iCloud." = "Gmail 或 iCloud 无需开启。";
-"🔎 Checking" = "🔎 检查中";
+"↻ Checking" = "↻ 检查中";
 "Dot is checking this message…" = "Dot 正在检查这封邮件…";
 "You" = "你";
 "1 request ahead of yours" = "前面还有 1 个请求";
@@ -567,3 +566,4 @@
 "Show Setup" = "显示设置";
 "Dot is setting up Mail Dot" = "Dot 正在设置 Mail Dot";
 "Mail Dot’s setup has stopped" = "Mail Dot 的设置已停止";
+"ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "ChatGPT 的全天候智能体，通过 Mail Dot 的私有连接访问。";

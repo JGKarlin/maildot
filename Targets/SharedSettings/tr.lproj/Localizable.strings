@@ -238,13 +238,13 @@
 "Sending your request to Dot" = "İsteğiniz Dot'a gönderiliyor";
 "Dot is reading the message" = "Dot iletiyi okuyor";
 "ChatGPT is starting Dot" = "ChatGPT Dot'u başlatıyor";
-"⏳ Drafting" = "⏳ Yazılıyor";
-"✅ Draft ready" = "✅ Taslak hazır";
-"❓ Question for you" = "❓ Size bir soru";
-"➖ No reply needed" = "➖ Yanıt gerekmiyor";
-"⚠️ Dot couldn’t check" = "⚠️ Dot denetleyemedi";
+"✎ Drafting" = "✎ Yazılıyor";
+"✓ Draft ready" = "✓ Taslak hazır";
+"?⃝ Question for you" = "?⃝ Size bir soru";
+"− No reply needed" = "− Yanıt gerekmiyor";
+"⚠︎ Dot couldn’t check" = "⚠︎ Dot denetleyemedi";
 "📤 Reply sent" = "📤 Yanıt gönderildi";
-"ℹ️ Note from Dot" = "ℹ️ Dot'tan not";
+"ℹ︎ Note from Dot" = "ℹ︎ Dot'tan not";
 "Accounts" = "Hesaplar";
 "Drafting Rules" = "Taslak kuralları";
 "Dot is tidying this rule" = "Dot bu kuralı düzenliyor";
@@ -254,10 +254,10 @@
 "Do not attach this file" = "Bu dosyayı iliştirme";
 "Do not attach %@" = "%@ dosyasını iliştirme";
 "No Reply" = "Yanıt Yok";
-"↩️ Replied" = "↩️ Yanıtlandı";
+"↩︎ Replied" = "↩︎ Yanıtlandı";
 "Open Mail Dot" = "Mail Dot'u aç";
-"👥 Cc only" = "👥 Yalnızca Bilgi";
-"⏸ Not drafted" = "⏸ Taslak yok";
+"⊕ Cc only" = "⊕ Yalnızca Bilgi";
+"⏸︎ Not drafted" = "⏸︎ Taslak yok";
 
 /* The Mail Dot window's three layouts and Add to Calendar (build 129). */
 "%@ to %@" = "%@ – %@";
@@ -432,7 +432,7 @@
 "No past questions" = "Geçmiş soru yok";
 "Clear" = "Sil";
 "Not yet read" = "Henüz okunmadı";
-"💤 Dot unavailable" = "💤 Dot kullanılamıyor";
+"⏾ Dot unavailable" = "⏾ Dot kullanılamıyor";
 "Accessibility" = "Erişilebilirlik";
 "Allowed" = "İzin verildi";
 "Not allowed" = "İzin verilmedi";
@@ -500,7 +500,6 @@
 "Lets Mail Dot read the messages you choose and place Dot’s drafts." = "Mail Dot’un seçtiğiniz iletileri okumasını ve Dot’un taslaklarını yerleştirmesini sağlar.";
 "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot." = "Mail Dot’un ChatGPT’de Dot’a yazmasını ve Dot ile aramaları başlatmasını sağlar.";
 "The app Dot lives in. It needs to be open only for a call with Dot." = "Dot’un yaşadığı uygulama. Yalnızca Dot ile bir arama için açık olması gerekir.";
-"Your ChatGPT assistant, reached through Mail Dot’s private connection." = "ChatGPT asistanınız; Mail Dot’un özel bağlantısı üzerinden ulaşılır.";
 "Not needed for Gmail or other accounts with a ChatGPT connector." = "Gmail veya ChatGPT bağlayıcısı olan diğer hesaplar için gerekmez.";
 "Remove Mail Dot…" = "Mail Dot’u Sil…";
 "Quit Mail to remove Mail Dot." = "Mail Dot’u silmek için Mail’den çıkın.";
@@ -535,7 +534,7 @@
 "Asking Dot to confirm the connection…" = "Dot’tan bağlantıyı onaylaması isteniyor…";
 "Dot could not confirm the connection" = "Dot bağlantıyı onaylayamadı";
 "Not needed for Gmail or iCloud." = "Gmail veya iCloud için gerekmez.";
-"🔎 Checking" = "🔎 Kontrol ediliyor";
+"↻ Checking" = "↻ Kontrol ediliyor";
 "Dot is checking this message…" = "Dot bu iletiyi kontrol ediyor…";
 "You" = "Siz";
 "1 request ahead of yours" = "Bundan önce 1 istek";
@@ -567,3 +566,4 @@
 "Show Setup" = "Ayarlamayı Göster";
 "Dot is setting up Mail Dot" = "Dot, Mail Dot’u ayarlıyor";
 "Mail Dot’s setup has stopped" = "Mail Dot’un ayarlanması durdu";
+"ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "ChatGPT’nin her zaman açık ajanı, Mail Dot’un özel bağlantısıyla ulaşılır.";

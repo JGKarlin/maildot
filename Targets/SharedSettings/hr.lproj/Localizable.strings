@@ -238,13 +238,13 @@
 "Sending your request to Dot" = "Slanje vašeg zahtjeva Dotu";
 "Dot is reading the message" = "Dot čita poruku";
 "ChatGPT is starting Dot" = "ChatGPT pokreće Dota";
-"⏳ Drafting" = "⏳ Sastavljanje";
-"✅ Draft ready" = "✅ Skica spremna";
-"❓ Question for you" = "❓ Pitanje za vas";
-"➖ No reply needed" = "➖ Odgovor nije potreban";
-"⚠️ Dot couldn’t check" = "⚠️ Dot nije mogao provjeriti";
+"✎ Drafting" = "✎ Sastavljanje";
+"✓ Draft ready" = "✓ Skica spremna";
+"?⃝ Question for you" = "?⃝ Pitanje za vas";
+"− No reply needed" = "− Odgovor nije potreban";
+"⚠︎ Dot couldn’t check" = "⚠︎ Dot nije mogao provjeriti";
 "📤 Reply sent" = "📤 Odgovor poslan";
-"ℹ️ Note from Dot" = "ℹ️ Bilješka od Dota";
+"ℹ︎ Note from Dot" = "ℹ︎ Bilješka od Dota";
 "Accounts" = "Računi";
 "Drafting Rules" = "Pravila sastavljanja";
 "Dot is tidying this rule" = "Dot dotjeruje ovo pravilo";
@@ -254,10 +254,10 @@
 "Do not attach this file" = "Ne prilaži ovu datoteku";
 "Do not attach %@" = "Ne prilaži %@";
 "No Reply" = "Bez odgovora";
-"↩️ Replied" = "↩️ Odgovoreno";
+"↩︎ Replied" = "↩︎ Odgovoreno";
 "Open Mail Dot" = "Otvori Mail Dot";
-"👥 Cc only" = "👥 Samo u kopiji";
-"⏸ Not drafted" = "⏸ Bez skice";
+"⊕ Cc only" = "⊕ Samo u kopiji";
+"⏸︎ Not drafted" = "⏸︎ Bez skice";
 
 /* The Mail Dot window's three layouts and Add to Calendar (build 129). */
 "%@ to %@" = "%@ – %@";
@@ -432,7 +432,7 @@
 "No past questions" = "Nema prošlih pitanja";
 "Clear" = "Očisti";
 "Not yet read" = "Još nije pročitano";
-"💤 Dot unavailable" = "💤 Dot nije dostupan";
+"⏾ Dot unavailable" = "⏾ Dot nije dostupan";
 "Accessibility" = "Pristupačnost";
 "Allowed" = "Dopušteno";
 "Not allowed" = "Nije dopušteno";
@@ -500,7 +500,6 @@
 "Lets Mail Dot read the messages you choose and place Dot’s drafts." = "Omogućuje Mail Dotu čitanje poruka koje odaberete i umetanje Dotovih skica.";
 "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot." = "Omogućuje Mail Dotu da piše Dotu u ChatGPT-u i pokreće pozive s Dotom.";
 "The app Dot lives in. It needs to be open only for a call with Dot." = "Aplikacija u kojoj Dot živi. Mora biti otvorena samo za poziv s Dotom.";
-"Your ChatGPT assistant, reached through Mail Dot’s private connection." = "Vaš ChatGPT asistent, dostupan putem privatne veze Mail Dota.";
 "Not needed for Gmail or other accounts with a ChatGPT connector." = "Nije potrebno za Gmail ni druge račune s ChatGPT poveznikom.";
 "Remove Mail Dot…" = "Ukloni Mail Dot…";
 "Quit Mail to remove Mail Dot." = "Zatvorite Mail kako biste uklonili Mail Dot.";
@@ -535,7 +534,7 @@
 "Asking Dot to confirm the connection…" = "Dot se moli da potvrdi vezu…";
 "Dot could not confirm the connection" = "Dot nije mogao potvrditi vezu";
 "Not needed for Gmail or iCloud." = "Nije potrebno za Gmail ili iCloud.";
-"🔎 Checking" = "🔎 Provjera";
+"↻ Checking" = "↻ Provjera";
 "Dot is checking this message…" = "Dot provjerava ovu poruku…";
 "You" = "Vi";
 "1 request ahead of yours" = "1 zahtjev prije ovoga";
@@ -567,3 +566,4 @@
 "Show Setup" = "Prikaži podešavanje";
 "Dot is setting up Mail Dot" = "Dot podešava Mail Dot";
 "Mail Dot’s setup has stopped" = "Podešavanje Mail Dota je zaustavljeno";
+"ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "Uvijek aktivan agent ChatGPT-a, dostupan putem privatne veze Mail Dota.";

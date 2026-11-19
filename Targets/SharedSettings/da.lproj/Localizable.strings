@@ -238,13 +238,13 @@
 "Sending your request to Dot" = "Sender din anmodning til Dot";
 "Dot is reading the message" = "Dot læser beskeden";
 "ChatGPT is starting Dot" = "ChatGPT starter Dot";
-"⏳ Drafting" = "⏳ Skriver";
-"✅ Draft ready" = "✅ Kladde klar";
-"❓ Question for you" = "❓ Spørgsmål til dig";
-"➖ No reply needed" = "➖ Intet svar nødvendigt";
-"⚠️ Dot couldn’t check" = "⚠️ Dot kunne ikke tjekke";
+"✎ Drafting" = "✎ Skriver";
+"✓ Draft ready" = "✓ Kladde klar";
+"?⃝ Question for you" = "?⃝ Spørgsmål til dig";
+"− No reply needed" = "− Intet svar nødvendigt";
+"⚠︎ Dot couldn’t check" = "⚠︎ Dot kunne ikke tjekke";
 "📤 Reply sent" = "📤 Svar sendt";
-"ℹ️ Note from Dot" = "ℹ️ Note fra Dot";
+"ℹ︎ Note from Dot" = "ℹ︎ Note fra Dot";
 "Accounts" = "Konti";
 "Drafting Rules" = "Regler for kladder";
 "Dot is tidying this rule" = "Dot finpudser denne regel";
@@ -254,10 +254,10 @@
 "Do not attach this file" = "Vedhæft ikke denne fil";
 "Do not attach %@" = "Vedhæft ikke %@";
 "No Reply" = "Intet svar";
-"↩️ Replied" = "↩️ Besvaret";
+"↩︎ Replied" = "↩︎ Besvaret";
 "Open Mail Dot" = "Åbn Mail Dot";
-"👥 Cc only" = "👥 Kun cc";
-"⏸ Not drafted" = "⏸ Ingen kladde";
+"⊕ Cc only" = "⊕ Kun cc";
+"⏸︎ Not drafted" = "⏸︎ Ingen kladde";
 
 /* The Mail Dot window's three layouts and Add to Calendar (build 129). */
 "%@ to %@" = "%@ til %@";
@@ -432,7 +432,7 @@
 "No past questions" = "Ingen tidligere spørgsmål";
 "Clear" = "Ryd";
 "Not yet read" = "Endnu ikke læst";
-"💤 Dot unavailable" = "💤 Dot er ikke tilgængelig";
+"⏾ Dot unavailable" = "⏾ Dot er ikke tilgængelig";
 "Accessibility" = "Tilgængelighed";
 "Allowed" = "Tilladt";
 "Not allowed" = "Ikke tilladt";
@@ -500,7 +500,6 @@
 "Lets Mail Dot read the messages you choose and place Dot’s drafts." = "Lader Mail Dot læse de beskeder, du vælger, og indsætte Dots udkast.";
 "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot." = "Lader Mail Dot skrive til Dot i ChatGPT og starte opkald med Dot.";
 "The app Dot lives in. It needs to be open only for a call with Dot." = "Appen, som Dot bor i. Den behøver kun være åben til et opkald med Dot.";
-"Your ChatGPT assistant, reached through Mail Dot’s private connection." = "Din ChatGPT-assistent, som nås via Mail Dots private forbindelse.";
 "Not needed for Gmail or other accounts with a ChatGPT connector." = "Ikke nødvendigt for Gmail eller andre konti med en ChatGPT-forbindelse.";
 "Remove Mail Dot…" = "Fjern Mail Dot …";
 "Quit Mail to remove Mail Dot." = "Afslut Mail for at fjerne Mail Dot.";
@@ -535,7 +534,7 @@
 "Asking Dot to confirm the connection…" = "Beder Dot om at bekræfte forbindelsen …";
 "Dot could not confirm the connection" = "Dot kunne ikke bekræfte forbindelsen";
 "Not needed for Gmail or iCloud." = "Ikke nødvendigt for Gmail eller iCloud.";
-"🔎 Checking" = "🔎 Tjekker";
+"↻ Checking" = "↻ Tjekker";
 "Dot is checking this message…" = "Dot tjekker beskeden …";
 "You" = "Dig";
 "1 request ahead of yours" = "1 anmodning før denne";
@@ -567,3 +566,4 @@
 "Show Setup" = "Vis indstilling";
 "Dot is setting up Mail Dot" = "Dot indstiller Mail Dot";
 "Mail Dot’s setup has stopped" = "Indstillingen af Mail Dot er stoppet";
+"ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "ChatGPT’s altid aktive agent, som nås via Mail Dots private forbindelse.";

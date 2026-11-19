@@ -46,11 +46,11 @@ final class ReportReplyTests:XCTestCase {
         XCTAssertEqual(MailDotBanner(state.entries[0]),.checking)
         state.entries[0].draftRequested=true
         XCTAssertEqual(MailDotBanner(state.entries[0]),.drafting)
-        XCTAssertEqual(MailDotBanner.question.title,"❓ Question for you"); XCTAssertEqual(MailDotBanner.question.action,"⧉ Open Mail Dot")
-        XCTAssertEqual(MailDotBanner.draftReady.title,"✅ Draft ready"); XCTAssertEqual(MailDotBanner.draftReady.action,"⧉ Open Mail Dot")
+        XCTAssertEqual(MailDotBanner.question.title,"?⃝ Question for you"); XCTAssertEqual(MailDotBanner.question.action,"⧉ Open Mail Dot")
+        XCTAssertEqual(MailDotBanner.draftReady.title,"✓ Draft ready"); XCTAssertEqual(MailDotBanner.draftReady.action,"⧉ Open Mail Dot")
         XCTAssertEqual(MailDotBanner(report:.awaitingInstruction),.question)
-        XCTAssertEqual(MailDotBanner(report:.draftedSent).title,"↩️ Replied")
+        XCTAssertEqual(MailDotBanner(report:.draftedSent).title,"↩︎ Replied")
         state.noteFlag(state.entries[0].id,applied:nil,ownerFlagged:false,replied:true)
-        XCTAssertEqual(MailDotBanner(state.entries[0])?.title,"↩️ Replied","once replied the banner says so")
+        XCTAssertEqual(MailDotBanner(state.entries[0])?.title,"↩︎ Replied","once replied the banner says so")
     }
 }

@@ -238,13 +238,13 @@
 "Sending your request to Dot" = "Αποστολή του αιτήματός σας στο Dot";
 "Dot is reading the message" = "Το Dot διαβάζει το μήνυμα";
 "ChatGPT is starting Dot" = "Το ChatGPT εκκινεί το Dot";
-"⏳ Drafting" = "⏳ Σύνταξη";
-"✅ Draft ready" = "✅ Πρόχειρο έτοιμο";
-"❓ Question for you" = "❓ Ερώτηση για εσάς";
-"➖ No reply needed" = "➖ Δεν χρειάζεται απάντηση";
-"⚠️ Dot couldn’t check" = "⚠️ Το Dot δεν μπόρεσε να ελέγξει";
+"✎ Drafting" = "✎ Σύνταξη";
+"✓ Draft ready" = "✓ Πρόχειρο έτοιμο";
+"?⃝ Question for you" = "?⃝ Ερώτηση για εσάς";
+"− No reply needed" = "− Δεν χρειάζεται απάντηση";
+"⚠︎ Dot couldn’t check" = "⚠︎ Το Dot δεν μπόρεσε να ελέγξει";
 "📤 Reply sent" = "📤 Η απάντηση στάλθηκε";
-"ℹ️ Note from Dot" = "ℹ️ Σημείωση από το Dot";
+"ℹ︎ Note from Dot" = "ℹ︎ Σημείωση από το Dot";
 "Accounts" = "Λογαριασμοί";
 "Drafting Rules" = "Κανόνες σύνταξης";
 "Dot is tidying this rule" = "Το Dot βελτιώνει αυτόν τον κανόνα";
@@ -254,10 +254,10 @@
 "Do not attach this file" = "Να μην επισυναφθεί αυτό το αρχείο";
 "Do not attach %@" = "Να μην επισυναφθεί το %@";
 "No Reply" = "Χωρίς απάντηση";
-"↩️ Replied" = "↩️ Απαντήθηκε";
+"↩︎ Replied" = "↩︎ Απαντήθηκε";
 "Open Mail Dot" = "Άνοιγμα Mail Dot";
-"👥 Cc only" = "👥 Μόνο κοινοποίηση";
-"⏸ Not drafted" = "⏸ Χωρίς πρόχειρο";
+"⊕ Cc only" = "⊕ Μόνο κοινοποίηση";
+"⏸︎ Not drafted" = "⏸︎ Χωρίς πρόχειρο";
 
 /* The Mail Dot window's three layouts and Add to Calendar (build 129). */
 "%@ to %@" = "%@ έως %@";
@@ -432,7 +432,7 @@
 "No past questions" = "Καμία προηγούμενη ερώτηση";
 "Clear" = "Εκκαθάριση";
 "Not yet read" = "Δεν έχει διαβαστεί ακόμη";
-"💤 Dot unavailable" = "💤 Το Dot δεν είναι διαθέσιμο";
+"⏾ Dot unavailable" = "⏾ Το Dot δεν είναι διαθέσιμο";
 "Accessibility" = "Προσβασιμότητα";
 "Allowed" = "Επιτρέπεται";
 "Not allowed" = "Δεν επιτρέπεται";
@@ -500,7 +500,6 @@
 "Lets Mail Dot read the messages you choose and place Dot’s drafts." = "Επιτρέπει στο Mail Dot να διαβάζει τα μηνύματα που επιλέγετε και να τοποθετεί τα πρόχειρα του Dot.";
 "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot." = "Επιτρέπει στο Mail Dot να γράφει στο Dot στο ChatGPT και να ξεκινά κλήσεις με το Dot.";
 "The app Dot lives in. It needs to be open only for a call with Dot." = "Η εφαρμογή στην οποία ζει το Dot. Χρειάζεται να είναι ανοιχτή μόνο για κλήση με το Dot.";
-"Your ChatGPT assistant, reached through Mail Dot’s private connection." = "Ο βοηθός σας ChatGPT, στον οποίο φτάνει η ιδιωτική σύνδεση του Mail Dot.";
 "Not needed for Gmail or other accounts with a ChatGPT connector." = "Δεν χρειάζεται για το Gmail ή άλλους λογαριασμούς με σύνδεσμο ChatGPT.";
 "Remove Mail Dot…" = "Αφαίρεση του Mail Dot…";
 "Quit Mail to remove Mail Dot." = "Τερματίστε το Mail για να αφαιρέσετε το Mail Dot.";
@@ -535,7 +534,7 @@
 "Asking Dot to confirm the connection…" = "Ζητείται από το Dot να επιβεβαιώσει τη σύνδεση…";
 "Dot could not confirm the connection" = "Το Dot δεν μπόρεσε να επιβεβαιώσει τη σύνδεση";
 "Not needed for Gmail or iCloud." = "Δεν χρειάζεται για Gmail ή iCloud.";
-"🔎 Checking" = "🔎 Έλεγχος";
+"↻ Checking" = "↻ Έλεγχος";
 "Dot is checking this message…" = "Το Dot ελέγχει αυτό το μήνυμα…";
 "You" = "Εσείς";
 "1 request ahead of yours" = "1 αίτημα πριν από αυτό";
@@ -567,3 +566,4 @@
 "Show Setup" = "Εμφάνιση ρύθμισης";
 "Dot is setting up Mail Dot" = "Το Dot ρυθμίζει το Mail Dot";
 "Mail Dot’s setup has stopped" = "Η ρύθμιση του Mail Dot σταμάτησε";
+"ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "Ο πάντα ενεργός πράκτορας του ChatGPT, προσβάσιμος μέσω της ιδιωτικής σύνδεσης του Mail Dot.";

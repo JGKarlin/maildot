@@ -238,13 +238,13 @@
 "Sending your request to Dot" = "Skickar din begäran till Dot";
 "Dot is reading the message" = "Dot läser meddelandet";
 "ChatGPT is starting Dot" = "ChatGPT startar Dot";
-"⏳ Drafting" = "⏳ Skriver";
-"✅ Draft ready" = "✅ Utkast klart";
-"❓ Question for you" = "❓ Fråga till dig";
-"➖ No reply needed" = "➖ Inget svar behövs";
-"⚠️ Dot couldn’t check" = "⚠️ Dot kunde inte kontrollera";
+"✎ Drafting" = "✎ Skriver";
+"✓ Draft ready" = "✓ Utkast klart";
+"?⃝ Question for you" = "?⃝ Fråga till dig";
+"− No reply needed" = "− Inget svar behövs";
+"⚠︎ Dot couldn’t check" = "⚠︎ Dot kunde inte kontrollera";
 "📤 Reply sent" = "📤 Svar skickat";
-"ℹ️ Note from Dot" = "ℹ️ Anteckning från Dot";
+"ℹ︎ Note from Dot" = "ℹ︎ Anteckning från Dot";
 "Accounts" = "Konton";
 "Drafting Rules" = "Regler för utkast";
 "Dot is tidying this rule" = "Dot putsar regeln";
@@ -254,10 +254,10 @@
 "Do not attach this file" = "Bifoga inte filen";
 "Do not attach %@" = "Bifoga inte %@";
 "No Reply" = "Inget svar";
-"↩️ Replied" = "↩️ Besvarat";
+"↩︎ Replied" = "↩︎ Besvarat";
 "Open Mail Dot" = "Öppna Mail Dot";
-"👥 Cc only" = "👥 Endast kopia";
-"⏸ Not drafted" = "⏸ Inget utkast";
+"⊕ Cc only" = "⊕ Endast kopia";
+"⏸︎ Not drafted" = "⏸︎ Inget utkast";
 
 /* The Mail Dot window's three layouts and Add to Calendar (build 129). */
 "%@ to %@" = "%@ till %@";
@@ -432,7 +432,7 @@
 "No past questions" = "Inga tidigare frågor";
 "Clear" = "Rensa";
 "Not yet read" = "Inte läst ännu";
-"💤 Dot unavailable" = "💤 Dot är inte tillgänglig";
+"⏾ Dot unavailable" = "⏾ Dot är inte tillgänglig";
 "Accessibility" = "Hjälpmedel";
 "Allowed" = "Tillåtet";
 "Not allowed" = "Inte tillåtet";
@@ -500,7 +500,6 @@
 "Lets Mail Dot read the messages you choose and place Dot’s drafts." = "Låter Mail Dot läsa de brev du väljer och lägga in Dots utkast.";
 "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot." = "Låter Mail Dot skriva till Dot i ChatGPT och starta samtal med Dot.";
 "The app Dot lives in. It needs to be open only for a call with Dot." = "Appen där Dot finns. Den behöver bara vara öppen för ett samtal med Dot.";
-"Your ChatGPT assistant, reached through Mail Dot’s private connection." = "Din ChatGPT-assistent, som nås via Mail Dots privata anslutning.";
 "Not needed for Gmail or other accounts with a ChatGPT connector." = "Behövs inte för Gmail eller andra konton med en ChatGPT-koppling.";
 "Remove Mail Dot…" = "Ta bort Mail Dot …";
 "Quit Mail to remove Mail Dot." = "Avsluta Mail för att ta bort Mail Dot.";
@@ -535,7 +534,7 @@
 "Asking Dot to confirm the connection…" = "Ber Dot bekräfta anslutningen …";
 "Dot could not confirm the connection" = "Dot kunde inte bekräfta anslutningen";
 "Not needed for Gmail or iCloud." = "Behövs inte för Gmail eller iCloud.";
-"🔎 Checking" = "🔎 Kontrollerar";
+"↻ Checking" = "↻ Kontrollerar";
 "Dot is checking this message…" = "Dot kontrollerar meddelandet …";
 "You" = "Du";
 "1 request ahead of yours" = "1 begäran före denna";
@@ -567,3 +566,4 @@
 "Show Setup" = "Visa inställning";
 "Dot is setting up Mail Dot" = "Dot ställer in Mail Dot";
 "Mail Dot’s setup has stopped" = "Inställningen av Mail Dot har stoppats";
+"ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "ChatGPT:s alltid aktiva agent, som nås via Mail Dots privata anslutning.";

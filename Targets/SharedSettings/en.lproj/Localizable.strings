@@ -178,7 +178,7 @@
 "No past questions" = "No past questions";
 "Clear" = "Clear";
 "Not yet read" = "Not yet read";
-"💤 Dot unavailable" = "💤 Dot unavailable";
+"⏾ Dot unavailable" = "⏾ Dot unavailable";
 "Accessibility" = "Accessibility";
 "Allowed" = "Allowed";
 "Not allowed" = "Not allowed";
@@ -246,7 +246,6 @@
 "Lets Mail Dot read the messages you choose and place Dot’s drafts." = "Lets Mail Dot read the messages you choose and place Dot’s drafts.";
 "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot." = "Lets Mail Dot write to Dot in ChatGPT and start calls with Dot.";
 "The app Dot lives in. It needs to be open only for a call with Dot." = "The app Dot lives in. It needs to be open only for a call with Dot.";
-"Your ChatGPT assistant, reached through Mail Dot’s private connection." = "Your ChatGPT assistant, reached through Mail Dot’s private connection.";
 "Not needed for Gmail or other accounts with a ChatGPT connector." = "Not needed for Gmail or other accounts with a ChatGPT connector.";
 "Remove Mail Dot…" = "Remove Mail Dot…";
 "Quit Mail to remove Mail Dot." = "Quit Mail to remove Mail Dot.";
@@ -281,7 +280,7 @@
 "Asking Dot to confirm the connection…" = "Asking Dot to confirm the connection…";
 "Dot could not confirm the connection" = "Dot could not confirm the connection";
 "Not needed for Gmail or iCloud." = "Not needed for Gmail or iCloud.";
-"🔎 Checking" = "🔎 Checking";
+"↻ Checking" = "↻ Checking";
 "Dot is checking this message…" = "Dot is checking this message…";
 "You" = "You";
 "%lld requests ahead of yours" = "%lld requests ahead of yours";
@@ -310,3 +309,4 @@
 "Show Setup" = "Show Setup";
 "Dot is setting up Mail Dot" = "Dot is setting up Mail Dot";
 "Mail Dot’s setup has stopped" = "Mail Dot’s setup has stopped";
+"ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "ChatGPT’s always-on agent, reached through Mail Dot’s private connection.";
