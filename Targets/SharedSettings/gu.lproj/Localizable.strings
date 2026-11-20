@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "પ્રતિ માં પ્રાપ્તકર્તા ઉમેરો, અને Dot તેમના માટે આ સંદેશનો ડ્રાફ્ટ બનાવશે.";
 "What should this message say?" = "આ સંદેશમાં શું કહેવું જોઈએ?";
 "Tell Dot what to write" = "શું લખવું તે Dot ને કહો";
+"Dot found this message needs no reply. What should your reply say?" = "Dot ને જણાયું કે આ સંદેશનો જવાબ જરૂરી નથી. તમારા જવાબમાં શું લખવું?";
+"Tell Dot how to reply" = "Dot ને કહો કે કેવી રીતે જવાબ આપવો";
 "Talk this message over with Dot on a voice call" = "વૉઇસ કૉલ પર Dot સાથે આ સંદેશની ચર્ચા કરો";
 "Draft" = "ડ્રાફ્ટ બનાવો";
 "Sending your request to Dot" = "તમારી વિનંતી Dot ને મોકલી રહ્યા છીએ";

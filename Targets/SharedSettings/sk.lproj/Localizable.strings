@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "Pridajte príjemcu do poľa Komu a Dot mu túto správu napíše.";
 "What should this message say?" = "Čo má táto správa povedať?";
 "Tell Dot what to write" = "Povedzte Dotovi, čo napísať";
+"Dot found this message needs no reply. What should your reply say?" = "Dot zistil, že táto správa nepotrebuje odpoveď. Čo má vaša odpoveď povedať?";
+"Tell Dot how to reply" = "Povedzte Dotovi, ako odpovedať";
 "Talk this message over with Dot on a voice call" = "Prebrať túto správu s Dotom v hlasovom hovore";
 "Draft" = "Napísať";
 "Sending your request to Dot" = "Odosiela sa vaša požiadavka Dotovi";

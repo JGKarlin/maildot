@@ -595,6 +595,14 @@ public struct MailTriageState:Codable,Sendable {
         guard let wanted=MailMessageIdentity.normalized(id) else { return nil }
         return entries.last{$0.messageID == wanted}
     }
+    /// Whether Mail Dot marked the message with this Message-ID No reply needed: Dot found no reply was needed, or the
+    /// Mac's filter did. A reply to it then waits for the owner's words on what to say before Dot is asked (owner
+    /// request, 20 November 2026: Dot drafted a generic reply before the owner could say why they were replying).
+    /// Cc only is not included.
+    public func markedNoReplyNeeded(messageID id:String) -> Bool {
+        guard let entry=entry(forMessageID:id) else { return false }
+        return entry.outcome == .noDraft || (entry.outcome == .skipped && entry.reason != MailTriage.copiedOnlyReason)
+    }
     /// The owner asked for a draft in a reply's panel: the message shows Drafting until Dot's draft arrives.
     public mutating func noteReplyPanelDrafting(messageID id:String,now:Date=Date()) {
         guard let wanted=MailMessageIdentity.normalized(id),let index=entries.lastIndex(where:{$0.messageID == wanted}),

@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "받는 사람 필드에 받는 사람을 추가하면 Dot이 그 사람에게 보낼 메시지를 작성합니다.";
 "What should this message say?" = "이 메시지에 어떤 내용을 담을까요?";
 "Tell Dot what to write" = "Dot에게 쓸 내용을 알려 주십시오";
+"Dot found this message needs no reply. What should your reply say?" = "Dot은 이 메시지에 답장이 필요 없다고 판단했습니다. 답장에 무엇을 쓸까요?";
+"Tell Dot how to reply" = "답장 방법을 Dot에게 알려 주세요";
 "Talk this message over with Dot on a voice call" = "음성 통화로 Dot과 이 메시지 논의하기";
 "Draft" = "작성";
 "Sending your request to Dot" = "Dot에게 요청을 보내는 중";

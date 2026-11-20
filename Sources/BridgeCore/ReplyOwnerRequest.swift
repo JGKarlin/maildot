@@ -214,6 +214,15 @@ extension BridgeCoordinator {
         return request.toldDotAt.map { $0 < request.askedAt } ?? true
     }
 
+    /// A reply to a message Mail Dot marked No reply needed waits for the owner's words on what it should say: Dot
+    /// would otherwise write a generic reply, having found nothing to answer (owner request, 20 November 2026). Once the
+    /// owner has given a direction or an answer, or a draft exists, Dot is asked as usual.
+    public static func waitsForOwnerWords(_ context: ReplyContext, markedNoReplyNeeded: Bool) -> Bool {
+        guard markedNoReplyNeeded, !context.isNewMessage, context.proposal == nil else { return false }
+        guard let request = context.ownerRequest else { return true }
+        return request.direction == nil && request.answers.isEmpty && !request.ignored
+    }
+
     /// The owner's Confirm Send on the panel: the one confirmation a send needs. It queues the review of the
     /// exact draft, as every confirmation does, and records that Mail Dot is to send once that is granted.
     public static func confirmSendFromPanel(contextID: String, confirmationID: String, state: inout BridgeState, now: Date = .now) throws {

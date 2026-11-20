@@ -1,10 +1,15 @@
 # Changes
 
+## 0.4.223, 20 November 2026
+
+- When you reply to a message marked No reply needed, the panel asks how to reply before Dot drafts.
+- The reply panel's bottom box has a Dictate button.
+
+While Mail Dot is in development, each release replaces the one before it on the Releases page.
+
 ## 0.4.221, 19 November 2026
 
 - The No reply needed status opens with a circled minus (⊖), so it no longer reads as a hyphen.
-
-While Mail Dot is in development, each release replaces the one before it on the Releases page.
 
 ## 0.4.220, 19 November 2026
 

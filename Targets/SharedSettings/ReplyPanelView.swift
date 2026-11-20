@@ -48,6 +48,9 @@ import BridgeCore
     @State private var now=Date()
     /// For a new message: what the owner wants it to say, before Dot is asked.
     @State private var newText=""
+    /// The message this reply answers was marked No reply needed: the panel asks the owner what to say before Dot is
+    /// asked (owner request, 20 November 2026).
+    @State private var markedNoReply=false
     @FocusState private var newFocused:Bool
     /// When the panel last asked Mail to read a new message again after its recipients changed.
     @State private var lastNewShare=Date.distantPast
@@ -62,6 +65,14 @@ import BridgeCore
             Divider()
             // Mail Dot's settings open in place of the draft; Done brings the draft back as it was.
             if showingSettings { MailDotSettingsView() }
+            else if awaitingGuidance {
+                // A reply to a message marked No reply needed: the panel's usual "Tell Dot…" box, grown to fill the
+                // panel, until the owner says what the reply should say (owner request, 20 November 2026).
+                content.padding(16).frame(maxWidth:.infinity,alignment:.leading)
+                Spacer(minLength:0)
+                Divider()
+                guidanceBar
+            }
             else {
                 ScrollView { content.padding(16).frame(maxWidth:.infinity,alignment:.leading) }
                 if showsChoices {
@@ -90,6 +101,8 @@ import BridgeCore
     private var isNew:Bool { context?.isNewMessage == true }
     /// A new message for which Dot has not been asked yet: the panel asks the owner what it should say.
     private var awaitingNewRequest:Bool { isNew && context?.proposal == nil && request?.direction == nil }
+    /// A reply to a message marked No reply needed, for which the owner has not yet said what to write.
+    private var awaitingGuidance:Bool { context.map{ BridgeCoordinator.waitsForOwnerWords($0,markedNoReplyNeeded:markedNoReply) } ?? false }
     private var question:(question:String,answers:[String])? {
         // With a draft already written, the draft is what the panel shows: a question is not put in front of it
         // again (owner report, 17 November 2026: the draft sat behind a repeat of a question already answered).
@@ -112,11 +125,14 @@ import BridgeCore
     private var waitingOnDot:Bool {
         guard let context,let request,!request.ignored else { return false }
         // A new message asks nothing of Dot until the owner presses Draft.
-        if awaitingNewRequest { return false }
+        if awaitingNewRequest || awaitingGuidance { return false }
         if context.proposal == nil { return true }
         return request.askedAt > (context.lastDotUpdate ?? .distantPast) && Date().timeIntervalSince(request.askedAt) < 900
     }
-    private var showsChoices:Bool { context != nil && request?.ignored != true && confirmation == nil && !sent }
+    /// The choices and the revise box need a draft to come; while the panel asks how to reply to a message marked No
+    /// reply needed, its card alone is shown (owner report, 20 November 2026: a second box sat under the card and
+    /// pushed its buttons out of sight).
+    private var showsChoices:Bool { context != nil && request?.ignored != true && confirmation == nil && !sent && !awaitingGuidance }
 
     @ViewBuilder private var header:some View {
         // Over Settings: the way back to the draft, at the left, where Done was at the right.
@@ -149,6 +165,7 @@ import BridgeCore
         if confirmation != nil { return (String(localized:"Confirm to send"),"paperplane",MailDotStyle.tint,false) }
         if context.snapshot == nil { return (String(localized:"Reading message"),"doc.text.magnifyingglass",.secondary,true) }
         if question != nil { return (String(localized:"Dot has a question"),"questionmark.bubble.fill",.orange,false) }
+        if awaitingGuidance { return (String(localized:"No reply needed"),"minus.circle",.secondary,false) }
         if waitingOnDot { return (context.proposal == nil ? String(localized:"Drafting") : String(localized:"Revising"),"ellipsis.bubble",MailDotStyle.tint,true) }
         if context.proposal != nil {
             if placed { return (request?.saveToDrafts == true ? String(localized:"Saved to Drafts") : String(localized:"Inserted"),"checkmark.circle.fill",.green,false) }
@@ -197,6 +214,9 @@ import BridgeCore
                 confirmCard(snapshot,confirmation)
             } else if let context,awaitingNewRequest {
                 newMessageCard(context)
+            } else if awaitingGuidance {
+                Text(String(localized:"Dot found this message needs no reply. What should your reply say?")).font(.callout).foregroundStyle(MailDotStyle.supporting)
+                    .fixedSize(horizontal:false,vertical:true)
             } else if context?.snapshot == nil {
                 if failure == nil { progress(loaded ? String(localized:"Reading this message from Mail…") : String(localized:"Opening…"),nil) }
             } else if let context {
@@ -341,8 +361,8 @@ import BridgeCore
     }
     /// Starts macOS's own dictation in the instructions box: the system listens and types the words in.
     /// Mail Dot does not hear the microphone itself, and nothing goes to Dot until Send to Dot.
-    private func dictate(intoNew:Bool=false) {
-        if intoNew { newFocused=true } else { otherFocused=true }
+    private func dictate(intoNew:Bool=false,intoRevise:Bool=false) {
+        if intoRevise { typing=true } else if intoNew { newFocused=true } else { otherFocused=true }
         DispatchQueue.main.asyncAfter(deadline:.now()+0.2) {
             if !NSApp.sendAction(Selector(("startDictation:")),to:nil,from:nil) {
                 note=String(localized:"Dictation is not available. Turn it on in System Settings, Keyboard, Dictation.")
@@ -355,10 +375,16 @@ import BridgeCore
         if context.envelope.to.isEmpty {
             state("person.crop.circle.badge.plus",String(localized:"Add a recipient"),String(localized:"Add a recipient in To, and Dot will draft this message for them."),.secondary)
         } else {
-            card {
-                caption(String(localized:"What should this message say?"))
+            directionCard(context,caption:String(localized:"What should this message say?"),placeholder:"Tell Dot what to write")
+        }
+    }
+    /// The owner's words on what Dot should write, asked before Dot is asked: for a new message, and for a reply to a
+    /// message marked No reply needed.
+    private func directionCard(_ context:ReplyContext,caption text:String,placeholder:LocalizedStringKey) -> some View {
+        card {
+                caption(text)
                 // As tall as the fixed panel allows; longer text scrolls inside the box.
-                TextField("Tell Dot what to write",text:$newText,axis:.vertical).guidanceCounter(newText)
+                TextField(placeholder,text:$newText,axis:.vertical).guidanceCounter(newText)
                     .lineLimit(23...23).textFieldStyle(.roundedBorder).focused($newFocused)
                 HStack(spacing:8) {
                     Button { dictate(intoNew:true) } label: { Label("Dictate",systemImage:"mic") }
@@ -378,7 +404,6 @@ import BridgeCore
                     .buttonStyle(.borderedProminent)
                     .disabled(newText.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || newText.count > ReplyOwnerRequest.textLimit)
                 }
-            }
         }
     }
     /// Dot's draft, which the owner may edit before it goes into the message.
@@ -474,15 +499,19 @@ import BridgeCore
             }
             // While Dot is asking, the answer box is "Something else…" in the question itself; a new message
             // not yet described is described in its own card above.
-            if question == nil,!awaitingNewRequest {
+            if question == nil,!awaitingNewRequest,!awaitingGuidance {
             HStack(alignment:.bottom,spacing:8) {
                 // Revising needs a draft: until Dot's draft is shown, the box and Tell Dot stay greyed.
                 // Three lines from the start, growing to six (owner request, 14 November 2026), like the answer box.
                 TextField("Tell Dot how to revise this reply",text:$words,axis:.vertical).guidanceCounter(words)
                     .lineLimit(3...6).textFieldStyle(.roundedBorder).focused($typing).onSubmit { if context?.proposal != nil { say() } }
                     .disabled(context?.proposal == nil)
-                // Call Dot right above Tell Dot, the box to their left (owner decision, 16 November 2026).
+                // Call Dot right above Tell Dot, the box to their left (owner decision, 16 November 2026); Dictate above
+                // them, as in the panel's other boxes (owner decision, 20 November 2026).
                 VStack(alignment:.trailing,spacing:8) {
+                    Button { dictate(intoRevise:true) } label: { Label("Dictate",systemImage:"mic") }
+                        .help("Start Dictation (same as your dictation shortcut). macOS types what you say into the box; this is not a call with Dot.")
+                        .disabled(context?.proposal == nil)
                     Button("Call Dot",systemImage:"phone") { note=DotCallCommands.call(contextID:contextID) ?? String(localized:"Opening a call with Dot about this message.") }
                         .help("Talk this reply over with Dot on a voice call")
                     Button("Tell Dot",systemImage:"text.bubble") { say() }
@@ -491,6 +520,33 @@ import BridgeCore
             }
             }
         }.padding(.horizontal,16).padding(.vertical,10)
+    }
+    /// The bottom box of the panel, as tall as the panel allows, while it waits for the owner's words on a reply to a
+    /// message marked No reply needed: the same box and buttons as for revising, with Dictate above them.
+    private var guidanceBar:some View {
+        HStack(alignment:.bottom,spacing:8) {
+            TextField("Tell Dot how to reply",text:$newText,axis:.vertical).guidanceCounter(newText)
+                .lineLimit(Self.guidanceLines...Self.guidanceLines).textFieldStyle(.roundedBorder).focused($newFocused)
+            VStack(alignment:.trailing,spacing:8) {
+                Button { dictate(intoNew:true) } label: { Label("Dictate",systemImage:"mic") }
+                    .help("Start Dictation (same as your dictation shortcut). macOS types what you say into the box; this is not a call with Dot.")
+                Button("Call Dot",systemImage:"phone") { note=DotCallCommands.call(contextID:contextID) ?? String(localized:"Opening a call with Dot about this message.") }
+                    .help("Talk this reply over with Dot on a voice call")
+                Button("Tell Dot",systemImage:"text.bubble") { direct() }
+                    .disabled(newText.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || newText.count > ReplyOwnerRequest.textLimit)
+            }.fixedSize()
+        }.padding(.horizontal,16).padding(.vertical,10)
+    }
+    private static let guidanceLines=29
+    /// The owner's words on what to write go to Dot as the direction for the reply.
+    private func direct() {
+        guard let context else { return }
+        let text=newText.trimmingCharacters(in:.whitespacesAndNewlines)
+        guard !text.isEmpty,text.count <= ReplyOwnerRequest.textLimit else { return }
+        refreshEnvelope()
+        act { try BridgeCoordinator.ownerDirects(text,contextID:context.id,state:&$0) }
+        if (try? BridgeStore.shared().read().contexts[context.id]?.snapshot) == nil { share() }
+        newText=""
     }
     @ViewBuilder private func choice(_ title:LocalizedStringKey,_ symbol:String,chosen:Bool,_ action:@escaping ()->Void) -> some View {
         if chosen { Button(title,systemImage:"checkmark",action:action).buttonStyle(.borderedProminent).accessibilityAddTraits(.isSelected) }
@@ -506,6 +562,10 @@ import BridgeCore
             let state=try await Task.detached { try BridgeStore.shared().read() }.value
             context=state.contexts[contextID]
             now=Date()
+            if let current=context,!current.isNewMessage,!current.originalMessageID.isEmpty {
+                let marked=await Task.detached { [id=current.originalMessageID] in (try? MailTriageStore.shared().read())?.markedNoReplyNeeded(messageID:id) ?? false }.value
+                if marked != markedNoReply { markedNoReply=marked }
+            }
             requestProgress=await Task.detached { [contextID] in
                 (try? MailWorkflowStore(bridgeDirectory:BridgeStore.shared().directory).read())?.replyProgress(contextID:contextID)
             }.value
@@ -556,7 +616,8 @@ import BridgeCore
             // never in the same pass that adopted Dot's stored draft: the context read above predates it
             // (owner request, 13 November 2026: a ready draft was asked for again as the panel opened).
             let latest=adopted ? nil : try? BridgeStore.shared().read().contexts[contextID]
-            if !adopted,!dotAlreadyOnIt,let latest,BridgeCoordinator.dotIsOwedWord(latest),Date().timeIntervalSince(lastTold) > 10 {
+            if !adopted,!dotAlreadyOnIt,let latest,BridgeCoordinator.dotIsOwedWord(latest),!BridgeCoordinator.waitsForOwnerWords(latest,markedNoReplyNeeded:markedNoReply),
+               Date().timeIntervalSince(lastTold) > 10 {
                 lastTold=Date()
                 if let refusal=DotCallCommands.tellDotAboutReply(contextID:contextID) { note=String(localized:"Dot could not be asked: ")+refusal }
             }

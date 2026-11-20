@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "Voeg een ontvanger toe bij Aan, en Dot stelt dit bericht voor die persoon op.";
 "What should this message say?" = "Wat moet er in dit bericht staan?";
 "Tell Dot what to write" = "Zeg Dot wat het moet schrijven";
+"Dot found this message needs no reply. What should your reply say?" = "Dot vond dat dit bericht geen antwoord nodig heeft. Wat moet je antwoord zeggen?";
+"Tell Dot how to reply" = "Vertel Dot hoe te antwoorden";
 "Talk this message over with Dot on a voice call" = "Bespreek dit bericht met Dot in een spraakgesprek";
 "Draft" = "Stel op";
 "Sending your request to Dot" = "Je verzoek wordt naar Dot gestuurd";

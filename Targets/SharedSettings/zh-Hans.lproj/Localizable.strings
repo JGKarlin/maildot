@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "在“收件人”中添加收件人，Dot 将为其起草此邮件。";
 "What should this message say?" = "此邮件应该说什么？";
 "Tell Dot what to write" = "告诉 Dot 要写什么";
+"Dot found this message needs no reply. What should your reply say?" = "Dot 认为这封邮件无需回复。你的回复要说些什么？";
+"Tell Dot how to reply" = "告诉 Dot 如何回复";
 "Talk this message over with Dot on a voice call" = "在语音通话中与 Dot 讨论此邮件";
 "Draft" = "起草";
 "Sending your request to Dot" = "正在将你的请求发送给 Dot";

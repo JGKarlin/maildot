@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "Lägg till en mottagare i Till, så skriver Dot meddelandet till hen.";
 "What should this message say?" = "Vad ska meddelandet säga?";
 "Tell Dot what to write" = "Säg till Dot vad som ska skrivas";
+"Dot found this message needs no reply. What should your reply say?" = "Dot kom fram till att meddelandet inte behöver något svar. Vad ska ditt svar säga?";
+"Tell Dot how to reply" = "Berätta för Dot hur svaret ska vara";
 "Talk this message over with Dot on a voice call" = "Prata igenom meddelandet med Dot i ett röstsamtal";
 "Draft" = "Skriv utkast";
 "Sending your request to Dot" = "Skickar din begäran till Dot";

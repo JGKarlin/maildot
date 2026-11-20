@@ -81,3 +81,41 @@ final class EveryMessageHasABannerTests:XCTestCase {
         XCTAssertEqual(MailDotBanner(bulk),.noReplyNeeded)
     }
 }
+
+/// A reply to a message marked No reply needed waits for the owner's words (owner request, 20 November 2026).
+final class NoReplyNeededAskFirstTests:XCTestCase {
+    private func entry(_ id:String,essential:Bool,reason:String) -> MailTriageEntry {
+        MailTriageEntry(messageID:"\(id)@example.invalid",sender:"s@example.invalid",senderName:nil,subject:id,receivedAt:Date(),
+                        verdict:MailTriage.Verdict(essential:essential,reason:reason),automatic:true)
+    }
+    func testOnlyNoReplyNeededAsksFirst() {
+        var state=MailTriageState()
+        let checked=entry("checked",essential:true,reason:"r"),automated=entry("automated",essential:false,reason:"Automated mail.")
+        let copied=entry("copied",essential:false,reason:MailTriage.copiedOnlyReason),drafted=entry("drafted",essential:true,reason:"r")
+        [checked,automated,copied,drafted].forEach{ state.record($0) }
+        state.markAsked(checked.id,requestID:"r1"); state.accept(requestID:"r1",stage:.ready,summary:"No reply needed.")
+        state.markAsked(drafted.id,requestID:"r2")
+        XCTAssertEqual(MailDotBanner(state.entries.first{$0.id == checked.id}!),.noReplyNeeded)
+        XCTAssertTrue(state.markedNoReplyNeeded(messageID:"<checked@example.invalid>"),"Dot found no reply needed")
+        XCTAssertEqual(state.markedNoReplyNeeded(messageID:"<automated@example.invalid>"),MailDotBanner(state.entries.first{$0.id == automated.id}!) == .noReplyNeeded,"the Mac's filter, as the banner shows it")
+        XCTAssertFalse(state.markedNoReplyNeeded(messageID:"<copied@example.invalid>"),"Cc only is left as it is")
+        XCTAssertFalse(state.markedNoReplyNeeded(messageID:"<drafted@example.invalid>"),"one Dot is still checking")
+        XCTAssertFalse(state.markedNoReplyNeeded(messageID:"<unknown@example.invalid>"))
+    }
+    /// Dot is not asked until the owner says what the reply should say; then it is, as usual.
+    func testTheReplyWaitsForTheOwnersWords() throws {
+        var context=ReplyContext(id:"reply",envelope:MailDraft(id: -1,subject:"Re: Thanks",sender:"owner@example.invalid",to:["sam@example.invalid"],cc:[],bcc:[],body:"",attachmentCount:0),
+                                 originalMessageID:"thanks@example.invalid")
+        var shared=context.envelope; shared.body="\n\nOn Monday Sam wrote:\n> Thanks for everything!"
+        BridgeCoordinator.share(shared,with:&context)
+        BridgeCoordinator.ownerOpensPanel(context:&context)
+        XCTAssertTrue(BridgeCoordinator.dotIsOwedWord(context),"opening the panel asks for a draft")
+        XCTAssertTrue(BridgeCoordinator.waitsForOwnerWords(context,markedNoReplyNeeded:true),"but a No reply needed message waits")
+        XCTAssertFalse(BridgeCoordinator.waitsForOwnerWords(context,markedNoReplyNeeded:false),"any other message is drafted at once")
+        var state=BridgeState(); state.contexts[context.id]=context
+        try BridgeCoordinator.ownerDirects("Thank Sam and offer to help with the spring workshop.",contextID:context.id,state:&state)
+        let directed=try XCTUnwrap(state.contexts[context.id])
+        XCTAssertFalse(BridgeCoordinator.waitsForOwnerWords(directed,markedNoReplyNeeded:true),"the owner's words go to Dot")
+        XCTAssertTrue(BridgeCoordinator.dotIsOwedWord(directed))
+    }
+}

@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "Adăugați un destinatar în Către, iar Dot va redacta acest mesaj pentru el.";
 "What should this message say?" = "Ce ar trebui să spună acest mesaj?";
 "Tell Dot what to write" = "Spuneți-i lui Dot ce să scrie";
+"Dot found this message needs no reply. What should your reply say?" = "Dot a constatat că acest mesaj nu necesită răspuns. Ce ar trebui să spună răspunsul tău?";
+"Tell Dot how to reply" = "Spune-i lui Dot cum să răspundă";
 "Talk this message over with Dot on a voice call" = "Discutați acest mesaj cu Dot într-un apel vocal";
 "Draft" = "Redactează";
 "Sending your request to Dot" = "Se trimite cererea dvs. către Dot";

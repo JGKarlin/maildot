@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "Afegiu un destinatari a Per a, i el Dot li redactarà aquest missatge.";
 "What should this message say?" = "Què ha de dir aquest missatge?";
 "Tell Dot what to write" = "Digueu al Dot què ha d’escriure";
+"Dot found this message needs no reply. What should your reply say?" = "El Dot ha vist que aquest missatge no necessita resposta. Què ha de dir la teva resposta?";
+"Tell Dot how to reply" = "Digues al Dot com respondre";
 "Talk this message over with Dot on a voice call" = "Parla aquest missatge amb el Dot en una trucada de veu";
 "Draft" = "Redacta";
 "Sending your request to Dot" = "Enviant la vostra petició al Dot";

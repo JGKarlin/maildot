@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "Füge unter „An“ einen Empfänger hinzu, und Dot entwirft diese Nachricht für ihn.";
 "What should this message say?" = "Was soll in dieser Nachricht stehen?";
 "Tell Dot what to write" = "Sag Dot, was es schreiben soll";
+"Dot found this message needs no reply. What should your reply say?" = "Dot hat festgestellt, dass diese Nachricht keine Antwort braucht. Was soll deine Antwort sagen?";
+"Tell Dot how to reply" = "Sag Dot, wie geantwortet werden soll";
 "Talk this message over with Dot on a voice call" = "Diese Nachricht mit Dot in einem Sprachanruf besprechen";
 "Draft" = "Entwerfen";
 "Sending your request to Dot" = "Deine Anfrage wird an Dot gesendet";

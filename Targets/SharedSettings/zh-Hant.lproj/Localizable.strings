@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "在「收件人」中加入收件人，Dot 就會為對方撰寫此郵件。";
 "What should this message say?" = "此郵件應該寫些什麼？";
 "Tell Dot what to write" = "告訴 Dot 要寫什麼";
+"Dot found this message needs no reply. What should your reply say?" = "Dot 認為這封郵件無需回覆。你的回覆要說些什麼？";
+"Tell Dot how to reply" = "告訴 Dot 如何回覆";
 "Talk this message over with Dot on a voice call" = "在語音通話中與 Dot 討論此郵件";
 "Draft" = "撰寫";
 "Sending your request to Dot" = "正在將你的要求傳送給 Dot";

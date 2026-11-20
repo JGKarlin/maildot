@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "أضف مستلمًا في حقل إلى، وسيكتب Dot هذه الرسالة له.";
 "What should this message say?" = "ماذا يجب أن تقول هذه الرسالة؟";
 "Tell Dot what to write" = "أخبر Dot بما يكتبه";
+"Dot found this message needs no reply. What should your reply say?" = "وجد Dot أن هذه الرسالة لا تحتاج إلى رد. ماذا يجب أن يقول ردك؟";
+"Tell Dot how to reply" = "أخبر Dot كيف يرد";
 "Talk this message over with Dot on a voice call" = "ناقش هذه الرسالة مع Dot في مكالمة صوتية";
 "Draft" = "كتابة مسودة";
 "Sending your request to Dot" = "جارٍ إرسال طلبك إلى Dot";

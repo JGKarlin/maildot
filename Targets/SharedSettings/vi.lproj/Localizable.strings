@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "Thêm người nhận vào ô Đến, Dot sẽ soạn thư này cho họ.";
 "What should this message say?" = "Thư này nên nói gì?";
 "Tell Dot what to write" = "Bảo Dot cần viết gì";
+"Dot found this message needs no reply. What should your reply say?" = "Dot thấy thư này không cần trả lời. Thư trả lời của bạn nên nói gì?";
+"Tell Dot how to reply" = "Cho Dot biết cách trả lời";
 "Talk this message over with Dot on a voice call" = "Trao đổi thư này với Dot qua cuộc gọi thoại";
 "Draft" = "Soạn";
 "Sending your request to Dot" = "Đang gửi yêu cầu của bạn cho Dot";

@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "Adjon hozzá egy címzettet a Címzett mezőben, és Dot megírja neki ezt az üzenetet.";
 "What should this message say?" = "Mit mondjon ez az üzenet?";
 "Tell Dot what to write" = "Mondja meg Dotnak, mit írjon";
+"Dot found this message needs no reply. What should your reply say?" = "Dot szerint erre az üzenetre nem kell válaszolni. Mit mondjon a válaszod?";
+"Tell Dot how to reply" = "Mondd el Dotnak, hogyan válaszoljon";
 "Talk this message over with Dot on a voice call" = "Ennek az üzenetnek a megbeszélése Dottal hanghívásban";
 "Draft" = "Megírás";
 "Sending your request to Dot" = "A kérés küldése Dotnak";

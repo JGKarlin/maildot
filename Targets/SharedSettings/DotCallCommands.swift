@@ -39,6 +39,12 @@ import BridgeCore
             // moment it has read the message, before the panel could look for a stored draft (owner request, 13
             // November 2026: a message whose banner said Draft ready was drafted again on every reply).
             if StoredDraft.adopt(contextID:contextID) { return nil }
+            // A reply to a message marked No reply needed waits here, in the one place every reply request passes, for
+            // the owner's words on what to say (owner request, 20 November 2026).
+            if !context.originalMessageID.isEmpty,
+               BridgeCoordinator.waitsForOwnerWords(context,markedNoReplyNeeded:(try? MailTriageStore.shared().read())?.markedNoReplyNeeded(messageID:context.originalMessageID) ?? false) {
+                return nil
+            }
             // Dot is already drafting this message (it was offered to Dot when the owner opened it, or asked for in the
             // Mail Dot window): the reply waits for that draft or question, and Dot is not asked again. But the owner's own
             // words on the reply (Tell Dot, or an answer) take priority: the draft in progress is superseded, its answer is

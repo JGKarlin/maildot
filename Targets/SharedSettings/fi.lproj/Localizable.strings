@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "Lisää vastaanottaja Vastaanottaja-kenttään, niin Dot laatii tämän viestin hänelle.";
 "What should this message say?" = "Mitä tässä viestissä pitäisi sanoa?";
 "Tell Dot what to write" = "Kerro Dotille, mitä kirjoitetaan";
+"Dot found this message needs no reply. What should your reply say?" = "Dot totesi, ettei tähän viestiin tarvitse vastata. Mitä vastauksesi pitäisi sanoa?";
+"Tell Dot how to reply" = "Kerro Dotille, miten vastata";
 "Talk this message over with Dot on a voice call" = "Keskustele tästä viestistä Dotin kanssa äänipuhelussa";
 "Draft" = "Laadi";
 "Sending your request to Dot" = "Lähetetään pyyntöäsi Dotille";

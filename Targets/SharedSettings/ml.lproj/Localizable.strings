@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "സ്വീകർത്താവ് ഫീൽഡിൽ ഒരാളെ ചേർക്കുക, Dot അവർക്കായി ഈ സന്ദേശത്തിന്റെ ഡ്രാഫ്റ്റ് എഴുതും.";
 "What should this message say?" = "ഈ സന്ദേശം എന്ത് പറയണം?";
 "Tell Dot what to write" = "എന്ത് എഴുതണമെന്ന് Dot നോട് പറയുക";
+"Dot found this message needs no reply. What should your reply say?" = "ഈ സന്ദേശത്തിന് മറുപടി ആവശ്യമില്ലെന്ന് Dot കണ്ടെത്തി. നിങ്ങളുടെ മറുപടിയിൽ എന്ത് പറയണം?";
+"Tell Dot how to reply" = "എങ്ങനെ മറുപടി നൽകണമെന്ന് Dot-നോട് പറയുക";
 "Talk this message over with Dot on a voice call" = "വോയ്‌സ് കോളിൽ Dot മായി ഈ സന്ദേശത്തെക്കുറിച്ച് സംസാരിക്കുക";
 "Draft" = "ഡ്രാഫ്റ്റ് എഴുതുക";
 "Sending your request to Dot" = "നിങ്ങളുടെ അഭ്യർത്ഥന Dot ന് അയയ്ക്കുന്നു";

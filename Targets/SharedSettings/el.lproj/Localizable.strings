@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "Προσθέστε έναν παραλήπτη στο Προς, και το Dot θα συντάξει αυτό το μήνυμα για αυτόν.";
 "What should this message say?" = "Τι πρέπει να λέει αυτό το μήνυμα;";
 "Tell Dot what to write" = "Πείτε στο Dot τι να γράψει";
+"Dot found this message needs no reply. What should your reply say?" = "Το Dot βρήκε ότι αυτό το μήνυμα δεν χρειάζεται απάντηση. Τι πρέπει να λέει η απάντησή σας;";
+"Tell Dot how to reply" = "Πείτε στο Dot πώς να απαντήσει";
 "Talk this message over with Dot on a voice call" = "Συζητήστε αυτό το μήνυμα με το Dot σε φωνητική κλήση";
 "Draft" = "Σύνταξη";
 "Sending your request to Dot" = "Αποστολή του αιτήματός σας στο Dot";

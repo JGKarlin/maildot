@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "Додайте одержувача в полі «Кому», і Dot складе для нього цей лист.";
 "What should this message say?" = "Що має бути в цьому листі?";
 "Tell Dot what to write" = "Скажіть Dot, що написати";
+"Dot found this message needs no reply. What should your reply say?" = "Dot вирішив, що на цей лист відповідати не потрібно. Що має бути у вашій відповіді?";
+"Tell Dot how to reply" = "Скажіть Dot, як відповісти";
 "Talk this message over with Dot on a voice call" = "Обговорити цей лист з Dot у голосовому дзвінку";
 "Draft" = "Скласти";
 "Sending your request to Dot" = "Ваш запит надсилається Dot";

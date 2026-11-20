@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "「宛先」に相手を入れると、Dotがその人へのメッセージを下書きします。";
 "What should this message say?" = "どのような内容にしますか？";
 "Tell Dot what to write" = "書いてほしい内容をDotに伝える";
+"Dot found this message needs no reply. What should your reply say?" = "Dotはこのメッセージに返信は不要と判断しました。返信で何を伝えますか？";
+"Tell Dot how to reply" = "返信の内容をDotに伝える";
 "Talk this message over with Dot on a voice call" = "このメッセージについて音声通話でDotと話す";
 "Draft" = "下書き";
 "Sending your request to Dot" = "Dotに依頼を送っています";

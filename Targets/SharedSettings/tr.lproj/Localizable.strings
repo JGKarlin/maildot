@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "Kime alanına bir alıcı ekleyin, Dot bu iletiyi o kişi için yazsın.";
 "What should this message say?" = "Bu ileti ne söylemeli?";
 "Tell Dot what to write" = "Dot'a ne yazacağını söyleyin";
+"Dot found this message needs no reply. What should your reply say?" = "Dot bu iletiye yanıt gerekmediğini belirledi. Yanıtınızda ne yazmalı?";
+"Tell Dot how to reply" = "Dot’a nasıl yanıt vereceğini söyleyin";
 "Talk this message over with Dot on a voice call" = "Bu iletiyi Dot ile sesli aramada konuş";
 "Draft" = "Taslak yaz";
 "Sending your request to Dot" = "İsteğiniz Dot'a gönderiliyor";

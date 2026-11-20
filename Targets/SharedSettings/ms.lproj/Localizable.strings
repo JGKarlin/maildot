@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "Tambah penerima dalam Kepada, dan Dot akan mendraf mesej ini untuk mereka.";
 "What should this message say?" = "Apakah yang patut dikatakan oleh mesej ini?";
 "Tell Dot what to write" = "Beritahu Dot apa yang perlu ditulis";
+"Dot found this message needs no reply. What should your reply say?" = "Dot mendapati mesej ini tidak perlu dibalas. Apakah yang patut dikatakan oleh balasan anda?";
+"Tell Dot how to reply" = "Beritahu Dot cara membalas";
 "Talk this message over with Dot on a voice call" = "Bincangkan mesej ini dengan Dot dalam panggilan suara";
 "Draft" = "Draf";
 "Sending your request to Dot" = "Menghantar permintaan anda kepada Dot";

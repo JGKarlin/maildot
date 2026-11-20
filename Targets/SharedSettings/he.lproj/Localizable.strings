@@ -233,6 +233,8 @@
 "Add a recipient in To, and Dot will draft this message for them." = "הוסף/י נמען בשדה ״אל״, ו־Dot ינסח עבורו את ההודעה.";
 "What should this message say?" = "מה ההודעה הזו צריכה לומר?";
 "Tell Dot what to write" = "אמור/י ל־Dot מה לכתוב";
+"Dot found this message needs no reply. What should your reply say?" = "‏Dot מצא שההודעה הזו לא דורשת תשובה. מה התשובה שלך צריכה לומר?";
+"Tell Dot how to reply" = "‏ספרו ל-Dot איך לענות";
 "Talk this message over with Dot on a voice call" = "דון בהודעה הזו עם Dot בשיחה קולית";
 "Draft" = "נסח";
 "Sending your request to Dot" = "שולח את הבקשה שלך ל־Dot";
