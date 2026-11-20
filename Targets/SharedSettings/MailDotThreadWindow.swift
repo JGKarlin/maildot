@@ -112,8 +112,7 @@ struct MailDotThreadWindow:View {
                 SenderMenuButton(groups:[
                     .init(title:String(localized:"Automatic drafts for this sender"),symbol:"square.and.pencil",rule:rule) { value in act(nil) { try TriageCommands.rule(value,for:entry.sender) } },
                     .init(title:String(localized:"Dot’s report for this sender"),symbol:"doc.text.magnifyingglass",rule:reportRule) { value in act(nil) { try TriageCommands.reportRule(value,for:entry.sender) } }
-                ],note:.init(exists:hasNotes) { notesPage=true },
-                footer:MailDotVersion.text)
+                ],note:.init(exists:hasNotes) { notesPage=true })
                 .fixedSize()
             }
             // Settings is the gear at the bottom right (owner request, 14 November 2026); the way back from it is the

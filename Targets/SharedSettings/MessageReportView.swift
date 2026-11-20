@@ -89,8 +89,6 @@ import BridgeCore
             }
             Button { next() } label: { Label("Next",systemImage:"chevron.right").labelStyle(.titleAndIcon) }
                 .controlSize(.small).keyboardShortcut("n",modifiers:[]).disabled(queue.isEmpty || discussing || confirming).help("The next of Dot’s reports")
-            // The panel's less-used commands, in the top bar's ⋯ as on every Mail Dot panel (owner decision, 20 November 2026).
-            commands
         }.padding(.horizontal,14).padding(.vertical,9)
     }
     private func count(_ status:MailUpdateStatus) -> Int { queue.first{$0.status == status}?.entries.count ?? 0 }
@@ -353,14 +351,6 @@ import BridgeCore
             }.lineLimit(1).controlSize(.small)
         }.padding(.horizontal,14).padding(.vertical,10)
     }
-    /// The panel's ⋯: Mail Dot's version (the spoken mail report was removed, owner request, 20 November 2026).
-    private var commands:some View {
-        Menu {
-            Text(MailDotVersion.text)
-        } label: { Image(systemName:"ellipsis.circle") }
-        .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize().help("More Mail Dot commands")
-        .accessibilityLabel("More Mail Dot commands")
-    }
     private var settingsButton:some View {
         Button { showingSettings=true } label: { Image(systemName:"gearshape") }
             .buttonStyle(.borderless).help("Mail Dot Settings").accessibilityLabel("Mail Dot Settings")
@@ -470,7 +460,7 @@ private struct Pill:View {
 }
 
 /// The report panel's two bars at their widest in the interface language, measured once for the panel's width: the top
-/// bar with the way back, the three counts, Next and ⋯; the bottom bar with the longest first action, Discuss with Dot,
+/// bar with the way back, the three counts and Next; the bottom bar with the longest first action, Discuss with Dot,
 /// Ignore, Call Dot and the gear; each with the bar's margins.
 @MainActor enum ReportBarsRow {
     static var idealWidth:CGFloat {
@@ -481,7 +471,6 @@ private struct Pill:View {
             Pill(text:"2 "+String(localized:"queued"),color:.blue)
             Pill(text:"0 "+String(localized:"sent"),color:.secondary)
             Button {} label: { Label("Next",systemImage:"chevron.right").labelStyle(.titleAndIcon) }.controlSize(.small)
-            Image(systemName:"ellipsis.circle")
         }.fixedSize()
         let firsts=[String(localized:"Choose 1–\(4)"),String(localized:"Draft and Save"),String(localized:"Draft and Send…"),String(localized:"Send Draft…"),
                     String(localized:"Open Draft"),String(localized:"Apply"),String(localized:"Sent to Dot")]

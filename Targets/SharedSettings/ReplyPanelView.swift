@@ -195,9 +195,8 @@ import BridgeCore
     }
     private var more:some View {
         Menu {
+            // The version shows only in Mail Dot's settings (owner request, 21 November 2026).
             Button("Read the Message from Mail Again",systemImage:"arrow.clockwise") { share() }
-            Divider()
-            Text(MailDotVersion.text)
         } label: { Image(systemName:"ellipsis.circle") }
         .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize().accessibilityLabel("More Mail Dot commands")
     }

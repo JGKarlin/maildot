@@ -1,10 +1,14 @@
 # Changes
 
+## 0.4.226, 21 November 2026
+
+- The version number shows only in Mail Dot's settings.
+
+While Mail Dot is in development, each release replaces the one before it on the Releases page.
+
 ## 0.4.225, 21 November 2026
 
 - The spoken mail report is removed.
-
-While Mail Dot is in development, each release replaces the one before it on the Releases page.
 
 ## 0.4.224, 20 November 2026
 

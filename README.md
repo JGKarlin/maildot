@@ -121,7 +121,7 @@ Installation takes five steps, and Mail Dot checks each one for itself.
 
 ### 1. Run the installer
 
-Download the installer, a file named like `Mail-Dot-0.4.225.pkg`, from the [Releases page](https://github.com/JGKarlin/maildot/releases); its SHA-256 checksum is in the release notes. Quit Mail, then open the installer and follow it; it will not continue while Mail is open. It places Mail Dot in Applications and opens it.
+Download the installer, a file named like `Mail-Dot-0.4.226.pkg`, from the [Releases page](https://github.com/JGKarlin/maildot/releases); its SHA-256 checksum is in the release notes. Quit Mail, then open the installer and follow it; it will not continue while Mail is open. It places Mail Dot in Applications and opens it.
 
 ### 2. Follow the setup window
 
