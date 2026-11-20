@@ -107,7 +107,7 @@ Inside the one app are four parts: the Mail extension, which draws the banner, t
 
 In a reply window, the Mail Dot button in the toolbar opens the panel. Insert places Dot's draft at the head of the reply and leaves the quoted mail untouched; Save Draft also saves it to Drafts; No Reply dismisses it. Send places it, brings Mail forward and asks for one confirmation naming the recipients, after which Mail sends the message; Command-Return chooses Send. With **Confirm before sending** turned off under Drafting Rules in the settings, your press of Send is the confirmation; a send Dot prepared during a voice call always waits for your confirmation on the Mac. Dot has no tool that can confirm a send, a message changed after confirmation is not sent, and text inside a message can never authorise an action. The field beneath takes an instruction for revising the draft, which Tell Dot sends, and Call Dot opens a voice call for the same purpose.
 
-<p align="center"><img src="docs/images/reply-draft-ready.png" width="520" alt="Mail Dot's panel in a reply window, showing a draft that Dot has written, with buttons to insert it, save it as a draft, send it or decline to reply, and beneath them a box for telling Dot how to revise it, with Call Dot and Tell Dot beside it."></p>
+<p align="center"><img src="docs/images/reply-draft-ready.png" width="520" alt="Mail Dot's panel in a reply window, showing a draft that Dot has written, with buttons to insert it, save it as a draft, send it or decline to reply, and beneath them a box for telling Dot how to revise it, with Dictate, Call Dot and Tell Dot beside it."></p>
 
 Mail Dot's icon in a message's header opens its settings: Accounts, Drafting Rules (with Sending), Layout and Connection.
 
