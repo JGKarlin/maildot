@@ -65,19 +65,23 @@ import BridgeCore
             Divider()
             // Mail Dot's settings open in place of the draft; Done brings the draft back as it was.
             if showingSettings { MailDotSettingsView() }
-            else if awaitingGuidance {
-                // A reply to a message marked No reply needed: the panel's usual "Tell Dot…" box, grown to fill the
-                // panel, until the owner says what the reply should say (owner request, 20 November 2026).
-                content.padding(16).frame(maxWidth:.infinity,alignment:.leading)
-                Spacer(minLength:0)
-                Divider()
-                guidanceBar
+            else if let words=directionAsked {
+                // A new message, or a reply to a message marked No reply needed: the panel's usual "Tell Dot…" box,
+                // grown to fill the panel, until the owner says what Dot should write (owner request, 20 November 2026).
+                if failure != nil || note != nil {
+                    content.padding(16).frame(maxWidth:.infinity,alignment:.leading)
+                    Divider()
+                }
+                guidanceBar(words).frame(maxHeight:.infinity,alignment:.top)
             }
             else {
                 ScrollView { content.padding(16).frame(maxWidth:.infinity,alignment:.leading) }
+                Divider()
                 if showsChoices {
-                    Divider()
                     choices
+                } else {
+                    // Settings is the gear at the bottom right on every Mail Dot panel (owner decision, 20 November 2026).
+                    HStack { Spacer(); settingsButton }.padding(.horizontal,16).padding(.vertical,10)
                 }
             }
         }
@@ -152,8 +156,6 @@ import BridgeCore
             Spacer()
             if loaded,!connected { Label("Dot is not connected",systemImage:"exclamationmark.triangle.fill").font(.callout).foregroundStyle(MailDotStyle.warningText) }
             else if let status { statusPill(status) }
-            Button { showingSettings=true } label: { Image(systemName:"gearshape") }
-                .buttonStyle(.borderless).help("Mail Dot Settings").accessibilityLabel("Mail Dot Settings")
             more
         }.padding(.horizontal,16).padding(.vertical,10)
     }
@@ -214,9 +216,6 @@ import BridgeCore
                 confirmCard(snapshot,confirmation)
             } else if let context,awaitingNewRequest {
                 newMessageCard(context)
-            } else if awaitingGuidance {
-                Text(String(localized:"Dot found this message needs no reply. What should your reply say?")).font(.callout).foregroundStyle(MailDotStyle.supporting)
-                    .fixedSize(horizontal:false,vertical:true)
             } else if context?.snapshot == nil {
                 if failure == nil { progress(loaded ? String(localized:"Reading this message from Mail…") : String(localized:"Opening…"),nil) }
             } else if let context {
@@ -342,69 +341,25 @@ import BridgeCore
             .accessibilityLabel("\(other), Something else")
             }
             if otherOpen || question.answers.isEmpty {
-                VStack(alignment:.leading,spacing:6) {
-                    TextField("Tell Dot your answer, or how to draft the reply",text:$otherText,axis:.vertical).guidanceCounter(otherText)
-                        .lineLimit(3...6).textFieldStyle(.roundedBorder).focused($otherFocused)
-                    HStack(spacing:8) {
-                        Button { dictate() } label: { Label("Dictate",systemImage:"mic") }
-                            .help("Start Dictation (same as your dictation shortcut). macOS types what you say into the box; this is not a call with Dot.")
-                        Spacer(minLength:4)
-                        Button("Call Dot",systemImage:"phone") { note=DotCallCommands.call(contextID:contextID) ?? String(localized:"Opening a call with Dot about this message.") }
-                            .help("Talk the reply over with Dot on a voice call")
-                        Button("Send to Dot") { answer(otherText.trimmingCharacters(in:.whitespacesAndNewlines)); otherText=""; otherOpen=false }
-                            .buttonStyle(.borderedProminent)
-                            .disabled(otherText.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || otherText.count > ReplyOwnerRequest.textLimit)
-                    }
-                }
+                DotTextBox(placeholder:"Tell Dot your answer, or how to draft the reply",text:$otherText,focus:$otherFocused,
+                           call:{ note=DotCallCommands.call(contextID:contextID) ?? String(localized:"Opening a call with Dot about this message.") },
+                           tell:{ answer(otherText.trimmingCharacters(in:.whitespacesAndNewlines)); otherText=""; otherOpen=false },
+                           dictationUnavailable:{ note=$0 })
             }
         }
     }
-    /// Starts macOS's own dictation in the instructions box: the system listens and types the words in.
-    /// Mail Dot does not hear the microphone itself, and nothing goes to Dot until Send to Dot.
-    private func dictate(intoNew:Bool=false,intoRevise:Bool=false) {
-        if intoRevise { typing=true } else if intoNew { newFocused=true } else { otherFocused=true }
-        DispatchQueue.main.asyncAfter(deadline:.now()+0.2) {
-            if !NSApp.sendAction(Selector(("startDictation:")),to:nil,from:nil) {
-                note=String(localized:"Dictation is not available. Turn it on in System Settings, Keyboard, Dictation.")
-            }
-        }
-    }
-    /// A new message: Dot needs a recipient, then the owner's words on what the message should say. Nothing
-    /// is asked of Dot until the owner presses Draft.
+    /// A new message without a recipient: Dot needs one before the owner says what the message should say.
     @ViewBuilder private func newMessageCard(_ context:ReplyContext) -> some View {
         if context.envelope.to.isEmpty {
             state("person.crop.circle.badge.plus",String(localized:"Add a recipient"),String(localized:"Add a recipient in To, and Dot will draft this message for them."),.secondary)
-        } else {
-            directionCard(context,caption:String(localized:"What should this message say?"),placeholder:"Tell Dot what to write")
         }
     }
-    /// The owner's words on what Dot should write, asked before Dot is asked: for a new message, and for a reply to a
-    /// message marked No reply needed.
-    private func directionCard(_ context:ReplyContext,caption text:String,placeholder:LocalizedStringKey) -> some View {
-        card {
-                caption(text)
-                // As tall as the fixed panel allows; longer text scrolls inside the box.
-                TextField(placeholder,text:$newText,axis:.vertical).guidanceCounter(newText)
-                    .lineLimit(23...23).textFieldStyle(.roundedBorder).focused($newFocused)
-                HStack(spacing:8) {
-                    Button { dictate(intoNew:true) } label: { Label("Dictate",systemImage:"mic") }
-                        .help("Start Dictation (same as your dictation shortcut). macOS types what you say into the box; this is not a call with Dot.")
-                    Spacer(minLength:4)
-                    Button("Call Dot",systemImage:"phone") { note=DotCallCommands.call(contextID:contextID) ?? String(localized:"Opening a call with Dot about this message.") }
-                        .help("Talk this message over with Dot on a voice call")
-                    Button("Draft") {
-                        let text=newText.trimmingCharacters(in:.whitespacesAndNewlines)
-                        // A subject or recipient the owner added since the panel opened is read first, so that
-                        // Dot is given them.
-                        refreshEnvelope()
-                        act { try BridgeCoordinator.ownerDirects(text,contextID:context.id,state:&$0) }
-                        if (try? BridgeStore.shared().read().contexts[context.id]?.snapshot) == nil { share() }
-                        newText=""
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(newText.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || newText.count > ReplyOwnerRequest.textLimit)
-                }
-        }
+    /// The words above the grown box, when the panel asks what Dot should write before Dot is asked: for a new
+    /// message with a recipient, and for a reply to a message marked No reply needed.
+    private var directionAsked:(caption:String,placeholder:LocalizedStringKey)? {
+        if awaitingGuidance { return (String(localized:"Dot found this message needs no reply. What should your reply say?"),"Tell Dot how to reply") }
+        if awaitingNewRequest,context?.envelope.to.isEmpty == false { return (String(localized:"What should this message say?"),"Tell Dot what to write") }
+        return nil
     }
     /// Dot's draft, which the owner may edit before it goes into the message.
     private func draftCard(_ context:ReplyContext) -> some View {
@@ -496,48 +451,46 @@ import BridgeCore
                 // No Reply sits with the other choices for this reply (owner decision, 16 November 2026).
                 Button("No Reply",systemImage:"nosign") { act { try BridgeCoordinator.ownerIgnores(contextID:contextID,state:&$0) } }
                 Spacer(minLength:0)
+                settingsButton
             }
             // While Dot is asking, the answer box is "Something else…" in the question itself; a new message
             // not yet described is described in its own card above.
             if question == nil,!awaitingNewRequest,!awaitingGuidance {
-            HStack(alignment:.bottom,spacing:8) {
-                // Revising needs a draft: until Dot's draft is shown, the box and Tell Dot stay greyed.
-                // Three lines from the start, growing to six (owner request, 14 November 2026), like the answer box.
-                TextField("Tell Dot how to revise this reply",text:$words,axis:.vertical).guidanceCounter(words)
-                    .lineLimit(3...6).textFieldStyle(.roundedBorder).focused($typing).onSubmit { if context?.proposal != nil { say() } }
-                    .disabled(context?.proposal == nil)
-                // Call Dot right above Tell Dot, the box to their left (owner decision, 16 November 2026); Dictate above
-                // them, as in the panel's other boxes (owner decision, 20 November 2026).
-                VStack(alignment:.trailing,spacing:8) {
-                    Button { dictate(intoRevise:true) } label: { Label("Dictate",systemImage:"mic") }
-                        .help("Start Dictation (same as your dictation shortcut). macOS types what you say into the box; this is not a call with Dot.")
-                        .disabled(context?.proposal == nil)
-                    Button("Call Dot",systemImage:"phone") { note=DotCallCommands.call(contextID:contextID) ?? String(localized:"Opening a call with Dot about this message.") }
-                        .help("Talk this reply over with Dot on a voice call")
-                    Button("Tell Dot",systemImage:"text.bubble") { say() }
-                        .disabled(context?.proposal == nil || words.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || words.count > ReplyOwnerRequest.textLimit)
-                }.fixedSize()
-            }
+                // Revising needs a draft: until Dot's draft is shown, the box, Dictate and Tell Dot stay greyed. The
+                // panel's one box style (owner decision, 20 November 2026).
+                DotTextBox(placeholder:"Tell Dot how to revise this reply",text:$words,focus:$typing,enabled:context?.proposal != nil,
+                           call:{ note=DotCallCommands.call(contextID:contextID) ?? String(localized:"Opening a call with Dot about this message.") },
+                           tell:say,dictationUnavailable:{ note=$0 })
             }
         }.padding(.horizontal,16).padding(.vertical,10)
     }
-    /// The bottom box of the panel, as tall as the panel allows, while it waits for the owner's words on a reply to a
-    /// message marked No reply needed: the same box and buttons as for revising, with Dictate above them.
-    private var guidanceBar:some View {
-        HStack(alignment:.bottom,spacing:8) {
-            TextField("Tell Dot how to reply",text:$newText,axis:.vertical).guidanceCounter(newText)
-                .lineLimit(Self.guidanceLines...Self.guidanceLines).textFieldStyle(.roundedBorder).focused($newFocused)
-            VStack(alignment:.trailing,spacing:8) {
-                Button { dictate(intoNew:true) } label: { Label("Dictate",systemImage:"mic") }
-                    .help("Start Dictation (same as your dictation shortcut). macOS types what you say into the box; this is not a call with Dot.")
-                Button("Call Dot",systemImage:"phone") { note=DotCallCommands.call(contextID:contextID) ?? String(localized:"Opening a call with Dot about this message.") }
-                    .help("Talk this reply over with Dot on a voice call")
-                Button("Tell Dot",systemImage:"text.bubble") { direct() }
-                    .disabled(newText.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || newText.count > ReplyOwnerRequest.textLimit)
-            }.fixedSize()
+    /// The bottom box of the panel, as tall as the panel allows, while it waits for the owner's words on what Dot should
+    /// write: the same box and buttons as for revising, with the reason above it and Settings at the right.
+    private func guidanceBar(_ asked:(caption:String,placeholder:LocalizedStringKey)) -> some View {
+        VStack(alignment:.leading,spacing:8) {
+            HStack(alignment:.firstTextBaseline) {
+                Text(asked.caption).font(.callout).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true)
+                Spacer(minLength:8)
+                settingsButton
+            }
+            // As many lines as the room left below the words above it, which take two lines in some languages (owner
+            // request, 20 November 2026: "Make sure this works for all languages").
+            GeometryReader { room in
+            let lines=max(4,Int((room.size.height-Self.boxChrome)/Self.lineHeight))
+            DotTextBox(placeholder:asked.placeholder,text:$newText,focus:$newFocused,lines:lines...lines,
+                       call:{ note=DotCallCommands.call(contextID:contextID) ?? String(localized:"Opening a call with Dot about this message.") },
+                       tell:direct,dictationUnavailable:{ note=$0 })
+            }
         }.padding(.horizontal,16).padding(.vertical,10)
     }
-    private static let guidanceLines=29
+    /// Mail Dot's settings, as the gear at the bottom right of every Mail Dot panel (owner decision, 20 November 2026).
+    private var settingsButton:some View {
+        Button { showingSettings=true } label: { Image(systemName:"gearshape") }
+            .buttonStyle(.borderless).help("Mail Dot Settings").accessibilityLabel("Mail Dot Settings")
+    }
+    /// One line of the box's text, and the box's own margins and border, for fitting it to the room it has.
+    private static let lineHeight:CGFloat=ceil(NSLayoutManager().defaultLineHeight(for:NSFont.systemFont(ofSize:NSFont.systemFontSize)))
+    private static let boxChrome:CGFloat=12
     /// The owner's words on what to write go to Dot as the direction for the reply.
     private func direct() {
         guard let context else { return }
@@ -750,6 +703,8 @@ import BridgeCore
             Button("Save Draft",systemImage:"tray.and.arrow.down") {}
             Button("Send",systemImage:"paperplane") {}
             Button("No Reply",systemImage:"nosign") {}
+            // Settings, at the right end of the row (owner decision, 20 November 2026).
+            Button {} label: { Image(systemName:"gearshape") }.buttonStyle(.borderless)
         }.fixedSize()
         return ceil(NSHostingView(rootView:row).fittingSize.width)
     }

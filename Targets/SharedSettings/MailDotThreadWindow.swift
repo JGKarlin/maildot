@@ -103,11 +103,18 @@ struct MailDotThreadWindow:View {
                     if let refusal=DotCallCommands.polishNotes(for:entry.sender) { line=(refusal,true) }
                 }.buttonStyle(.borderless)
             }
+            // The message's state in the top bar, as on every Mail Dot panel (owner decision, 20 November 2026).
+            if !settings,!notesPage,let entry,let words=entry.stateWords {
+                ThreadPill(text:words,color:entry.stateColor).fixedSize().layoutPriority(1)
+                    .statusChange(words,needsOwner:[.drafted,.needsGuidance].contains(entry.outcome))
+            }
             if !settings,!notesPage,let entry {
                 SenderMenuButton(groups:[
                     .init(title:String(localized:"Automatic drafts for this sender"),symbol:"square.and.pencil",rule:rule) { value in act(nil) { try TriageCommands.rule(value,for:entry.sender) } },
                     .init(title:String(localized:"Dot’s report for this sender"),symbol:"doc.text.magnifyingglass",rule:reportRule) { value in act(nil) { try TriageCommands.reportRule(value,for:entry.sender) } }
-                ],note:.init(exists:hasNotes) { notesPage=true })
+                ],note:.init(exists:hasNotes) { notesPage=true },
+                extras:[.init(title:String(localized:"Spoken Mail Report")) { line=(DotCallCommands.spokenReport() ?? String(localized:"Asked Dot for the report; your Mac reads it aloud when it arrives."),false) }],
+                footer:MailDotVersion.text)
                 .fixedSize()
             }
             // Settings is the gear at the bottom right (owner request, 14 November 2026); the way back from it is the
@@ -265,7 +272,8 @@ struct ThreadCard<Content:View>:View {
 
 struct ThreadHeader:View {
     let entry:MailTriageEntry
-    var pill=true
+    /// The state now shows in the window's top bar (owner decision, 20 November 2026), not beside the subject.
+    var pill=false
     var fullParticipants=false
     var body:some View {
         VStack(alignment:.leading,spacing:3) {
@@ -591,20 +599,21 @@ struct ThreadActionBar:View {
                     Button("Get Report",systemImage:"doc.text.magnifyingglass") { act(nil) { try TriageCommands.askForReport(entry.id) } }
                         .help("Dot reads the thread and writes its report. No draft. This can take a minute or more.")
                 }
-                Button { act(DotCallCommands.call() ?? String(localized:"Opening a call with Dot in ChatGPT.")) {} } label: { Label("Call Dot",systemImage:"phone") }
                 // Ask Dot: a question about the whole account, in the floating ask bar (owner request, 14 November 2026).
                 Button { act(nil) { try TriageCommands.showAskBar() } } label: { Label("Ask Dot",systemImage:"sparkle.magnifyingglass") }
                     .help("Ask Dot a question about your mail (⇧⌥⌘F)")
                 }.fixedSize()
                 Spacer(minLength:6)
-                Button(action:openSettings) { Image(systemName:"gearshape") }
-                    .buttonStyle(.borderless).help("Settings").accessibilityLabel("Settings")
                 if entry.dotWorking {
                     // While Dot works on the message (owner request, 13 November 2026): a spinner and words saying so,
                     // until Dot's answer arrives.
                     Text(entry.workingText(place)).font(.caption).foregroundStyle(MailDotStyle.supporting).lineLimit(1).statusChange(entry.workingText(place))
                     ProgressView().controlSize(.small).frame(width:28,height:22).accessibilityLabel(Text(entry.workingText(place)))
                 }
+                // Call Dot, then Settings at the far right, as on every Mail Dot panel (owner decision, 20 November 2026).
+                Button { act(DotCallCommands.call() ?? String(localized:"Opening a call with Dot in ChatGPT.")) {} } label: { Label("Call Dot",systemImage:"phone") }.fixedSize()
+                Button(action:openSettings) { Image(systemName:"gearshape") }
+                    .buttonStyle(.borderless).help("Mail Dot Settings").accessibilityLabel("Mail Dot Settings")
             }
             .controlSize(.small)
         }.padding(.horizontal,14).padding(.vertical,10)
@@ -616,13 +625,14 @@ struct ThreadActionBar:View {
         case .drafted:
             // Open in Reply first, as the main action (owner decision, 15 November 2026).
             Button("Open in Reply",systemImage:"arrowshape.turn.up.left") { act(String(localized:"Close this window, and the reply opens with Dot’s draft in it.")) { try TriageCommands.openInReply(entry.id) } }
+                .buttonStyle(.borderedProminent)
                 .help("Opens a reply in Mail with Dot’s draft in it. You edit it and send it from Mail.")
             Button("Discard Draft",systemImage:"trash") { act(nil) { try TriageCommands.discardDraft(entry.id) } }
         case .noDraft:
             // "Draft a Reply" in every state that offers a draft (owner decision, 14 November 2026: "Draft Anyway" did not say what it drafted).
             draftReply
         case .failed:
-            Button("Try Again",systemImage:"arrow.clockwise") { act(String(localized:"Asked Dot again.")) { try TriageCommands.ask(entry.id,opensReply:true) } }
+            Button("Try Again",systemImage:"arrow.clockwise") { act(String(localized:"Asked Dot again.")) { try TriageCommands.ask(entry.id,opensReply:true) } }.buttonStyle(.borderedProminent)
         case .held,.skipped:
             draftReply
         case .pending,.asked,.replied:
@@ -674,6 +684,7 @@ struct DraftReplyButton:View {
     @State private var words=""
     var body:some View {
         Button("Draft a Reply",systemImage:"square.and.pencil") { open=true }
+            .buttonStyle(.borderedProminent)
             .popover(isPresented:$open,arrowEdge:.top) {
                 DraftGuidanceForm(words:$words,cancel:{ open=false }) { let text=words; open=false; words=""; send(text) }
             }
@@ -689,15 +700,13 @@ struct DraftGuidanceForm:View {
     var body:some View {
         VStack(alignment:.leading,spacing:8) {
             Text("What should the reply say?").font(.headline)
-            TextField("For example: decline politely, or confirm Friday at 3",text:$words,axis:.vertical).guidanceCounter(words)
-                .lineLimit(3...6).textFieldStyle(.roundedBorder).focused($focused)
-            HStack {
-                Spacer()
-                Button("Cancel",action:cancel).keyboardShortcut(.cancelAction)
-                Button("Draft",action:draft).keyboardShortcut(.defaultAction)
-            }
+            // The one box for writing to Dot (owner decision, 20 November 2026). The words are optional here.
+            DotTextBox(placeholder:"For example: decline politely, or confirm Friday at 3",text:$words,focus:$focused,
+                       canTell:words.count <= ReplyOwnerRequest.textLimit,
+                       call:{ cancel(); _ = DotCallCommands.call() },tell:draft)
+            Button("Cancel",action:cancel).keyboardShortcut(.cancelAction).buttonStyle(.link)
         }
-        .padding(14).frame(width:320)
+        .padding(14).frame(width:420)
         .onAppear { focused=true }
     }
 }

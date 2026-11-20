@@ -8,7 +8,9 @@ import BridgeCore
 /// recommendation, Dot's work, the reply draft's state and the actions, by click or by key), and the list
 /// of all of Dot's reports by where each stands, from which any of them is one click away.
 @MainActor struct MessageReportView:View {
-    static let size=CGSize(width:460,height:600)
+    /// 460 points, or wider where the interface language's words need it for the top and bottom bars on one line each
+    /// (owner request, 20 November 2026: "Make sure this works for all languages"). Measured once.
+    static let size=CGSize(width:max(460,ReportBarsRow.idealWidth),height:600)
     /// Dot's report on the message this panel was opened from, or nil when Dot has not reported on it.
     let recordID:String?
     /// The report shown, which the owner may change from the list or with Next.
@@ -85,10 +87,10 @@ import BridgeCore
             ForEach([MailUpdateStatus.awaitingInstruction,.draftedQueued,.draftedSent],id:\.self) { status in
                 Pill(text:"\(count(status)) \(short(status))",color:count(status) == 0 ? .secondary : color(status)).help(status.title)
             }
-            Button { showingSettings=true } label: { Image(systemName:"gearshape") }
-                .buttonStyle(.borderless).help("Mail Dot Settings").accessibilityLabel("Mail Dot Settings")
             Button { next() } label: { Label("Next",systemImage:"chevron.right").labelStyle(.titleAndIcon) }
                 .controlSize(.small).keyboardShortcut("n",modifiers:[]).disabled(queue.isEmpty || discussing || confirming).help("The next of Dot’s reports")
+            // The panel's less-used commands, in the top bar's ⋯ as on every Mail Dot panel (owner decision, 20 November 2026).
+            commands
         }.padding(.horizontal,14).padding(.vertical,9)
     }
     private func count(_ status:MailUpdateStatus) -> Int { queue.first{$0.status == status}?.entries.count ?? 0 }
@@ -155,10 +157,12 @@ import BridgeCore
     }
     private var footer:some View {
         HStack(spacing:8) {
-            commands
             if let line { Text(line.text).font(.caption).foregroundStyle(line.failed ? MailDotStyle.dangerText : MailDotStyle.supporting).lineLimit(2) }
             Spacer()
-            Text(MailDotVersion.text).font(.caption).foregroundStyle(MailDotStyle.supporting)
+            // Call Dot, then Settings at the far right, as on every Mail Dot panel (owner decision, 20 November 2026);
+            // the version is in the top bar's ⋯.
+            Button("Call Dot",systemImage:"phone") { note(DotCallCommands.call(),String(localized:"Opening a call with Dot in ChatGPT.")) }
+            settingsButton
         }.padding(.horizontal,14).padding(.vertical,10)
     }
     private func show(_ id:String) {
@@ -336,26 +340,32 @@ import BridgeCore
                         Button(title) { perform(control,entry) }.disabled(!enabled).keyboardShortcut(.return,modifiers:.command)
                     }
                 }
-                Spacer(minLength:4)
-                commands
                 Button("Discuss with Dot",systemImage:"bubble.left") { discussing=true; typing=true }.keyboardShortcut("d",modifiers:[])
                     .disabled(entry.owner?.handled == .instructed)
                 Button("Ignore",systemImage:"nosign") { ignore(entry) }.keyboardShortcut("e",modifiers:[])
                     .disabled(entry.record.dismissedByOwner)
-            }.lineLimit(1)
+                Spacer(minLength:4)
+                // Call Dot, then Settings at the far right, as on every Mail Dot panel (owner decision, 20 November 2026).
+                Button("Call Dot",systemImage:"phone") { note(DotCallCommands.call(),String(localized:"Opening a call with Dot in ChatGPT.")) }
+                settingsButton
+            // Small controls, as in the Mail Dot pane's bar, so that its labelled buttons fit one line (owner decision, 20
+            // November 2026).
+            }.lineLimit(1).controlSize(.small)
         }.padding(.horizontal,14).padding(.vertical,10)
     }
     /// What used to be in the menu bar, now inside Mail: a call with Dot, a spoken report, and the settings.
     private var commands:some View {
         Menu {
-            Button("Call Dot",systemImage:"phone") { note(DotCallCommands.call(),String(localized:"Opening a call with Dot in ChatGPT.")) }
             Button("Spoken Mail Report",systemImage:"speaker.wave.2") { note(DotCallCommands.spokenReport(),String(localized:"Asked Dot for the report; your Mac reads it aloud when it arrives.")) }
             Divider()
-            Button("Mail Dot Settings",systemImage:"gearshape") { showingSettings=true }
             Text(MailDotVersion.text)
         } label: { Image(systemName:"ellipsis.circle") }
-        .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize().help("Call Dot, Spoken Mail Report, Settings")
+        .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize().help("More Mail Dot commands")
         .accessibilityLabel("More Mail Dot commands")
+    }
+    private var settingsButton:some View {
+        Button { showingSettings=true } label: { Image(systemName:"gearshape") }
+            .buttonStyle(.borderless).help("Mail Dot Settings").accessibilityLabel("Mail Dot Settings")
     }
     private func note(_ refusal:String?,_ success:String) { line=(refusal ?? success,refusal != nil,false) }
     private func label(_ control:MailUpdatePrimary) -> (String,Bool) {
@@ -372,17 +382,18 @@ import BridgeCore
     private func discussBar(_ entry:UpdateEntry) -> some View {
         VStack(alignment:.leading,spacing:7) {
             Text("Tell Dot what to change, or ask a question. Its answer arrives as a new version of this report.").font(.caption).foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true)
-            TextField("Your words to Dot",text:$words,axis:.vertical).lineLimit(2...5).textFieldStyle(.roundedBorder).focused($typing)
-            HStack {
-                Spacer()
-                Button("Cancel") { discussing=false; words="" }.keyboardShortcut(.cancelAction)
-                Button("Send to Dot") {
-                    let text=words
-                    run(String(localized:"Sent to Dot."),undo:true) { try UpdateCommands.instruct(entry,option:nil,delivery:nil,text:text,closes:false) }
-                    discussing=false; words=""
-                }.buttonStyle(.borderedProminent).keyboardShortcut(.return,modifiers:.command)
-                    .disabled(words.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || words.utf8.count > MailUpdateInstruction.textLimit)
-            }
+            // The one box for writing to Dot (owner decision, 20 November 2026).
+            DotTextBox(placeholder:"Your words to Dot",text:$words,focus:$typing,
+                       canTell:!words.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty && words.utf8.count <= MailUpdateInstruction.textLimit,counted:false,
+                       callHelp:"Talk this message over with Dot on a voice call",
+                       call:{ note(DotCallCommands.call(),String(localized:"Opening a call with Dot in ChatGPT.")) },
+                       tell:{
+                           let text=words
+                           run(String(localized:"Sent to Dot."),undo:true) { try UpdateCommands.instruct(entry,option:nil,delivery:nil,text:text,closes:false) }
+                           discussing=false; words=""
+                       },
+                       dictationUnavailable:{ line=($0,true,false) })
+            Button("Cancel") { discussing=false; words="" }.keyboardShortcut(.cancelAction).buttonStyle(.link)
         }.padding(.horizontal,14).padding(.vertical,10)
     }
     /// The one confirmation Mail Dot requires before Mail sends, here as a second face of the confirmation
@@ -460,3 +471,33 @@ private struct Pill:View {
     }
 }
 
+/// The report panel's two bars at their widest in the interface language, measured once for the panel's width: the top
+/// bar with the way back, the three counts, Next and ⋯; the bottom bar with the longest first action, Discuss with Dot,
+/// Ignore, Call Dot and the gear; each with the bar's margins.
+@MainActor enum ReportBarsRow {
+    static var idealWidth:CGFloat {
+        let top=HStack(spacing:7) {
+            Button {} label: { Label("All Reports",systemImage:"chevron.left") }.buttonStyle(.borderless)
+            Spacer().frame(width:4)
+            Pill(text:"2 "+String(localized:"awaiting"),color:.orange)
+            Pill(text:"2 "+String(localized:"queued"),color:.blue)
+            Pill(text:"0 "+String(localized:"sent"),color:.secondary)
+            Button {} label: { Label("Next",systemImage:"chevron.right").labelStyle(.titleAndIcon) }.controlSize(.small)
+            Image(systemName:"ellipsis.circle")
+        }.fixedSize()
+        let firsts=[String(localized:"Choose 1–\(4)"),String(localized:"Draft and Save"),String(localized:"Draft and Send…"),String(localized:"Send Draft…"),
+                    String(localized:"Open Draft"),String(localized:"Apply"),String(localized:"Sent to Dot")]
+        let bottoms=firsts.map { first in
+            HStack(spacing:8) {
+                Button(first) {}.buttonStyle(.borderedProminent)
+                Button("Discuss with Dot",systemImage:"bubble.left") {}
+                Button("Ignore",systemImage:"nosign") {}
+                Spacer().frame(width:4)
+                Button("Call Dot",systemImage:"phone") {}
+                Button {} label: { Image(systemName:"gearshape") }.buttonStyle(.borderless)
+            }.controlSize(.small).fixedSize()
+        }
+        let widest=bottoms.map{ NSHostingView(rootView:$0).fittingSize.width }.max() ?? 0
+        return ceil(max(NSHostingView(rootView:top).fittingSize.width,widest))+28+4
+    }
+}

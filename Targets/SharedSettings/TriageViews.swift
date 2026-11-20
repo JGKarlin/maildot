@@ -669,22 +669,12 @@ struct TriageQuestionCard:View {
                 }
             }
             if otherOpen || boxAlwaysOpen || parsed.answers.isEmpty {
-                VStack(alignment:.leading,spacing:6) {
-                    TextField("Tell Dot your answer, or how to draft the reply",text:$otherText,axis:.vertical).guidanceCounter(otherText)
-                        .lineLimit(4...10).textFieldStyle(.roundedBorder).focused($otherFocused)
-                    HStack(spacing:8) {
-                        Button { dictate() } label: { Label("Dictate",systemImage:"mic") }
-                            .help("Start Dictation (same as your dictation shortcut). macOS types what you say into the box; this is not a call with Dot.")
-                        Spacer(minLength:4)
-                        Button("Call Dot",systemImage:"phone") { note=DotCallCommands.call() ?? String(localized:"Opening a call with Dot in ChatGPT.") }
-                        Button("Send to Dot") {
-                            let words=otherText.trimmingCharacters(in:.whitespacesAndNewlines)
-                            send(words); otherText=""; otherOpen=false; note=String(localized:"Sent to Dot.")
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(otherText.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || otherText.count > 2000)
-                    }
-                }
+                // The one box for writing to Dot (owner decision, 20 November 2026).
+                DotTextBox(placeholder:"Tell Dot your answer, or how to draft the reply",text:$otherText,focus:$otherFocused,
+                           canTell:!otherText.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty && otherText.count <= 2000,
+                           call:{ note=DotCallCommands.call() ?? String(localized:"Opening a call with Dot in ChatGPT.") },
+                           tell:{ let words=otherText.trimmingCharacters(in:.whitespacesAndNewlines); send(words); otherText=""; otherOpen=false; note=String(localized:"Sent to Dot.") },
+                           dictationUnavailable:{ note=$0 })
             }
             if let note { Text(note).font(.caption).foregroundStyle(MailDotStyle.supporting) }
         }
@@ -716,15 +706,6 @@ struct TriageQuestionCard:View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("\(number), \(title)")
-    }
-    /// macOS's own dictation into the box; Mail Dot does not hear the microphone itself.
-    private func dictate() {
-        otherFocused=true
-        DispatchQueue.main.asyncAfter(deadline:.now()+0.2) {
-            if !NSApp.sendAction(Selector(("startDictation:")),to:nil,from:nil) {
-                note=String(localized:"Dictation is not available. Turn it on in System Settings, Keyboard, Dictation.")
-            }
-        }
     }
 }
 
@@ -824,15 +805,24 @@ struct SenderMenuButton:NSViewRepresentable {
         let exists:Bool
         let edit:() -> Void
     }
+    /// A command for this message, under the rules: the menu holds the panel's less-used commands (owner decision, 20
+    /// November 2026).
+    struct Extra {
+        let title:String
+        let run:() -> Void
+    }
     let groups:[Group]
     var note:Note?=nil
+    var extras:[Extra]=[]
+    /// A line at the foot of the menu, such as Mail Dot's version; not a choice.
+    var footer:String?=nil
     /// The checkmark column on the left and the menu's margins on both sides, beyond an item's title.
     static let titleMargins:CGFloat=56
     func makeCoordinator() -> Coordinator { Coordinator() }
     func makeNSView(context:Context) -> NSButton {
         let button=NSButton(image:NSImage(systemSymbolName:"ellipsis.circle",accessibilityDescription:nil) ?? NSImage(),target:context.coordinator,action:#selector(Coordinator.open(_:)))
         button.isBordered=false; button.imagePosition = .imageOnly; button.contentTintColor = .controlAccentColor
-        button.setAccessibilityLabel(String(localized:"Rules for this sender"))
+        button.setAccessibilityLabel(String(localized:"More Mail Dot commands"))
         button.setContentHuggingPriority(.required,for:.horizontal)
         return button
     }
@@ -863,6 +853,15 @@ struct SenderMenuButton:NSViewRepresentable {
                 // 2026: the item read "Drafting Notes for This"), so it is made wide enough for the whole title, beside
                 // the checkmark column and the menu's margins.
                 menu.minimumWidth=max(menu.minimumWidth,ceil(item.attributedTitle?.size().width ?? 0)+SenderMenuButton.titleMargins)
+            }
+            if !content.extras.isEmpty {
+                menu.addItem(.separator())
+                for extra in content.extras { menu.addItem(self.item(extra.title,extra.run)) }
+            }
+            if let footer=content.footer {
+                menu.addItem(.separator())
+                let item=NSMenuItem(title:footer,action:nil,keyEquivalent:""); item.isEnabled=false
+                menu.addItem(item)
             }
             menu.popUp(positioning:nil,at:NSPoint(x:0,y:sender.bounds.height+4),in:sender)
         }
