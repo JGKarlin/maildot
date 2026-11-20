@@ -4,7 +4,7 @@ Mail Dot brings Dot, ChatGPT's always-on agent, into Apple Mail on the Mac. Dot 
 
 **Mail Dot is free for personal and noncommercial use.** Download the installer from the [Releases page](https://github.com/JGKarlin/maildot/releases); it is signed and notarized, and it updates itself. The source is published under the PolyForm Noncommercial License.
 
-<p align="center"><img src="docs/images/window-briefing.png" width="480" alt="The Mail Dot window for a thread of seven messages, in the Briefing view: Dot's question about which hall to book, with three suggested answers and a fourth choice, then what has been decided and what is still to decide. The bottom row offers No Reply Needed, Call Dot, Ask Dot and the settings."></p>
+<p align="center"><img src="docs/images/window-briefing.png" width="480" alt="The Mail Dot window for a thread of seven messages, in the Briefing view: Dot's question about which hall to book, with three suggested answers and a fourth choice, then what has been decided and what is still to decide. The state, Question for you, and the ⋯ menu are at the top. The bottom row offers No Reply Needed and Ask Dot on the left, and Call Dot and the settings gear on the right."></p>
 
 ## Why Mail Dot
 
@@ -20,7 +20,7 @@ When an important message arrives, or when you open one, Mail Dot offers it to D
 
 Where the context does not settle the reply, Dot asks one question with concrete answers, and a single press answers it. Mail Dot keeps your answer so that Dot does not ask again, and shows a draft already written before any question.
 
-<p align="center"><img src="docs/images/reply-question.png" width="520" alt="Mail Dot's panel showing a question from Dot about a scheduling conflict, with three suggested answers and a fourth choice to write something else."></p>
+<p align="center"><img src="docs/images/reply-question.png" width="520" alt="Mail Dot's panel showing a question from Dot about a scheduling conflict, with three suggested answers and a fourth choice to write something else. Insert, Save Draft, Send and No Reply are at the bottom, with the settings gear at the bottom right."></p>
 
 Mail Dot offers Dot only mail worth answering: bulk mail, mailing lists, receipts, account notices, one-time codes and automated messages stay out, and each account has its own switch for automatic drafts. Your drafting rules, such as how to open a message or how formal to be, go with every request, together with any notes on how to write to a particular person. A request you make yourself goes ahead of the automatic checks, and while Dot is starting the panel says how many requests are ahead of yours.
 
@@ -42,9 +42,9 @@ Gmail and iCloud are searched on the provider's servers through their connectors
 
 For each message it handles, Dot reports on the thread: how it began, how it developed, what has been decided, what remains open and who must act. A banner on the message gives the state: "Checking" while Dot decides whether a reply is needed, "Drafting" while it writes, then "Draft ready", "Question for you", "No reply needed", or "Replied" once you have answered, however you did it. Mail you wrote carries no banner.
 
-The banner's Open Mail Dot button opens the Mail Dot window over the message. It shows the state, then what needs you (Dot's question or its draft), then where the matter stands, how the thread got there, any meeting the mail sets with a button that adds it to your calendar, and what Dot did. When you answer Dot's question, the matter moves to Decided at once. The buttons at the bottom fit the state: No Reply Needed, Open in Reply, Discard Draft, Call Dot and Ask Dot.
+The banner's Open Mail Dot button opens the Mail Dot window over the message. It shows the state at the top, beside the ⋯ menu, then what needs you (Dot's question or its draft), then where the matter stands, how the thread got there, any meeting the mail sets with a button that adds it to your calendar, and what Dot did. When you answer Dot's question, the matter moves to Decided at once. The buttons at the bottom fit the state: No Reply Needed, Open in Reply, Discard Draft and Ask Dot on the left, then Call Dot and the settings gear at the right.
 
-<p align="center"><img src="docs/images/window-briefing-draft.png" width="480" alt="The Mail Dot window for a single message with Dot's draft ready: the draft, a one-line account of the message, and a note that Dot checked the calendar. The bottom row offers Open in Reply, Discard Draft, Call Dot, Ask Dot and the settings."></p>
+<p align="center"><img src="docs/images/window-briefing-draft.png" width="480" alt="The Mail Dot window for a single message with Dot's draft ready: the draft, a one-line account of the message, and a note that Dot checked the calendar. The state, Draft ready, and the ⋯ menu are at the top. The bottom row offers Open in Reply, Discard Draft and Ask Dot on the left, and Call Dot and the settings gear on the right."></p>
 
 #### Three views
 
@@ -60,7 +60,7 @@ Choose how the window lays out a report under Layout in Mail Dot's settings; the
 
 **Ledger** uses two panes in a wider window: the thread report (Origin, Development, Now) and what Dot did on the left, and each decision as a row on the right, marked decided or open with who and when. The decision that waits on you opens in place with Dot's question, its answers and a box for your reply. It suits a matter with many decisions, and needs about 820 by 730 points; on a smaller screen the window shows Briefing.
 
-<p align="center"><img src="docs/images/window-ledger.png" width="720" alt="The Mail Dot window in the Ledger view: on the left the thread report and what Dot did; on the right the decisions as rows, with Dates and Catering decided, the Hall marked as yours to decide with Dot's question and four answers opened beneath it, Extra budget waiting on the hall, and a planning call with an Add to Calendar button."></p>
+<p align="center"><img src="docs/images/window-ledger.png" width="720" alt="The Mail Dot window in the Ledger view: on the left the thread report and what Dot did; on the right the decisions as rows, with Dates and Catering decided, the Hall marked as yours to decide with Dot's question and four answers opened beneath it and a box for telling Dot the answer, with Dictate, Call Dot and Tell Dot beside it, Extra budget waiting on the hall, and a planning call with an Add to Calendar button."></p>
 
 ## Which accounts Mail Dot works with
 
@@ -107,7 +107,7 @@ Inside the one app are four parts: the Mail extension, which draws the banner, t
 
 In a reply window, the Mail Dot button in the toolbar opens the panel. Insert places Dot's draft at the head of the reply and leaves the quoted mail untouched; Save Draft also saves it to Drafts; No Reply dismisses it. Send places it, brings Mail forward and asks for one confirmation naming the recipients, after which Mail sends the message; Command-Return chooses Send. With **Confirm before sending** turned off under Drafting Rules in the settings, your press of Send is the confirmation; a send Dot prepared during a voice call always waits for your confirmation on the Mac. Dot has no tool that can confirm a send, a message changed after confirmation is not sent, and text inside a message can never authorise an action. The field beneath takes an instruction for revising the draft, typed or spoken through Dictate; Tell Dot sends it, and Call Dot opens a voice call for the same purpose.
 
-<p align="center"><img src="docs/images/reply-draft-ready.png" width="520" alt="Mail Dot's panel in a reply window, showing a draft that Dot has written, with buttons to insert it, save it as a draft, send it or decline to reply, and beneath them a box for telling Dot how to revise it, with Dictate, Call Dot and Tell Dot beside it."></p>
+<p align="center"><img src="docs/images/reply-draft-ready.png" width="520" alt="Mail Dot's panel in a reply window, showing a draft that Dot has written, with buttons to insert it, save it as a draft, send it or decline to reply, with the settings gear at the right of that row, and beneath them a box for telling Dot how to revise it, with Dictate, Call Dot and Tell Dot beside it."></p>
 
 Mail Dot's icon in a message's header opens its settings: Accounts, Drafting Rules (with Sending), Layout and Connection.
 
