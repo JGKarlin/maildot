@@ -113,7 +113,6 @@ struct MailDotThreadWindow:View {
                     .init(title:String(localized:"Automatic drafts for this sender"),symbol:"square.and.pencil",rule:rule) { value in act(nil) { try TriageCommands.rule(value,for:entry.sender) } },
                     .init(title:String(localized:"Dot’s report for this sender"),symbol:"doc.text.magnifyingglass",rule:reportRule) { value in act(nil) { try TriageCommands.reportRule(value,for:entry.sender) } }
                 ],note:.init(exists:hasNotes) { notesPage=true },
-                extras:[.init(title:String(localized:"Spoken Mail Report")) { line=(DotCallCommands.spokenReport() ?? String(localized:"Asked Dot for the report; your Mac reads it aloud when it arrives."),false) }],
                 footer:MailDotVersion.text)
                 .fixedSize()
             }

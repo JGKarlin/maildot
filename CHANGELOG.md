@@ -1,11 +1,15 @@
 # Changes
 
+## 0.4.225, 21 November 2026
+
+- The spoken mail report is removed.
+
+While Mail Dot is in development, each release replaces the one before it on the Releases page.
+
 ## 0.4.224, 20 November 2026
 
 - All Mail Dot panels share one layout: status and ⋯ menu at the top; actions, Call Dot and Settings at the bottom; one text box style with Dictate, Call Dot and Tell Dot.
 - Dot's report panel widens to fit every language.
-
-While Mail Dot is in development, each release replaces the one before it on the Releases page.
 
 ## 0.4.223, 20 November 2026
 

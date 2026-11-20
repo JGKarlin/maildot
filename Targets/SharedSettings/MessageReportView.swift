@@ -353,11 +353,9 @@ import BridgeCore
             }.lineLimit(1).controlSize(.small)
         }.padding(.horizontal,14).padding(.vertical,10)
     }
-    /// What used to be in the menu bar, now inside Mail: a call with Dot, a spoken report, and the settings.
+    /// The panel's ⋯: Mail Dot's version (the spoken mail report was removed, owner request, 20 November 2026).
     private var commands:some View {
         Menu {
-            Button("Spoken Mail Report",systemImage:"speaker.wave.2") { note(DotCallCommands.spokenReport(),String(localized:"Asked Dot for the report; your Mac reads it aloud when it arrives.")) }
-            Divider()
             Text(MailDotVersion.text)
         } label: { Image(systemName:"ellipsis.circle") }
         .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize().help("More Mail Dot commands")

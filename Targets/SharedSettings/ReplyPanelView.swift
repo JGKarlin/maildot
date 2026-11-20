@@ -196,7 +196,6 @@ import BridgeCore
     private var more:some View {
         Menu {
             Button("Read the Message from Mail Again",systemImage:"arrow.clockwise") { share() }
-            Button("Spoken Mail Report",systemImage:"speaker.wave.2") { note=DotCallCommands.spokenReport() ?? String(localized:"Asked Dot for the report; your Mac reads it aloud when it arrives.") }
             Divider()
             Text(MailDotVersion.text)
         } label: { Image(systemName:"ellipsis.circle") }

@@ -21,13 +21,6 @@ import BridgeCore
     /// not yet been seen working end to end. Until it has, it stays off and requests take the written route.
     static let voiceLineKey="voiceLineEnabled"
     static var voiceLineEnabled:Bool { UserDefaults.standard.bool(forKey:voiceLineKey) }
-    @discardableResult static func spokenReport() -> String? {
-        record { state,scope,allowed in
-            let request=try state.requestSpokenReport(accountIDs:scope,allowedAccountIDs:allowed)
-            // Without the voice line the request goes to Dot in writing at once, and no call is opened.
-            if !voiceLineEnabled { state.recordCallLaunch(requestID:request.id,started:false,note:nil,prompted:false) }
-        }
-    }
     /// Sends Dot the owner's request on a reply as it now stands, once the message has been read from Mail
     /// and only if Dot has not been sent it already. Returns what to tell the owner if it could not be sent.
     @discardableResult static func tellDotAboutReply(contextID:String) -> String? {

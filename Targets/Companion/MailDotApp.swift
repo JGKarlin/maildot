@@ -414,8 +414,8 @@ import OSLog
         #if DEBUG
         // Development only, by hand, after announcing it: records a call or spoken-report request in the owner's
         // real store, for the installed Mail Dot to carry out. A real call follows.
-        if CommandLine.arguments.contains("--request-spoken-report") || CommandLine.arguments.contains("--request-call") {
-            let refusal=CommandLine.arguments.contains("--request-call") ? DotCallCommands.call() : DotCallCommands.spokenReport()
+        if CommandLine.arguments.contains("--request-call") {
+            let refusal=DotCallCommands.call()
             print("recorded=\(refusal == nil) \(refusal ?? "")")
             Task { try? await Task.sleep(for:.seconds(1)); NSApplication.shared.terminate(nil) }
             return
