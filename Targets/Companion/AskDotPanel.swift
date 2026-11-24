@@ -331,10 +331,17 @@ struct AskDotView:View {
             Button("Clear History",role:.destructive) { clearHistory() }
         }
         .onChange(of:session.showings) { _,_ in tab = .ask; text=""; note=nil; expanded=[]; typing=true }
+        // The filters are kept as soon as they change, and Reset forgets them (owner request, 24 November 2026).
+        .onChange(of:remembered) { _,value in if fixedQuestions == nil { value.save() } }
         .task {
             if let fixedTab { tab=fixedTab }
             typing=true
-            if fixedQuestions == nil { accounts=await MailDotAccountRow.load().filter{$0.mailDot && $0.connected} }
+            if fixedQuestions == nil {
+                restoreFilters()
+                accounts=await MailDotAccountRow.load().filter{$0.mailDot && $0.connected}
+                // An account removed since is no longer searched; with none left, all accounts are.
+                if !accounts.isEmpty { selectedAccounts.formIntersection(accounts.map(\.id)) }
+            }
             while !Task.isCancelled { await reload(); try? await Task.sleep(for:.seconds(1.5)) }
         }
     }
@@ -484,6 +491,22 @@ struct AskDotView:View {
         }.frame(width:280).padding(.vertical,4)
     }
     private func resetFilters() { selectedAccounts=[]; period = .anyTime; direction = .both; person=""; attachmentsOnly=false; suggestions=[] }
+    /// The filters as shown, in the form the background app keeps them.
+    private var remembered:AskDot.RememberedFilters {
+        var value=AskDot.RememberedFilters()
+        value.accounts=selectedAccounts.sorted(); value.period=period; value.direction=direction
+        value.person=person; value.attachmentsOnly=attachmentsOnly
+        if period == .custom { value.customFrom=customFrom; value.customTo=customTo }
+        return value
+    }
+    /// Shows the filters the owner last left, when the bar is first made in this run of the background app.
+    private func restoreFilters() {
+        guard let kept=AskDot.RememberedFilters.load() else { return }
+        selectedAccounts=Set(kept.accounts); period=kept.period; direction=kept.direction; attachmentsOnly=kept.attachmentsOnly
+        if let from=kept.customFrom,let to=kept.customTo { customFrom=from; customTo=max(from,min(to,Date())) }
+        // A remembered person opens no list of suggestions.
+        picked=kept.person; person=kept.person
+    }
     private func periodName(_ period:AskDot.Period) -> String {
         switch period {
         case .anyTime: String(localized:"Any time")

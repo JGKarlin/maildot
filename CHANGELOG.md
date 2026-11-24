@@ -1,10 +1,14 @@
 # Changes
 
+## 0.4.233, 24 November 2026
+
+- Ask Dot remembers your filters between openings and restarts; Reset clears them.
+
+While Mail Dot is in development, each release replaces the one before it on the Releases page.
+
 ## 0.4.232, 24 November 2026
 
 - Mail Dot's icon under a message's date now opens Ask Dot. Settings is the gear at the bottom right of every Mail Dot panel.
-
-While Mail Dot is in development, each release replaces the one before it on the Releases page.
 
 ## 0.4.231, 24 November 2026
 
