@@ -30,7 +30,7 @@ Mail Dot offers Dot only mail worth answering: bulk mail, mailing lists, receipt
 
 ### Answers questions about your mail
 
-Ask Dot, opened anywhere in Mail with Shift-Option-Command-F, takes a question about your mailbox as a whole: a message to find ("the file Priya sent about the budget") or what your mail says about a matter ("when is the workshop, and who has confirmed?"). Filters narrow it by account, period, direction, correspondent and attachments. Dot answers in sentences, and every statement cites the message it rests on; each citation opens that message, and Mail Dot marks any that Mail does not hold. A line for each account says what Dot searched there, with a filled check where Mail Dot saw the search itself and an outlined one where it has only Dot's word. A history keeps earlier questions and answers.
+Ask Dot opens from Mail Dot's icon in any message's header, just below the date, from the Ask Dot button at the bottom of the Mail Dot window, or anywhere in Mail with Shift-Option-Command-F. It takes a question about your mailbox as a whole: a message to find ("the file Priya sent about the budget") or what your mail says about a matter ("when is the workshop, and who has confirmed?"). Filters narrow it by account, period, direction, correspondent and attachments. Dot answers in sentences, and every statement cites the message it rests on; each citation opens that message, and Mail Dot marks any that Mail does not hold. A line for each account says what Dot searched there, with a filled check where Mail Dot saw the search itself and an outlined one where it has only Dot's word. A history keeps earlier questions and answers.
 
 <p align="center"><img src="docs/images/ask-dot.png" width="680" alt="The Ask Dot bar with a question about a revised budget, an answer with numbered citations, three source messages, and a line for each of three accounts stating what was searched: a Work account with a filled check mark, and a Gmail and an iCloud account with outlined check marks."></p>
 
@@ -109,7 +109,7 @@ In a reply window, the Mail Dot button in the toolbar opens the panel. Insert pl
 
 <p align="center"><img src="docs/images/reply-draft-ready.png" width="520" alt="Mail Dot's panel in a reply window, showing a draft that Dot has written, with buttons to insert it, save it as a draft, send it or decline to reply, with the settings gear at the right of that row, and beneath them a box for telling Dot how to revise it, with Dictate, Call Dot and Tell Dot beside it."></p>
 
-Mail Dot's icon in a message's header opens its settings: Accounts, Drafting Rules (with Sending), Layout and Connection.
+Mail Dot's settings open from the gear at the bottom right of every Mail Dot panel, including the Mail Dot window and the reply panel: Accounts, Drafting Rules (with Sending), Layout and Connection.
 
 ## Requirements
 
@@ -121,7 +121,7 @@ Installation takes five steps, and Mail Dot checks each one for itself.
 
 ### 1. Run the installer
 
-Download the installer, a file named like `Mail-Dot-0.4.231.pkg`, from the [Releases page](https://github.com/JGKarlin/maildot/releases); its SHA-256 checksum is in the release notes. Quit Mail, then open the installer and follow it; it will not continue while Mail is open. It places Mail Dot in Applications and opens it.
+Download the installer, a file named like `Mail-Dot-0.4.232.pkg`, from the [Releases page](https://github.com/JGKarlin/maildot/releases); its SHA-256 checksum is in the release notes. Quit Mail, then open the installer and follow it; it will not continue while Mail is open. It places Mail Dot in Applications and opens it.
 
 ### 2. Follow the setup window
 
@@ -141,7 +141,7 @@ macOS installs a Mail extension switched off, and only you can switch it on. In 
 
 ### 4. Check the Connection tab
 
-In Mail, open any message, click the Mail Dot icon in its header, and click Connection. Mail should read Allowed, Accessibility On and Dot Connected, each with a green check. ChatGPT reads Open (running) in green, or Closed in grey, which is not a fault, since the app is needed only for calls.
+In Mail, choose File ▸ New Message, click the Mail Dot button in the new message's toolbar, then click the gear at the bottom right and choose Connection. Mail should read Allowed, Accessibility On and Dot Connected, each with a green check. ChatGPT reads Open (running) in green, or Closed in grey, which is not a fault, since the app is needed only for calls.
 
 <p align="center"><img src="docs/images/settings-connection.png" width="460" alt="The Connection tab of Mail Dot's settings, with four lines marked in green: Mail allowed, Accessibility on, ChatGPT open, and Dot connected. The ChatGPT line states that the app needs to be open only for a call with Dot."></p>
 

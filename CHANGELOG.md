@@ -1,13 +1,17 @@
 # Changes
 
+## 0.4.232, 24 November 2026
+
+- Mail Dot's icon under a message's date now opens Ask Dot. Settings is the gear at the bottom right of every Mail Dot panel.
+
+While Mail Dot is in development, each release replaces the one before it on the Releases page.
+
 ## 0.4.231, 24 November 2026
 
 - Ask Dot always shows an answer it found, even when its list of searched accounts leaves one out.
 - Shift-Return adds a new line in every Tell Dot box; Return still sends.
 - After you tell Dot how to revise a draft, the new draft shows at once, and ‹ n of N › steps through the earlier drafts and your edits.
 - Tell Dot after you edit a draft revises your edited version.
-
-While Mail Dot is in development, each release replaces the one before it on the Releases page.
 
 ## 0.4.230, 24 November 2026
 

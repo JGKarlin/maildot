@@ -78,8 +78,13 @@ import BridgeCore
         return MEDecodedMessage(data:data,securityInformation:plain,context:Data(context.utf8),banner:banner)
     }
     func extensionViewController(signers messageSigners:[MEMessageSigner]) -> MEExtensionViewController? { nil }
-    // Mail Dot's icon in the message header opens Settings; the banner's button opens the message (owner request, 15 November 2026).
-    func extensionViewController(messageContext context:Data) -> MEExtensionViewController? { MessageReportViewController(context:context,settingsFirst:true) }
+    // Mail Dot's icon in the message header opens Ask Dot's bar, the background app's floating panel, in place of Settings
+    // (owner request, 24 November 2026); the banner's button opens the message, and Settings is the gear on its panels.
+    // No Mail Dot window is returned, so Mail opens no dialog of its own around the bar.
+    func extensionViewController(messageContext context:Data) -> MEExtensionViewController? {
+        try? TriageCommands.showAskBar()
+        return nil
+    }
     func primaryActionClicked(forMessageContext context:Data,completionHandler:@escaping (MEExtensionViewController?) -> Void) {
         completionHandler(MessageReportViewController(context:context))
     }
@@ -228,25 +233,23 @@ private final class ArrivalHandler:NSObject,MEMessageActionHandler {
 
 @MainActor private final class MessageReportViewController:MEExtensionViewController {
     private let recordID:String?
-    private let settingsFirst:Bool
     /// The context of a message Dot has not reported on and Mail Dot did not see arrive.
     nonisolated static let anyMessage="message"
-    init(context:Data,settingsFirst:Bool=false) {
+    init(context:Data) {
         let id=String(decoding:context,as:UTF8.self)
         recordID=id.isEmpty || id == Self.anyMessage ? nil : id
-        self.settingsFirst=settingsFirst
         super.init(nibName:nil,bundle:nil)
     }
     required init?(coder:NSCoder) { nil }
     override func loadView() {
-        if settingsFirst || recordID?.hasPrefix("triage:") == true {
+        if recordID?.hasPrefix("triage:") == true {
             let id=recordID.flatMap{ $0.hasPrefix("triage:") ? String($0.dropFirst("triage:".count)) : nil } ?? ""
             // The layout the owner chose in Settings; the window changes size when they choose another.
             let chosen=(try? MailSettingsStore.shared().read())?.windowLayout ?? .briefing
             let layout=MailDotThreadWindow.fits(chosen) ? chosen : .briefing
             view=NSHostingView(rootView:MailDotThreadWindow(entryID:id,resize:{ [weak self] size in
                 self?.preferredContentSize=NSSize(width:size.width,height:size.height)
-            },startsInSettings:settingsFirst))
+            }))
             let size=MailDotThreadWindow.size(layout)
             preferredContentSize=NSSize(width:size.width,height:size.height)
             return
