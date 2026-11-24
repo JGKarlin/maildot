@@ -1050,7 +1050,8 @@ import OSLog
         settings=saved
     }
     private var lastListPass=Date.distantPast
-    private var lastBannerStates:[String:Int]?
+    /// What the banners of the messages Mail last showed said at the last pass.
+    private var lastBannerTexts:[String:String]?
     private var lastBannerReload=Date.distantPast
     private var bannerReloadOwed=false
     private var lastBannerReloadRequest=Date()
@@ -1204,33 +1205,36 @@ import OSLog
         // A message that has only just been recorded, because Mail showed it, is not a change of state: asking Mail to
         // redraw for it made Mail show messages again, record more, and redraw every five seconds (owner report, 15
         // November 2026). Its banner comes with the next redraw that a real change asks for.
-        var onlyNew=false
+        // Mail redraws every shown message when asked, so it is asked only when the banner of a message it is showing
+        // would read differently: its state, or its place in Dot's queue. A change to any other message redraws nothing
+        // (owner report, 24 November 2026: open messages flickered while Dot worked through other mail); that message
+        // shows its new state when Mail next shows it. Until 24 November any change anywhere asked for a redraw.
+        _ = changed
+        var shownChanged=false
         if let state=try? store.read() {
-            var states:[String:Int]=[:]
-            for entry in state.entries {
-                var hasher=Hasher(); hasher.combine("\(entry.outcome)"); hasher.combine(entry.draft?.count ?? -1); hasher.combine(entry.dotNote); hasher.combine(entry.replyPanelDraftingAt)
-                states[entry.id]=hasher.finalize()
+            let workflow=(try? MailWorkflowStore(bridgeDirectory:bridge.directory).read()) ?? MailWorkflowState()
+            let availability=DotAvailability(access:settings.effectiveDotAccess,connection:state.connection,listening:workflow.workerListening())
+            var texts:[String:String]=[:]
+            for id in ShownMessages.read(bridgeDirectory:bridge.directory) {
+                if let entry=state.entry(forMessageID:id) { texts[id]=MailDotBanner.text(for:entry,triage:state,workflow:workflow,availability:availability) ?? "" }
             }
-            if let last=lastBannerStates {
-                if states.contains(where:{ id,value in last[id].map{ $0 != value } ?? false }) { changed=true }
-                else if states.keys.contains(where:{ last[$0] == nil }) { onlyNew=true }
-            }
-            lastBannerStates=states
+            if let last=lastBannerTexts,texts.contains(where:{ id,text in last[id] != text }) { shownChanged=true }
+            lastBannerTexts=texts
             // The extension's Mail Dot window closed: its message's banner is shown again.
-            if let asked=state.bannerReloadRequestedAt,asked > lastBannerReloadRequest { lastBannerReloadRequest=asked; changed=true }
+            if let asked=state.bannerReloadRequestedAt,asked > lastBannerReloadRequest { lastBannerReloadRequest=asked; shownChanged=true }
         }
         // Only while Mail is open: asking a closed Mail to reload starts it. Seen twice on 13 November 2026,
         // Mail reopened seconds after the owner quit it, or after Mail Dot restarted.
         // Never while the Mail Dot window is open: the message behind it redrew under the owner's eyes. The redraw is owed
         // and made when the window closes. Never more than once in ten seconds, and for newly recorded messages alone at
         // most once a minute.
-        if changed { bannerReloadOwed=true }
+        if shownChanged { bannerReloadOwed=true }
         let sinceLast=Date().timeIntervalSince(lastBannerReload)
-        let due=(bannerReloadOwed && sinceLast >= 10) || (onlyNew && sinceLast >= 60)
+        let due=bannerReloadOwed && sinceLast >= 10
         let windowOpen=AXIsProcessTrusted() ? MailDotWindowCloser.open() > 0 : (try? store.read())?.mailDotWindowOpenAt != nil
         if due,!windowOpen,!NSRunningApplication.runningApplications(withBundleIdentifier:"com.apple.mail").isEmpty {
             bannerReloadOwed=false; lastBannerReload=Date()
-            do { try await MEExtensionManager.reloadVisibleMessages(); Self.bannerLog.info("asked Mail to reload visible messages (\(onlyNew && !changed ? "new messages" : "a change",privacy:.public))") }
+            do { try await MEExtensionManager.reloadVisibleMessages(); Self.bannerLog.info("asked Mail to reload visible messages (a shown message changed)") }
             catch { Self.bannerLog.error("Mail refused to reload visible messages: \(error.localizedDescription,privacy:.public)") }
         }
     }

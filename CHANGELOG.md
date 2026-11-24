@@ -1,10 +1,14 @@
 # Changes
 
+## 0.4.230, 24 November 2026
+
+- Open messages no longer flicker while Dot works on other mail: Mail Dot asks Mail to redraw only when a message you have open changes.
+
+While Mail Dot is in development, each release replaces the one before it on the Releases page.
+
 ## 0.4.229, 24 November 2026
 
 - A new message is read even when Mail has not yet supplied its subject; the sender and recipients must still be known.
-
-While Mail Dot is in development, each release replaces the one before it on the Releases page.
 
 ## 0.4.228, 24 November 2026
 

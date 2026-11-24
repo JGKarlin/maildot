@@ -33,6 +33,8 @@ import BridgeCore
     /// A banner is added only for a message Dot has reported on.
     nonisolated func decodedMessage(forMessageData data:Data) -> MEDecodedMessage? {
         let headers=MailMessageHeaders(rawMessage:data)
+        // Mail is showing this message: Mail Dot redraws shown messages only when one of these changes.
+        if let directory=try? BridgeStore.shared().directory { ShownMessages.note(messageID:headers.messageID,bridgeDirectory:directory) }
         let record=ReportIndex.shared.record(for:headers)
         // The banner says the state only, with its symbol; what is needed is shown in the panel.
         var banner=record.map{ report -> MEDecodedMessageBanner in

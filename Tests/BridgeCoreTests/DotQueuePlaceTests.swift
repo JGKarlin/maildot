@@ -56,3 +56,33 @@ final class DotQueuePlaceTests: XCTestCase {
         XCTAssertNil(DotQueuePlace.of(triage.entries.first { $0.id == a.id }!, triage: triage, workflow: workflow, now: now), "a finished message has no place")
     }
 }
+
+/// Mail Dot asks Mail to redraw only when a shown message's banner would change (owner report, 24 November 2026).
+final class ShownMessagesTests: XCTestCase {
+    func testTheLatestShownMessagesAreKeptNewestFirst() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        for n in 0..<15 { ShownMessages.note(messageID: "<m\(n)@example.invalid>", bridgeDirectory: directory) }
+        ShownMessages.note(messageID: "<m3@example.invalid>", bridgeDirectory: directory)
+        let shown = ShownMessages.read(bridgeDirectory: directory)
+        XCTAssertEqual(shown.first, "m3@example.invalid", "shown again moves to the front")
+        XCTAssertEqual(shown.count, ShownMessages.keep)
+        XCTAssertEqual(Set(shown).count, shown.count, "each once")
+        XCTAssertFalse(shown.contains("m0@example.invalid"), "the oldest falls off")
+    }
+    func testABannerTextChangesOnlyWithItsOwnMessage() {
+        var triage = MailTriageState()
+        let mine = MailTriageEntry(messageID: "mine@example.invalid", sender: "a@example.invalid", senderName: nil, subject: "s", receivedAt: Date(),
+                                   verdict: MailTriage.Verdict(essential: true, reason: "r"), automatic: true)
+        let other = MailTriageEntry(messageID: "other@example.invalid", sender: "b@example.invalid", senderName: nil, subject: "t", receivedAt: Date(),
+                                    verdict: MailTriage.Verdict(essential: true, reason: "r"), automatic: true)
+        triage.record(mine); triage.record(other)
+        triage.markAsked(mine.id, requestID: "r1"); triage.markAsked(other.id, requestID: "r2")
+        let before = MailDotBanner.text(for: triage.entries[0], triage: triage, workflow: MailWorkflowState(), availability: .available)
+        triage.accept(requestID: "r2", stage: .ready, summary: "No reply needed.")
+        XCTAssertEqual(MailDotBanner.text(for: triage.entries[0], triage: triage, workflow: MailWorkflowState(), availability: .available), before,
+                       "Dot finishing another message leaves this banner as it was")
+        triage.accept(requestID: "r1", stage: .ready, summary: "No reply needed.")
+        XCTAssertNotEqual(MailDotBanner.text(for: triage.entries[0], triage: triage, workflow: MailWorkflowState(), availability: .available), before)
+    }
+}
