@@ -163,6 +163,10 @@ public struct MailTriageEntry:Codable,Sendable,Identifiable,Equatable {
     /// answering in time.
     public var askedAt:Date?
     public var retriedUnanswered:Bool?
+    /// Requests made for this message before the current one, when it was asked again after seeming unanswered. Dot's
+    /// answer to any of them still counts (owner report, 24 November 2026: Dot answered the first request after the
+    /// second was made, and the answer was thrown away).
+    public var earlierRequestIDs:[String]?
     /// Dot's report on the message's thread, with its latest answer, and when that answer came.
     public var report:ThreadReport?
     public var reportedAt:Date?
@@ -346,10 +350,23 @@ public struct MailTriageState:Codable,Sendable {
     public static let answerLimit:TimeInterval=15*60
     /// A message Dot has not answered about in time is never left showing "Drafting": it is offered to Dot
     /// once more, and if Dot again does not answer, it says so, and the owner can ask again (13 November 2026).
-    @discardableResult public mutating func expireUnanswered(now:Date=Date()) -> Int {
+    /// `workflow`: Dot's requests, to tell a message Dot has not yet reached from one it left unanswered. The fifteen
+    /// minutes count from when Dot opened the message's request; while it still waits its turn, they count from Dot's
+    /// last sign of work on any request, so a message queued behind others is never given up on while Dot works through
+    /// them (owner report, 24 November 2026). A request Dot has already answered is never expired: its answer is applied.
+    @discardableResult public mutating func expireUnanswered(now:Date=Date(),workflow:MailWorkflowState?=nil) -> Int {
         var count=0
-        for index in entries.indices where entries[index].outcome == .asked && now.timeIntervalSince(entries[index].askedAt ?? entries[index].seenAt) > Self.answerLimit {
+        let lastWork=workflow?.requests.compactMap{ $0.event.reviewedAt }.max()
+        for index in entries.indices where entries[index].outcome == .asked {
+            var since=entries[index].askedAt ?? entries[index].seenAt
+            if let workflow,let id=entries[index].requestID,let request=workflow.requests.first(where:{$0.id == id}) {
+                if [.ready,.failed,.awaitingInput].contains(request.stage) { continue }
+                if let opened=request.event.reviewedAt { since=max(since,opened) }
+                else if let lastWork { since=max(since,lastWork) }
+            }
+            guard now.timeIntervalSince(since) > Self.answerLimit else { continue }
             if entries[index].retriedUnanswered != true {
+                if let id=entries[index].requestID { entries[index].earlierRequestIDs=(entries[index].earlierRequestIDs ?? [])+[id] }
                 entries[index].outcome = .pending; entries[index].requestID=nil; entries[index].retriedUnanswered=true
             } else {
                 entries[index].outcome = .failed
@@ -361,10 +378,11 @@ public struct MailTriageState:Codable,Sendable {
     }
     /// Dot's answer about one message. A summary carrying "Draft reply:" holds the reply after that line;
     /// any other ready summary means no reply is needed.
-    public mutating func accept(requestID:String,stage:MailWorkflowStage,summary incoming:String,question:String?=nil,now:Date=Date()) {
+    /// Returns the other requests made for the same message that are no longer needed, for the caller to withdraw.
+    @discardableResult public mutating func accept(requestID:String,stage:MailWorkflowStage,summary incoming:String,question:String?=nil,now:Date=Date()) -> [String] {
         // A report-only request: the report is kept, and nothing else about the message changes.
         if let index=entries.firstIndex(where:{$0.reportRequestID == requestID}) {
-            guard [.ready,.awaitingInput,.failed].contains(stage) else { return }
+            guard [.ready,.awaitingInput,.failed].contains(stage) else { return [] }
             let report=ThreadReport.extract(from:incoming).report
             entries[index].reportRequestID=nil; entries[index].reportRequestedAt=nil
             if let report {
@@ -373,9 +391,21 @@ public struct MailTriageState:Codable,Sendable {
             } else {
                 entries[index].reportFailed=stage == .failed ? incoming.trimmingCharacters(in:.whitespacesAndNewlines) : "Dot answered without a report."
             }
-            return
+            return []
         }
-        guard let index=entries.firstIndex(where:{$0.requestID == requestID}) else { return }
+        // The current request, or one made before it that Dot answered late; a late answer counts only while the message
+        // still waits on Dot or was given up on, never over an answer already taken or the owner's own choice.
+        let index:Int
+        if let current=entries.firstIndex(where:{$0.requestID == requestID}) { index=current }
+        else if let earlier=entries.firstIndex(where:{ ($0.earlierRequestIDs ?? []).contains(requestID) }),
+                [.pending,.asked,.failed].contains(entries[earlier].outcome),[.ready,.awaitingInput,.failed].contains(stage) { index=earlier }
+        else { return [] }
+        // Once Dot has answered, the message's other requests are withdrawn, so Dot does not read it again.
+        var withdraw:[String]=[]
+        if [.ready,.awaitingInput,.failed].contains(stage) {
+            withdraw=((entries[index].earlierRequestIDs ?? [])+[entries[index].requestID].compactMap{$0}).filter{ $0 != requestID }
+            entries[index].requestID=requestID; entries[index].earlierRequestIDs=nil
+        }
         entries[index].announcedAt=nil
         // Dot's thread report travels as one marked line; it is kept apart and never shown as text.
         let (report,summary)=ThreadReport.extract(from:incoming)
@@ -397,7 +427,7 @@ public struct MailTriageState:Codable,Sendable {
                first.trimmingCharacters(in:.whitespaces).lowercased().hasPrefix("already replied:") {
                 entries[index].outcome = .replied; entries[index].draft=nil
                 entries[index].dotNote=summary.trimmingCharacters(in:.whitespacesAndNewlines)
-                return
+                return withdraw
             }
             if let at=lines.firstIndex(where:{$0.trimmingCharacters(in:.whitespaces).lowercased().hasPrefix("draft reply:")}) {
                 let first=String(lines[at].trimmingCharacters(in:.whitespaces).dropFirst("draft reply:".count))
@@ -415,12 +445,13 @@ public struct MailTriageState:Codable,Sendable {
                         if entries[index].openReplyWhenDrafted == true { entries[index].reportAfterReply=true }
                         else { entries[index].reportRequestedAt=now; entries[index].reportRequestID=nil; entries[index].reportFailed=nil }
                     }
-                    return
+                    return withdraw
                 }
             }
             entries[index].outcome = .noDraft; entries[index].dotNote=summary
         default: break
         }
+        return withdraw
     }
     /// Dot drafted a reply from a reply window's panel. The draft is recorded on the message it answers,
     /// whether or not the panel is still open, so that the message shows "draft ready" in Mail and the draft

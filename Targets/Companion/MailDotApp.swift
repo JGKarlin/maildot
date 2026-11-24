@@ -1086,7 +1086,8 @@ import OSLog
         if (try? store.transaction({ $0.discardOldDrafts() })) ?? 0 > 0 { changed=true }
         // Dot's silence is counted: a message given up after Dot twice left it unanswered (see DotAccess).
         let silentBefore=(try? store.read())?.entries.filter{ $0.outcome == .failed && ($0.dotNote ?? "").hasPrefix("Dot did not answer") }.count ?? 0
-        if (try? store.transaction({ $0.expireUnanswered() })) ?? 0 > 0 { changed=true }
+        let workflow=try? MailWorkflowStore(bridgeDirectory:bridge.directory).read()
+        if (try? store.transaction({ $0.expireUnanswered(workflow:workflow) })) ?? 0 > 0 { changed=true }
         let silentAfter=(try? store.read())?.entries.filter{ $0.outcome == .failed && ($0.dotNote ?? "").hasPrefix("Dot did not answer") }.count ?? 0
         if silentAfter > silentBefore,let updated=try? MailSettingsStore(bridgeDirectory:bridge.directory).transaction({ value -> MailSettings in value.noteDotSilent(silentAfter-silentBefore); return value }) { settings=updated }
         await checkDotAccess(&settings,bridge:bridge)

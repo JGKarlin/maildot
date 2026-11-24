@@ -17,7 +17,9 @@ final class UnansweredDraftTests:XCTestCase {
         state.expireUnanswered(now:start.addingTimeInterval(33*60))
         XCTAssertEqual(state.entries.first?.outcome,.failed,"then it says Dot did not answer")
         XCTAssertNotNil(state.entries.first?.dotNote)
+        // Until 24 November 2026 a late answer changed nothing; the owner decided it counts, so a message never stays
+        // "Dot couldn't check" when Dot did check.
         state.accept(requestID:"r1",stage:.ready,summary:"late")
-        XCTAssertEqual(state.entries.first?.outcome,.failed,"a late answer to a request given up on changes nothing")
+        XCTAssertEqual(state.entries.first?.outcome,.noDraft,"a late answer to an earlier request is applied")
     }
 }

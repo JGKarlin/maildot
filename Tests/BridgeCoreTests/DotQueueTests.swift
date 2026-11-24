@@ -119,3 +119,89 @@ final class NoReplyNeededAskFirstTests:XCTestCase {
         XCTAssertTrue(BridgeCoordinator.dotIsOwedWord(directed))
     }
 }
+
+/// The morning of 24 November 2026: a message waited its turn in a batch, was asked again after fifteen minutes, and
+/// Dot's answer to the first request was thrown away.
+final class UnansweredRetryTests:XCTestCase {
+    private func entry() -> MailTriageEntry {
+        MailTriageEntry(messageID:"sam@example.invalid",sender:"sam@example.invalid",senderName:"Sam Lee",subject:"Plans",receivedAt:Date(),
+                        verdict:MailTriage.Verdict(essential:true,reason:"r"),automatic:true)
+    }
+    private func request(_ at:Date) throws -> MailWorkflowRequest {
+        try MailWorkflowRequest(action:.draftCheck,accountIDs:["gmail:profile"],triageID:UUID().uuidString,createdAt:at)
+    }
+
+    /// While Dot works through other requests, a message it has not reached is not given up on.
+    func testAMessageDotHasNotReachedWaitsWhileDotWorks() throws {
+        let t0=Date()
+        var triage=MailTriageState(),workflow=MailWorkflowState()
+        let message=entry(); triage.record(message)
+        let mine=try request(t0),other=try request(t0)
+        workflow.requests=[mine,other]
+        triage.markAsked(message.id,requestID:mine.id,now:t0)
+        workflow.markRead(other.id,now:t0.addingTimeInterval(12*60))
+        XCTAssertEqual(triage.expireUnanswered(now:t0.addingTimeInterval(16*60),workflow:workflow),0,"Dot was at work four minutes ago")
+        XCTAssertEqual(triage.expireUnanswered(now:t0.addingTimeInterval(28*60),workflow:workflow),1,"fifteen minutes with no sign of Dot")
+    }
+
+    /// The fifteen minutes count from when Dot opened the message's own request.
+    func testTheLimitCountsFromWhenDotOpenedTheRequest() throws {
+        let t0=Date()
+        var triage=MailTriageState(),workflow=MailWorkflowState()
+        let message=entry(); triage.record(message)
+        let mine=try request(t0); workflow.requests=[mine]
+        triage.markAsked(message.id,requestID:mine.id,now:t0)
+        workflow.markRead(mine.id,now:t0.addingTimeInterval(10*60))
+        XCTAssertEqual(triage.expireUnanswered(now:t0.addingTimeInterval(20*60),workflow:workflow),0)
+        XCTAssertEqual(triage.expireUnanswered(now:t0.addingTimeInterval(26*60),workflow:workflow),1)
+    }
+
+    /// Dot's answer to the first request counts after the message was asked again, and the second is withdrawn.
+    func testALateAnswerToTheFirstRequestIsKept() throws {
+        let t0=Date()
+        var triage=MailTriageState()
+        let message=entry(); triage.record(message)
+        triage.markAsked(message.id,requestID:"first",now:t0)
+        XCTAssertEqual(triage.expireUnanswered(now:t0.addingTimeInterval(16*60)),1)
+        triage.markAsked(message.id,requestID:"second",now:t0.addingTimeInterval(17*60))
+        let withdrawn=triage.accept(requestID:"first",stage:.ready,summary:"No reply needed.")
+        XCTAssertEqual(triage.entries[0].outcome,.noDraft,"Dot's answer is applied")
+        XCTAssertEqual(withdrawn,["second"],"the duplicate request is withdrawn")
+        XCTAssertNil(triage.entries[0].earlierRequestIDs)
+        XCTAssertEqual(triage.accept(requestID:"second",stage:.ready,summary:"Draft reply: Hello"),[],"a later answer to the withdrawn request changes nothing")
+        XCTAssertEqual(triage.entries[0].outcome,.noDraft)
+    }
+
+    /// A message given up on still takes Dot's late answer: it never stays "Dot couldn't check" when Dot did check.
+    func testAGivenUpMessageTakesALateAnswer() throws {
+        let t0=Date()
+        var triage=MailTriageState()
+        let message=entry(); triage.record(message)
+        triage.markAsked(message.id,requestID:"first",now:t0)
+        triage.expireUnanswered(now:t0.addingTimeInterval(16*60))
+        triage.markAsked(message.id,requestID:"second",now:t0.addingTimeInterval(17*60))
+        triage.expireUnanswered(now:t0.addingTimeInterval(33*60))
+        XCTAssertEqual(triage.entries[0].outcome,.failed)
+        triage.accept(requestID:"first",stage:.ready,summary:"Draft reply: Thanks, Sam.")
+        XCTAssertEqual(triage.entries[0].outcome,.drafted)
+        XCTAssertEqual(triage.entries[0].draft,"Thanks, Sam.")
+    }
+}
+
+/// The owner's words while Dot drafts replace the request Dot is working on (owner request, 24 November 2026).
+final class RedirectWhileDraftingTests:XCTestCase {
+    func testADraftForAReplacedRequestIsRefusedAndDotIsSentToTheNewOne() throws {
+        var state=MailWorkflowState()
+        let reply=UUID().uuidString,other=UUID().uuidString
+        let first=try state.requestReply(accountIDs:["gmail:profile"],allowedAccountIDs:["gmail:profile"],contextID:reply)
+        XCTAssertNil(state.replyReplacement(named:first.id,contextID:reply),"the current request stands")
+        let second=try state.requestReply(accountIDs:["gmail:profile"],allowedAccountIDs:["gmail:profile"],contextID:reply)
+        XCTAssertEqual(state.replyReplacement(named:first.id,contextID:reply),second.id,"the old one points to the new one")
+        XCTAssertNil(state.replyReplacement(named:second.id,contextID:reply))
+        XCTAssertNil(state.replyReplacement(named:first.id,contextID:other),"only for its own reply")
+        XCTAssertNil(state.replyReplacement(named:nil,contextID:reply),"a call naming no request is not refused")
+        XCTAssertFalse(state.requests.contains{ $0.id == first.id },"the old request is withdrawn")
+        let encoded=try JSONEncoder().encode(state)
+        XCTAssertEqual(try JSONDecoder().decode(MailWorkflowState.self,from:encoded).replacedReplies[first.id],reply,"kept across a restart")
+    }
+}

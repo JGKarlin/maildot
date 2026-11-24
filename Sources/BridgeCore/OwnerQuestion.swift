@@ -107,6 +107,9 @@ extension MailWorkflowState {
             && (request.hasActiveClaim(now:now) || (request.claim == nil && now.timeIntervalSince(request.createdAt) < MailWorkflowRequest.ownerPriorityWindow))
     }
     public mutating func requestReply(accountIDs:[String],allowedAccountIDs:Set<String>,contextID:String,now:Date=Date()) throws -> MailWorkflowRequest {
+        // An unfinished request for the same reply is replaced; it is remembered, so that a draft for it is refused.
+        for old in requests where old.action == .reply && old.contextID == contextID && ![.ready,.failed].contains(old.stage) { replacedReplies[old.id]=contextID }
+        if replacedReplies.count > 100 { for key in replacedReplies.keys.sorted().prefix(replacedReplies.count-100) { replacedReplies.removeValue(forKey:key) } }
         requests.removeAll{$0.action == .reply && ($0.contextID == contextID || [.ready,.failed].contains($0.stage))}
         let request=try MailWorkflowRequest(action:.reply,accountIDs:accountIDs,contextID:contextID,createdAt:now)
         try enqueue(request,allowedAccountIDs:allowedAccountIDs)

@@ -454,9 +454,10 @@ import BridgeCore
             // While Dot is asking, the answer box is "Something else…" in the question itself; a new message
             // not yet described is described in its own card above.
             if question == nil,!awaitingNewRequest,!awaitingGuidance {
-                // Revising needs a draft: until Dot's draft is shown, the box, Dictate and Tell Dot stay greyed. The
+                // Usable as soon as the message has been read, also while Dot checks or drafts: the owner's words then
+                // replace the request Dot is working on and redirect the draft (owner request, 24 November 2026). The
                 // panel's one box style (owner decision, 20 November 2026).
-                DotTextBox(placeholder:"Tell Dot how to revise this reply",text:$words,focus:$typing,enabled:context?.proposal != nil,
+                DotTextBox(placeholder:"Tell Dot how to revise this reply",text:$words,focus:$typing,enabled:context?.snapshot != nil,
                            call:{ note=DotCallCommands.call(contextID:contextID) ?? String(localized:"Opening a call with Dot about this message.") },
                            tell:say,dictationUnavailable:{ note=$0 })
             }

@@ -13,8 +13,12 @@ public struct MailWorkflowState:Codable,Sendable {
     public var listenerSeenAt:Date?
     /// The worker that last waited there, so that its reports on requests it holds also show it is present.
     public var listenerWorker:String?
+    /// Reply requests the owner replaced with newer words while Dot was at work on them, each with its reply, so that a
+    /// draft Dot then hands back for the old one is refused and Dot is sent to the new one (owner request, 24 November
+    /// 2026). Absent from state saved by earlier builds.
+    public var replacedReplies:[String:String]=[:]
     public init() {}
-    private enum CodingKeys:String,CodingKey { case schemaVersion,requests,dismissedItemVersions,questions,listenerSeenAt,listenerWorker }
+    private enum CodingKeys:String,CodingKey { case schemaVersion,requests,dismissedItemVersions,questions,listenerSeenAt,listenerWorker,replacedReplies }
     public init(from decoder:Decoder) throws {
         let values=try decoder.container(keyedBy:CodingKeys.self)
         schemaVersion=try values.decode(Int.self,forKey:.schemaVersion)
@@ -23,6 +27,13 @@ public struct MailWorkflowState:Codable,Sendable {
         questions=try values.decodeIfPresent([OwnerQuestion].self,forKey:.questions) ?? []
         listenerSeenAt=try values.decodeIfPresent(Date.self,forKey:.listenerSeenAt)
         listenerWorker=try values.decodeIfPresent(String.self,forKey:.listenerWorker)
+        replacedReplies=try values.decodeIfPresent([String:String].self,forKey:.replacedReplies) ?? [:]
+    }
+    /// The request that now stands for a reply, when Dot names one the owner has since replaced; nil when the named
+    /// request is current or was never replaced.
+    public func replyReplacement(named id:String?,contextID:String) -> String? {
+        guard let id,replacedReplies[id] == contextID else { return nil }
+        return requests.last(where:{ $0.action == .reply && $0.contextID == contextID })?.id ?? ""
     }
     /// A listener on the Mac is waiting now: it asked for work within the last half minute.
     public func listenerActive(now:Date=Date()) -> Bool { listenerSeenAt.map{ now.timeIntervalSince($0) < 30 } ?? false }
