@@ -217,11 +217,9 @@ enum MailWorkflowTools {
                     throw BridgeFailure("The proposed sender is not a verified address of the selected account.")
                 }
             }
-            // An answer says what was searched in every account asked about, or it is not taken.
-            if state.requests[index].action == .ask,report.stage == .ready {
-                let missing=AskDot.accountsMissing(from:report.coverage,asked:state.requests[index].accountIDs)
-                guard missing.isEmpty else { throw BridgeFailure("This answer was not saved: coverage must have one entry for every account in reach, and has none for \(missing.joined(separator:", ")). Add them, each with searched true or false and a detail, and report again.") }
-            }
+            // An answer Dot found is always taken, also when its list of what it searched leaves an account out (owner
+            // report, 24 November 2026: Dot's answer was refused for that, and Dot then reported that it had failed). An
+            // account it left out counts as searched where one of its sources comes from it, and otherwise as not searched.
             try state.requests[index].accept(report)
             // Any answer from Dot shows that it answers on this Mac: Mail Dot is active (see DotAccess).
             if report.stage != .working { try? MailSettingsStore(bridgeDirectory:bridgeDirectory).transaction { $0.noteDotAnswered() } }
@@ -241,7 +239,7 @@ enum MailWorkflowTools {
                 for id in state.requests[index].accountIDs where id.hasPrefix("mail:") && MailIndexPass.coveredByConnector(account:String(id.dropFirst(5)),settings:settings) { seen?.insert(String(id.dropFirst(5))) }
                 // A build whose call log holds nothing for the request (the log is bounded) decides nothing.
                 if !records.contains(where:{ $0.request == report.requestID }) { seen=nil }
-                try? MailTriageStore(bridgeDirectory:bridgeDirectory).transaction { $0.acceptAsk(requestID:report.requestID,stage:report.stage,summary:report.summary,coverage:report.stage == .ready ? AskDot.settled(report.coverage,asked:asked,searchedOnThisMac:seen) : nil,sources:checked) }
+                try? MailTriageStore(bridgeDirectory:bridgeDirectory).transaction { $0.acceptAsk(requestID:report.requestID,stage:report.stage,summary:report.summary,coverage:report.stage == .ready ? AskDot.settled(AskDot.fillingMissing(report.coverage,asked:state.requests[index].accountIDs,sources:checked),asked:asked,searchedOnThisMac:seen) : nil,sources:checked) }
             }
             if state.requests[index].action == .draftCheck {
                 let superseded=(try? MailTriageStore(bridgeDirectory:bridgeDirectory).transaction { $0.accept(requestID:report.requestID,stage:report.stage,summary:report.summary,question:report.question) }) ?? []

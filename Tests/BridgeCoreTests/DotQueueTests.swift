@@ -205,3 +205,20 @@ final class RedirectWhileDraftingTests:XCTestCase {
         XCTAssertEqual(try JSONDecoder().decode(MailWorkflowState.self,from:encoded).replacedReplies[first.id],reply,"kept across a restart")
     }
 }
+
+/// Tell Dot after editing Dot's draft: Dot revises the owner's version (owner report, 24 November 2026).
+final class RevisionFromOwnersEditTests:XCTestCase {
+    func testTheOwnersEditGoesToDotWithTheirWords() throws {
+        var context=ReplyContext(id:UUID().uuidString,envelope:MailDraft(id: -1,subject:"Re: Plans",sender:"owner@example.invalid",to:["sam@example.invalid"],cc:[],bcc:[],body:"",attachmentCount:0),originalMessageID:"plans@example.invalid")
+        var shared=context.envelope; shared.body="\n\nOn Monday Sam wrote:\n> Plans?"
+        BridgeCoordinator.share(shared,with:&context)
+        BridgeCoordinator.ownerOpensPanel(context:&context)
+        var state=BridgeState(); state.contexts[context.id]=context
+        try BridgeCoordinator.ownerDirects("Mention that Kim will join.",editedDraft:"Dear Sam,\nFriday suits me.",contextID:context.id,state:&state)
+        let words=try XCTUnwrap(BridgeCoordinator.instruction(for:try XCTUnwrap(state.contexts[context.id])))
+        XCTAssertTrue(words.contains("Mention that Kim will join."))
+        XCTAssertTrue(words.contains("Friday suits me."),"Dot revises the owner's edited version")
+        try BridgeCoordinator.ownerDirects("Shorter, please.",contextID:context.id,state:&state)
+        XCTAssertFalse(try XCTUnwrap(BridgeCoordinator.instruction(for:try XCTUnwrap(state.contexts[context.id]))).contains("Friday suits me."),"an unedited draft sends no edit")
+    }
+}

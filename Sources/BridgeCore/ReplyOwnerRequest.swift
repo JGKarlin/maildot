@@ -29,6 +29,9 @@ public struct ReplyOwnerRequest: Codable, Sendable, Equatable {
     /// The owner pressed Save Draft: once the reply is in the message, Mail is asked to save it to Drafts.
     /// Insert alone puts the reply in the message without asking Mail to save it.
     public var saveToDrafts: Bool?
+    /// The owner's own edit of Dot's last draft, given with their words on how to revise it, so that Dot revises their
+    /// version and not its earlier one (owner report, 24 November 2026). Nil when the owner had not edited the draft.
+    public var editedDraft: String?
     /// The draft in the panel is one Dot wrote ahead, during a scheduled review, and when it reviewed.
     public var preparedAt: Date?
     /// The state last shown to the owner in a notification, so that each is shown once.
@@ -98,11 +101,12 @@ extension BridgeCoordinator {
         }
     }
     /// How to draft, in the owner's words. A later direction replaces an earlier one.
-    public static func ownerDirects(_ text: String, contextID: String, state: inout BridgeState, now: Date = .now) throws {
+    public static func ownerDirects(_ text: String, editedDraft: String? = nil, contextID: String, state: inout BridgeState, now: Date = .now) throws {
         let words = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !words.isEmpty, words.count <= ReplyOwnerRequest.textLimit else { throw BridgeFailure("Write what Dot should do, in at most \(ReplyOwnerRequest.textLimit) characters.") }
+        let edited = editedDraft.map { String($0.prefix(20_000)) }.flatMap { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : $0 }
         try change(contextID, state: &state, now: now) { context, request in
-            request.direction = words; request.ignored = false; request.askedAt = now
+            request.direction = words; request.ignored = false; request.askedAt = now; request.editedDraft = edited
             context.localStatus = "Your direction was sent to Dot."
         }
     }
@@ -275,6 +279,7 @@ extension BridgeCoordinator {
         case nil: parts.append("Do not ask the owner whether to save or send: they choose that on the panel. Pass delivery save if propose_reply offers a delivery field, and otherwise leave it out; the owner's choice on the panel decides either way.")
         }
         if let direction = request.direction { parts.append("How the owner wants it drafted: \(direction)") }
+        if let edited = request.editedDraft { parts.append(editedDraftInstruction(edited)) }
         for answer in request.answers.suffix(3) { parts.append("You asked: \(answer.question) The owner answered: \(answer.answer)") }
         if let known = DraftingInitiative.correspondent(context) { parts.append(known) }
         parts.append(DraftingInitiative.instruction + " " + DraftingInitiative.questionThreshold + " To ask it, call report_progress with question set to that one short question followed by two to four short answers numbered like this: 1) first answer 2) second answer. With the question, pass answer_drafts: the complete reply you would write for each numbered answer, in the same order, each only the reply text; then one press shows that reply at once, with no further request to you. The owner answers with one press, or in a line of text, and an answer without a draft comes back to you here. Keep status to one short plain sentence the owner will read, such as Drafting your reply.")
@@ -284,12 +289,18 @@ extension BridgeCoordinator {
         return parts.joined(separator: " ")
     }
 
+    /// The owner's edited draft, which Dot revises in place of its own earlier one.
+    static func editedDraftInstruction(_ edited: String) -> String {
+        "The owner edited your last draft in the panel. Revise their edited version below, not your earlier draft: keep their changes unless their words above ask otherwise, and apply what they asked. Their edited version: <<<\(edited)>>>"
+    }
+
     /// What Dot is told for a new message: whom it is to, what the owner wants it to say, and that Dot writes
     /// both the message and its subject line.
     private static func newMessageInstruction(for context: ReplyContext, request: ReplyOwnerRequest, rules: [DraftingRule], preferences: [String]) -> String {
         let recipients = (context.envelope.to + context.envelope.cc).joined(separator: ", ")
         var parts = ["This is the owner's own request, made on the Mail Dot panel of a new message they are writing in Mail; it is not a reply. It is addressed to \(recipients.isEmpty ? "the recipients in its To field" : recipients). Write the message now and call propose_reply, without greeting or chatting with the owner. Learn who the recipient is to the owner first: their earlier mail with this person, how they write to them, and anything in your sources about them or the subject. In body give only the text of the message. Also write a short, specific subject line: pass it as subject if propose_reply offers a subject field; otherwise make the first line of body exactly Subject: followed by the subject line, then a blank line, then the message. Mail Dot puts the message at the top of the new message and fills in the subject. Do not ask the owner whether to save or send: they choose that on the panel."]
         if let direction = request.direction { parts.append("What the owner wants this message to say: \(direction)") }
+        if let edited = request.editedDraft { parts.append(editedDraftInstruction(edited)) }
         // A subject the owner typed is theirs: Dot writes to it and does not replace it.
         let given = (context.snapshot?.subject.isEmpty == false ? context.snapshot?.subject : nil) ?? (context.envelope.subject.isEmpty ? nil : context.envelope.subject)
         if let given { parts.append("The owner has already given this message its subject line: \(given). Keep it exactly: write the message to fit that subject and refer to what it names, and do not write or pass a different subject.") }

@@ -48,6 +48,12 @@ import BridgeCore
     @State private var now=Date()
     /// For a new message: what the owner wants it to say, before Dot is asked.
     @State private var newText=""
+    /// The draft's revision when the owner last told Dot how to revise it: a later revision replaces what the panel shows.
+    @State private var revisionAskedAfter:Int?
+    /// Every version of the draft in this panel, oldest first: Dot's drafts and the owner's edits. The newest is shown when
+    /// it comes; the owner steps back and forth through them, and Insert, Save Draft and Send use the one shown.
+    @State private var versions:[DraftVersion]=[]
+    @State private var shownVersion=0
     /// The message this reply answers was marked No reply needed: the panel asks the owner what to say before Dot is
     /// asked (owner request, 20 November 2026).
     @State private var markedNoReply=false
@@ -362,10 +368,22 @@ import BridgeCore
     /// Dot's draft, which the owner may edit before it goes into the message.
     private func draftCard(_ context:ReplyContext) -> some View {
         card {
-            HStack {
-                caption(String(localized:"Dot’s draft"))
-                Spacer()
-                Text(draftState(context)).font(.caption.weight(.semibold)).foregroundStyle(placed && editor == loadedText ? MailDotStyle.successText : MailDotStyle.supporting)
+            // One line where the language's words fit; otherwise the state goes under the label, so nothing is cut off.
+            ViewThatFits(in:.horizontal) {
+                HStack(spacing:8) {
+                    caption(shownIsMine ? String(localized:"Your edit") : String(localized:"Dot’s draft")).fixedSize()
+                    Spacer(minLength:8)
+                    stateText(context).fixedSize()
+                    if versions.count > 1 { versionStepper }
+                }
+                VStack(alignment:.leading,spacing:4) {
+                    HStack(spacing:8) {
+                        caption(shownIsMine ? String(localized:"Your edit") : String(localized:"Dot’s draft"))
+                        Spacer(minLength:8)
+                        if versions.count > 1 { versionStepper }
+                    }
+                    stateText(context)
+                }
             }
             // What Dot did besides writing, and the files it finished, which go into the message with the reply.
             if let done=context.proposal?.tasksDone,!done.isEmpty {
@@ -402,14 +420,39 @@ import BridgeCore
                 .scrollContentBackground(.hidden).padding(6)
                 .background(RoundedRectangle(cornerRadius:6).fill(Color(nsColor:.textBackgroundColor)))
                 .accessibilityLabel("Dot’s draft of the reply")
-            if let proposal=context.proposal,proposal.revision != loadedRevision,editor != loadedText {
-                Button("Show Dot’s Newer Draft") { editor=proposal.body; loadedText=proposal.body; loadedRevision=proposal.revision }
-            }
             // No instruction caption under the draft (owner, 14 November 2026: no directions in the interface).
         }
     }
+    private func stateText(_ context:ReplyContext) -> some View {
+        Text(draftState(context)).font(.caption.weight(.semibold)).foregroundStyle(placed && editor == loadedText ? MailDotStyle.successText : MailDotStyle.supporting)
+    }
+    private var shownIsMine:Bool { versions.indices.contains(shownVersion) && versions[shownVersion].mine }
+    /// ‹ 2 of 3 ›: older to the left, newer to the right.
+    private var versionStepper:some View {
+        HStack(spacing:4) {
+            Button { step(-1) } label: { Image(systemName:"chevron.left") }
+                .disabled(shownVersion == 0).help("Older draft").accessibilityLabel("Older draft")
+            Text("\(shownVersion+1) of \(versions.count)").font(.caption.monospacedDigit()).foregroundStyle(MailDotStyle.supporting).fixedSize()
+            Button { step(1) } label: { Image(systemName:"chevron.right") }
+                .disabled(shownVersion >= versions.count-1).help("Newer draft").accessibilityLabel("Newer draft")
+        }.buttonStyle(.borderless).controlSize(.small)
+    }
+    /// The owner's edit of the version shown, kept as the newest version before anything replaces it. Returns whether it
+    /// was kept.
+    @discardableResult private func keepOwnersEdit() -> Bool {
+        guard !versions.isEmpty,versions.indices.contains(shownVersion),editor != versions[shownVersion].body,
+              !editor.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty,versions.last?.body != editor else { return false }
+        versions.append(DraftVersion(body:editor,mine:true))
+        return true
+    }
+    private func step(_ by:Int) {
+        // An edit just kept is now the newest version and the one shown: the step goes from there.
+        if keepOwnersEdit() { shownVersion=versions.count-1 }
+        shownVersion=min(max(0,shownVersion+by),versions.count-1)
+        editor=versions[shownVersion].body
+    }
     private func draftState(_ context:ReplyContext) -> String {
-        if editor != loadedText { return String(localized:"Edited by you") }
+        if versions.indices.contains(shownVersion) ? editor != versions[shownVersion].body : editor != loadedText { return String(localized:"Edited by you") }
         if placed { return request?.delivery == .send ? String(localized:"Inserted in your message") : String(localized:"Inserted in your message") }
         return working != nil ? String(localized:"Going into your message…") : String(localized:"Not yet in your message")
     }
@@ -537,7 +580,13 @@ import BridgeCore
                     if last.kind == "send" { sent=true }
                 }
             }
-            if let proposal=context?.proposal,proposal.revision != loadedRevision,editor == loadedText || loadedRevision == 0 {
+            // Each new draft Dot writes is shown at once, as the newest version; an edit of the owner's that it would
+            // replace is kept as a version of its own (owner decision, 24 November 2026).
+            if let proposal=context?.proposal,proposal.revision != loadedRevision {
+                revisionAskedAfter=nil
+                keepOwnersEdit()
+                if versions.last?.body != proposal.body { versions.append(DraftVersion(body:proposal.body,mine:false)) }
+                shownVersion=versions.count-1
                 editor=proposal.body; loadedText=proposal.body; loadedRevision=proposal.revision
             }
             placeIfChosen()
@@ -648,7 +697,15 @@ import BridgeCore
     private func say() {
         let text=words.trimmingCharacters(in:.whitespacesAndNewlines)
         guard !text.isEmpty else { return }
-        if question != nil { answer(text) } else { act { try BridgeCoordinator.ownerDirects(text,contextID:contextID,state:&$0) } }
+        if question != nil { answer(text) }
+        else {
+            // The owner's own edit of the draft goes with their words, and the revision Dot writes replaces what the panel
+            // shows, edited or not: Tell Dot is an explicit request to revise (owner report, 24 November 2026: four
+            // revisions waited behind Show Dot's Newer Draft while the panel kept the owner's edit).
+            let edited=context?.proposal != nil && editor != loadedText ? editor : nil
+            revisionAskedAfter=context?.proposal?.revision ?? 0
+            act { try BridgeCoordinator.ownerDirects(text,editedDraft:edited,contextID:contextID,state:&$0) }
+        }
         words=""
     }
     private func answer(_ text:String) { act { try BridgeCoordinator.ownerAnswers(text,contextID:contextID,state:&$0) } }
@@ -707,4 +764,10 @@ import BridgeCore
         }.fixedSize()
         return ceil(NSHostingView(rootView:row).fittingSize.width)
     }
+}
+
+/// One version of a draft in the reply panel: Dot's, or the owner's own edit.
+struct DraftVersion:Equatable {
+    var body:String
+    var mine:Bool
 }

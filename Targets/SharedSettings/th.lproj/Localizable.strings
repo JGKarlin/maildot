@@ -572,3 +572,6 @@
 "Dot is setting up Mail Dot" = "Dot กำลังตั้งค่า Mail Dot";
 "Mail Dot’s setup has stopped" = "การตั้งค่า Mail Dot หยุดลง";
 "ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "เอเจนต์ที่ทำงานตลอดเวลาของ ChatGPT ซึ่งเข้าถึงได้ผ่านการเชื่อมต่อส่วนตัวของ Mail Dot";
+"Your edit" = "การแก้ไขของคุณ";
+"Older draft" = "ฉบับร่างก่อนหน้า";
+"Newer draft" = "ฉบับร่างใหม่กว่า";

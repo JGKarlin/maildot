@@ -32,6 +32,15 @@ struct DotTextBox:View {
             field
                 .lineLimit(lines).textFieldStyle(.roundedBorder).focused(focus).disabled(!enabled)
                 .onSubmit { if sendable { tell() } }
+                // Return sends; Shift-Return starts a new line where the cursor is (owner request, 24 November 2026). While
+                // an input method is composing, as in Japanese, the key is left to it, so confirming a conversion never
+                // sends and never adds a line.
+                .onKeyPress(.return,phases:.down) { press in
+                    guard press.modifiers.contains(.shift) else { return .ignored }
+                    if let editor=NSApp.keyWindow?.firstResponder as? NSTextView,editor.hasMarkedText() { return .ignored }
+                    NSApp.sendAction(#selector(NSResponder.insertNewlineIgnoringFieldEditor(_:)),to:nil,from:nil)
+                    return .handled
+                }
             VStack(alignment:.trailing,spacing:8) {
                 Button { dictate() } label: { Label("Dictate",systemImage:"mic") }
                     .help("Start Dictation (same as your dictation shortcut). macOS types what you say into the box; this is not a call with Dot.")

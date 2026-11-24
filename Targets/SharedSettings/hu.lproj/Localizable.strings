@@ -572,3 +572,6 @@
 "Dot is setting up Mail Dot" = "Dot beállítja a Mail Dotot";
 "Mail Dot’s setup has stopped" = "A Mail Dot beállítása leállt";
 "ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "A ChatGPT mindig aktív ügynöke, a Mail Dot privát kapcsolatán keresztül érhető el.";
+"Your edit" = "Saját szerkesztés";
+"Older draft" = "Régebbi piszkozat";
+"Newer draft" = "Újabb piszkozat";

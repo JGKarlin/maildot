@@ -241,19 +241,17 @@ final class AskCoverageTests:XCTestCase {
         XCTAssertTrue(instructions.contains("has:attachment"))
         XCTAssertFalse(instructions.contains("Sign with my first name"),"a question drafts nothing, so it carries no drafting rules")
     }
-    func testAnAnswerThatDoesNotCoverEveryAccountIsRefusedAndACompleteOneIsShownPerAccount() throws {
+    /// Until 24 November 2026 an answer that left an account out of its coverage was refused, and Dot then reported that it
+    /// had failed; the owner decided a found answer is always shown, with the accounts left out marked as not searched.
+    func testAnAnswerThatDoesNotCoverEveryAccountIsShownWithTheGapsMarked() throws {
         let (root,request)=try bridge(); defer { try? FileManager.default.removeItem(at:root) }
         _ = try MailWorkflowTools.call("get_mail_workflow",arguments:["request_id":.string(request.id)],bridgeDirectory:root)
         var report=MailWorkflowReport(requestID:request.id,expectedRevision:0,stage:.ready,summary:"She chose Harbor Hall [1].\nSources: [{\"n\":1,\"subject\":\"Venue\"}]",items:[])
-        XCTAssertThrowsError(try MailWorkflowTools.call("report_mail_workflow",arguments:["report":try .encode(report)],bridgeDirectory:root),"no coverage at all")
         report.coverage=[.init(account:"gmail:a",searched:true,detail:"Inbox and Sent, all dates")]
-        XCTAssertThrowsError(try MailWorkflowTools.call("report_mail_workflow",arguments:["report":try .encode(report)],bridgeDirectory:root)) { XCTAssertTrue("\($0)".contains("gmail:b")) }
-        XCTAssertEqual(try MailTriageStore(bridgeDirectory:root).read().askList[0].state,.asked,"nothing was shown to the owner")
-        report.coverage?.append(.init(account:"GMAIL:B",searched:false,detail:"The connector for this account is signed out."))
         _ = try MailWorkflowTools.call("report_mail_workflow",arguments:["report":try .encode(report)],bridgeDirectory:root)
         let answered=try MailTriageStore(bridgeDirectory:root).read().askList[0]
-        XCTAssertEqual(answered.state,.answered)
-        XCTAssertEqual(answered.coverage?.map(\.searched),[true,false])
+        XCTAssertEqual(answered.state,.answered,"the answer is shown")
+        XCTAssertEqual(answered.coverage?.map(\.searched),[true,false],"the account left out is marked not searched")
         XCTAssertEqual(answered.coverage?.map(\.account),["gmail:a","gmail:b"])
         XCTAssertEqual(answered.coverage?[1].name,"owner@work.example.invalid")
         // A failure needs no coverage.

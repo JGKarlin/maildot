@@ -86,3 +86,17 @@ final class ShownMessagesTests: XCTestCase {
         XCTAssertNotEqual(MailDotBanner.text(for: triage.entries[0], triage: triage, workflow: MailWorkflowState(), availability: .available), before)
     }
 }
+
+/// An Ask Dot answer is taken although its list of what was searched leaves an account out (owner report, 24 November 2026).
+final class AskCoverageFillTests: XCTestCase {
+    func testAnAccountLeftOutCountsAsSearchedWhereASourceComesFromIt() {
+        let given = [AskDot.Coverage(account: "mail:work", searched: true, detail: "Inbox")]
+        var source = AskDot.Source(n: 1, sender: "Aiko", subject: "Zoom", date: "2026-11-24", messageID: "zoom@example.invalid")
+        source.account = "gmail:g1"
+        let filled = AskDot.fillingMissing(given, asked: ["mail:work", "gmail:g1", "icloud:ic1"], sources: [source])
+        XCTAssertEqual(filled.count, 3)
+        XCTAssertEqual(filled.first { $0.account == "gmail:g1" }?.searched, true, "a source came from it")
+        XCTAssertEqual(filled.first { $0.account == "icloud:ic1" }?.searched, false, "nothing says it was searched")
+        XCTAssertEqual(filled.first { $0.account == "mail:work" }?.detail, "Inbox", "Dot's own entries stand")
+    }
+}

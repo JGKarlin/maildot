@@ -572,3 +572,6 @@
 "Dot is setting up Mail Dot" = "Dot이 Mail Dot을 설정하는 중";
 "Mail Dot’s setup has stopped" = "Mail Dot 설정이 중단되었습니다";
 "ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "ChatGPT의 상시 가동 에이전트로, Mail Dot의 비공개 연결을 통해 연결됩니다.";
+"Your edit" = "내 편집";
+"Older draft" = "이전 초안";
+"Newer draft" = "최신 초안";

@@ -130,6 +130,14 @@ public enum AskDot {
         let named=Set((coverage ?? []).map{ $0.account.lowercased() })
         return asked.filter{ !named.contains($0.lowercased()) }
     }
+    /// Dot's coverage with an entry for each account asked about that it left out: searched where one of the answer's
+    /// sources comes from that account, and otherwise not searched, with no detail.
+    public static func fillingMissing(_ coverage:[Coverage]?,asked:[String],sources:[Source]?) -> [Coverage] {
+        var filled=coverage ?? []
+        let found=Set((sources ?? []).compactMap{ $0.account?.lowercased() })
+        for id in accountsMissing(from:coverage,asked:asked) { filled.append(Coverage(account:id,searched:found.contains(id.lowercased()))) }
+        return filled
+    }
     /// Dot's coverage in the order of the accounts asked about, each with the owner's name for the account. An
     /// account Dot did not name is kept as not searched, with no detail.
     public static func settled(_ coverage:[Coverage]?,asked:[(id:String,name:String)],searchedOnThisMac:Set<String>?=nil) -> [Coverage] {
