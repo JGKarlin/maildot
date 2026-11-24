@@ -37,8 +37,18 @@ enum ReplyCapturePolicy {
             throw BridgeFailure("Mail returned only part of this message's text (\(text.utf16.count) of \(length) characters), so Mail Dot did not read it. Try again; if it repeats, the message holds something Mail Dot cannot read.")
         }
     }
+    /// Whether the window read is this MailKit session's message: the same sender and recipients, and the same subject,
+    /// except that a subject MailKit does not know yet is taken from Mail. In a new message Mail's MailKit session kept
+    /// the subject empty after the owner had typed one, while it did carry the recipient, so every read was refused
+    /// (owner report, 24 November 2026). The sender and every recipient field must still match exactly.
+    static func matches(_ draft:MailDraft,_ expected:MailDraft) -> Bool {
+        if draft.hasSameEnvelope(as:expected) { return true }
+        guard expected.subject.isEmpty else { return false }
+        var unsubjected=draft; unsubjected.subject=""
+        return unsubjected.hasSameEnvelope(as:expected)
+    }
     static func validate(_ draft:MailDraft,matching expected:MailDraft) throws -> MailDraft {
-        guard draft.hasSameEnvelope(as:expected) else {
+        guard matches(draft,expected) else {
             throw BridgeFailure("Mail's complete sender and recipient fields do not match this MailKit session. Nothing was shared.")
         }
         var result = draft

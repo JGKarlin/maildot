@@ -1,11 +1,15 @@
 # Changes
 
+## 0.4.229, 24 November 2026
+
+- A new message is read even when Mail has not yet supplied its subject; the sender and recipients must still be known.
+
+While Mail Dot is in development, each release replaces the one before it on the Releases page.
+
 ## 0.4.228, 24 November 2026
 
 - You can tell Dot how to write a reply while it is still checking or drafting the message.
 - A message waiting its turn in Dot's queue is no longer given up on, and a late answer from Dot to an earlier request is still applied.
-
-While Mail Dot is in development, each release replaces the one before it on the Releases page.
 
 ## 0.4.226, 21 November 2026
 
