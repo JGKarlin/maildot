@@ -1,10 +1,14 @@
 # Changes
 
+## 0.4.234, 25 November 2026
+
+- Long conversations in Mail no longer flicker and reload while Mail Dot is running.
+
+While Mail Dot is in development, each release replaces the one before it on the Releases page.
+
 ## 0.4.233, 24 November 2026
 
 - Ask Dot remembers your filters between openings and restarts; Reset clears them.
-
-While Mail Dot is in development, each release replaces the one before it on the Releases page.
 
 ## 0.4.232, 24 November 2026
 

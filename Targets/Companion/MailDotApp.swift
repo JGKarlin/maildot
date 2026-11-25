@@ -1050,8 +1050,8 @@ import OSLog
         settings=saved
     }
     private var lastListPass=Date.distantPast
-    /// What the banners of the messages Mail last showed said at the last pass.
-    private var lastBannerTexts:[String:String]?
+    /// What the banners of the messages Mail has shown said when last seen.
+    private var bannerTexts=ShownBannerTexts()
     private var lastBannerReload=Date.distantPast
     private var bannerReloadOwed=false
     private var lastBannerReloadRequest=Date()
@@ -1218,8 +1218,8 @@ import OSLog
             for id in ShownMessages.read(bridgeDirectory:bridge.directory) {
                 if let entry=state.entry(forMessageID:id) { texts[id]=MailDotBanner.text(for:entry,triage:state,workflow:workflow,availability:availability) ?? "" }
             }
-            if let last=lastBannerTexts,texts.contains(where:{ id,text in last[id] != text }) { shownChanged=true }
-            lastBannerTexts=texts
+            // A message only now come into view is no change (owner report, 25 November 2026).
+            if bannerTexts.changed(texts) { shownChanged=true }
             // The extension's Mail Dot window closed: its message's banner is shown again.
             if let asked=state.bannerReloadRequestedAt,asked > lastBannerReloadRequest { lastBannerReloadRequest=asked; shownChanged=true }
         }

@@ -29,6 +29,29 @@ public enum ShownMessages {
     }
 }
 
+/// What the banner of each message Mail has shown last said, kept to tell a real change of a shown banner from a message
+/// that has only come into view. Mail shows the messages of a long conversation a few at a time, so the list of shown
+/// messages turns over at each redraw; counting a message new to the list as a change asked Mail to redraw again, which
+/// brought other messages into the list, every ten seconds without end (owner report, 25 November 2026: the messages of
+/// a conversation kept blanking and loading).
+public struct ShownBannerTexts:Sendable,Equatable {
+    private var known:[String:String]=[:]
+    /// The most messages remembered; beyond it the oldest knowledge is let go, and those messages count as new.
+    public static let limit=500
+    public init() {}
+    /// Records what the shown messages' banners say now, and answers whether any of them says something other than it
+    /// said when last seen. A message seen for the first time is no change: Mail drew its banner as it showed it.
+    public mutating func changed(_ texts:[String:String]) -> Bool {
+        var changed=false
+        for (id,text) in texts {
+            if let before=known[id],before != text { changed=true }
+            known[id]=text
+        }
+        if known.count > Self.limit { known=texts }
+        return changed
+    }
+}
+
 extension MailDotBanner {
     /// What the banner of a message Mail Dot recorded says now, as the extension draws it: its state, as shown while Dot
     /// is or is not available, with its place in Dot's queue. Nil when the message has no banner.

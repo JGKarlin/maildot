@@ -100,3 +100,21 @@ final class AskCoverageFillTests: XCTestCase {
         XCTAssertEqual(filled.first { $0.account == "mail:work" }?.detail, "Inbox", "Dot's own entries stand")
     }
 }
+
+/// A message that has only come into view is not a change of a shown banner (owner report, 25 November 2026: a long
+/// conversation redrew every ten seconds, as Mail showed its messages a few at a time).
+final class ShownBannerTextsTests: XCTestCase {
+    func testMessagesComingIntoViewAskForNoRedraw() {
+        var texts = ShownBannerTexts()
+        XCTAssertFalse(texts.changed(["a": "⊖ No reply needed", "b": "↩ Replied"]), "the first look is no change")
+        XCTAssertFalse(texts.changed(["c": "↩ Replied", "d": ""]), "other messages of the conversation come into view")
+        XCTAssertFalse(texts.changed(["a": "⊖ No reply needed", "d": ""]), "one seen before comes back as it was")
+    }
+    func testABannerThatReadsDifferentlyAsksForARedraw() {
+        var texts = ShownBannerTexts()
+        _ = texts.changed(["a": "Checking · 2 ahead"])
+        _ = texts.changed(["b": "↩ Replied"])
+        XCTAssertTrue(texts.changed(["a": "Drafting"]), "a message seen before now says something else, even after leaving view")
+        XCTAssertFalse(texts.changed(["a": "Drafting"]))
+    }
+}
