@@ -373,7 +373,7 @@ import BridgeCore
                 HStack(spacing:8) {
                     caption(shownIsMine ? String(localized:"Your edit") : String(localized:"Dot’s draft")).fixedSize()
                     Spacer(minLength:8)
-                    stateText(context).fixedSize()
+                    if let state=draftState(context) { stateText(state).fixedSize() }
                     if versions.count > 1 { versionStepper }
                 }
                 VStack(alignment:.leading,spacing:4) {
@@ -382,7 +382,7 @@ import BridgeCore
                         Spacer(minLength:8)
                         if versions.count > 1 { versionStepper }
                     }
-                    stateText(context)
+                    if let state=draftState(context) { stateText(state) }
                 }
             }
             // What Dot did besides writing, and the files it finished, which go into the message with the reply.
@@ -423,13 +423,15 @@ import BridgeCore
             // No instruction caption under the draft (owner, 14 November 2026: no directions in the interface).
         }
     }
-    private func stateText(_ context:ReplyContext) -> some View {
-        Text(draftState(context)).font(.caption.weight(.semibold)).foregroundStyle(placed && editor == loadedText ? MailDotStyle.successText : MailDotStyle.supporting)
+    private func stateText(_ state:String) -> some View {
+        Text(state).font(.caption.weight(.semibold)).foregroundStyle(placed && editor == loadedText ? MailDotStyle.successText : MailDotStyle.supporting)
     }
     private var shownIsMine:Bool { versions.indices.contains(shownVersion) && versions[shownVersion].mine }
-    /// ‹ 2 of 3 ›: older to the left, newer to the right.
+    /// VERSION ‹ 2 of 3 ›: older to the left, newer to the right. The label names the control (owner choice, 26 November
+    /// 2026, option A of three mockups).
     private var versionStepper:some View {
         HStack(spacing:4) {
+            caption(String(localized:"Version")).fixedSize().padding(.trailing,4)
             Button { step(-1) } label: { Image(systemName:"chevron.left") }
                 .disabled(shownVersion == 0).help("Older draft").accessibilityLabel("Older draft")
             Text("\(shownVersion+1) of \(versions.count)").font(.caption.monospacedDigit()).foregroundStyle(MailDotStyle.supporting).fixedSize()
@@ -451,10 +453,12 @@ import BridgeCore
         shownVersion=min(max(0,shownVersion+by),versions.count-1)
         editor=versions[shownVersion].body
     }
-    private func draftState(_ context:ReplyContext) -> String {
+    /// What has become of the draft shown, when there is something to say: nothing while it waits to go into the message
+    /// (owner request, 26 November 2026: "Not yet in your message" told the owner nothing).
+    private func draftState(_ context:ReplyContext) -> String? {
         if versions.indices.contains(shownVersion) ? editor != versions[shownVersion].body : editor != loadedText { return String(localized:"Edited by you") }
         if placed { return request?.delivery == .send ? String(localized:"Inserted in your message") : String(localized:"Inserted in your message") }
-        return working != nil ? String(localized:"Going into your message…") : String(localized:"Not yet in your message")
+        return working != nil ? String(localized:"Going into your message…") : nil
     }
     /// The one confirmation a send needs. It names who receives the reply and shows all of it.
     private func confirmCard(_ snapshot:MailDraft,_ confirmation:SendConfirmation) -> some View {

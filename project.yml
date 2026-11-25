@@ -12,7 +12,7 @@ settings:
     ENABLE_HARDENED_RUNTIME: YES
     # The version Mail shows in Settings › Extensions changes with every build (owner request, 14 November 2026).
     MARKETING_VERSION: 0.4.$(CURRENT_PROJECT_VERSION)
-    CURRENT_PROJECT_VERSION: 234
+    CURRENT_PROJECT_VERSION: 235
   configs:
     Release:
       # A development-signed build is otherwise given get-task-allow, which lets any process of the same
