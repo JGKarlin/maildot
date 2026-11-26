@@ -130,7 +130,7 @@ Download the installer, a file named like `Mail-Dot-0.4.236.pkg`, from the [Rele
 
 Set Up Mail Dot shows five steps and opens again by itself whenever Mail Dot starts before setup is complete.
 
-<p align="center"><img src="docs/images/setup.png" width="520" alt="The Set Up Mail Dot window with three steps completed and the fourth, connecting Mail Dot to Dot, nearly done: Dot has created the connection and the key and added Mail Dot to ChatGPT, Mail Dot sees both subscriptions, Dot has answered a drafting test, and a settings test is running. A Remove Mail Dot button sits at the bottom left."></p>
+<p align="center"><img src="docs/images/setup.png" width="520" alt="The Set Up Mail Dot window with three steps completed. The fourth, connecting Mail Dot to Dot, is under way: Dot has created the connection and the key. The fifth, Connect your accounts, is already open beside it and lists a Gmail account and its Google Calendar as connected, an iCloud Mail account being checked, iCloud Calendar and a Work account with Connect buttons, and a Later button. A Remove Mail Dot button sits at the bottom left."></p>
 
 The first three are permissions only you can give: Turn on Accessibility for Mail Dot, so that it can write to Dot in ChatGPT and start calls; Allow Mail Dot to work with Mail, so that it can read the messages you choose and place Dot's drafts (Mail must be open for macOS to ask); and Turn on Mail Dot in Mail, the extension switch in the next step.
 
