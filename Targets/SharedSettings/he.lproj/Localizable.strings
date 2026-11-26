@@ -576,3 +576,14 @@
 "Older draft" = "טיוטה ישנה יותר";
 "Newer draft" = "טיוטה חדשה יותר";
 "Version" = "גרסה";
+"Connect your accounts" = "‏חיבור החשבונות שלך";
+"Reading accounts from Mail…" = "‏קורא חשבונות מ-Mail…";
+"Later" = "‏מאוחר יותר";
+"Checking" = "‏בודק";
+"Apple Account" = "‏חשבון Apple";
+"Not connected" = "‏לא מחובר";
+"CALENDARS" = "‏לוחות שנה";
+"Outlook, through Dot’s Outlook connector" = "‏Outlook, דרך מחבר Outlook של Dot";
+"Outlook connector not connected" = "מחבר Outlook אינו מחובר";
+"Use Outlook Connector…" = "שימוש במחבר Outlook…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "‏Dot מגיע ל‑Outlook Mail דרך מחבר Outlook של ChatGPT. חשבון שכבר הוגדר ב‑Mail ממשיך לפעול עד שהמחבר יאושר.";

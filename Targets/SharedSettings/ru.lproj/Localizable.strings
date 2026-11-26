@@ -576,3 +576,14 @@
 "Older draft" = "Предыдущий черновик";
 "Newer draft" = "Более новый черновик";
 "Version" = "Версия";
+"Connect your accounts" = "Подключите учетные записи";
+"Reading accounts from Mail…" = "Чтение учетных записей из Mail…";
+"Later" = "Позже";
+"Checking" = "Проверка";
+"Apple Account" = "Аккаунт Apple";
+"Not connected" = "Не подключено";
+"CALENDARS" = "КАЛЕНДАРИ";
+"Outlook, through Dot’s Outlook connector" = "Outlook, через коннектор Outlook Dot";
+"Outlook connector not connected" = "Коннектор Outlook не подключен";
+"Use Outlook Connector…" = "Использовать коннектор Outlook…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "Dot обращается к Почте Outlook через коннектор Outlook в ChatGPT. Учетная запись, уже настроенная в Почте, работает, пока коннектор не подтвержден.";

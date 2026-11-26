@@ -576,3 +576,14 @@
 "Older draft" = "Draf lebih lama";
 "Newer draft" = "Draf lebih baru";
 "Version" = "Versi";
+"Connect your accounts" = "Hubungkan akun Anda";
+"Reading accounts from Mail…" = "Membaca akun dari Mail…";
+"Later" = "Nanti";
+"Checking" = "Memeriksa";
+"Apple Account" = "Akun Apple";
+"Not connected" = "Tidak terhubung";
+"CALENDARS" = "KALENDER";
+"Outlook, through Dot’s Outlook connector" = "Outlook, melalui konektor Outlook Dot";
+"Outlook connector not connected" = "Konektor Outlook tidak terhubung";
+"Use Outlook Connector…" = "Gunakan Konektor Outlook…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "Dot menjangkau Outlook Mail melalui konektor Outlook ChatGPT. Akun yang sudah diatur di Mail tetap berfungsi hingga konektor dikonfirmasi.";

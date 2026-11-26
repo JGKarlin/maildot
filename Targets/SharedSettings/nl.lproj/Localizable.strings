@@ -576,3 +576,14 @@
 "Older draft" = "Ouder concept";
 "Newer draft" = "Nieuwer concept";
 "Version" = "Versie";
+"Connect your accounts" = "Verbind je accounts";
+"Reading accounts from Mail…" = "Accounts worden uit Mail gelezen…";
+"Later" = "Later";
+"Checking" = "Controleren";
+"Apple Account" = "Apple Account";
+"Not connected" = "Niet verbonden";
+"CALENDARS" = "AGENDA’S";
+"Outlook, through Dot’s Outlook connector" = "Outlook, via Dots Outlook-connector";
+"Outlook connector not connected" = "Outlook-connector niet verbonden";
+"Use Outlook Connector…" = "Gebruik Outlook-connector…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "Dot bereikt Outlook Mail via de Outlook-connector van ChatGPT. Een account dat al via Mail is ingesteld blijft werken tot de connector is bevestigd.";

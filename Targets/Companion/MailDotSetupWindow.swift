@@ -129,6 +129,15 @@ struct MailDotSetupView:View {
     /// which then shows its reason and the button (owner's direction, 18 November 2026).
     @State private var askedOnItsOwn=false
     @State private var busy=false
+    /// The last step, Connect your accounts (owner approval, 26 November 2026): the accounts found in Mail and their
+    /// calendars, with the folder choice open for an account read through Mail.
+    @StateObject private var accountModel=MailSettingsModel()
+    @State private var accounts:[MailDotAccountRow]=[]
+    @State private var calendars:[MailDotCalendarRow]=[]
+    @State private var accountsReadAt=Date.distantPast
+    @State private var choosingFolders:NativeMailAccount?
+    /// Later puts the step aside; the accounts stay to connect in Settings, Accounts.
+    @AppStorage("SetupAccountsLater") private var accountsLater=false
     init(fixed:SetupFindings?=nil) { self.fixed=fixed; _found=State(initialValue:fixed ?? SetupFindings()) }
     var body:some View {
         VStack(alignment:.leading,spacing:18) {
@@ -137,6 +146,9 @@ struct MailDotSetupView:View {
                 Text("Set Up Mail Dot").font(.title2.weight(.semibold)).accessibilityAddTraits(.isHeader)
             }
             ForEach(SetupFlow.Step.allCases,id:\.rawValue) { step in row(step) }
+            // Open once Mail Dot is on in Mail, while Dot may still be building its connection, so that the sign-ins
+            // fill that wait (owner approval, 26 November 2026).
+            if accountsStepShown { accountsStep }
             if found.current == nil {
                 // Dot runs the task once at the end of setup; the line is shown, never waited for.
                 HStack(spacing:8) {
@@ -145,9 +157,6 @@ struct MailDotSetupView:View {
                         .foregroundStyle(found.facts.keepConnectedRan ? Color.primary : MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true)
                 }
                 .accessibilityElement(children:.combine)
-                // What comes next is in Mail, and nothing else says so (installer review, 18 November 2026).
-                Text("Next, connect a mail account. In Mail, open any message, click the Mail Dot icon in its header, and choose \(String(localized:"Accounts")).")
-                    .foregroundStyle(MailDotStyle.supporting).fixedSize(horizontal:false,vertical:true)
                 HStack(spacing:12) {
                     Spacer()
                     Text("Mail Dot is connected to Dot.").fontWeight(.semibold)
@@ -179,6 +188,7 @@ struct MailDotSetupView:View {
                 if completed >= 0,count > completed { MailDotSetupWindow.shared.bringForward() }
                 completed=count
                 found=fresh
+                if accountsStepShown { await readAccounts() }
                 // The connection step starts by itself once the steps before it are done: no press is needed. A
                 // press of the button still works, and after a failure the button is what tries again.
                 if !askedOnItsOwn,!busy,fresh.current == .connect,fresh.connection == .ready {
@@ -188,6 +198,116 @@ struct MailDotSetupView:View {
                 try? await Task.sleep(for:.seconds(2))
             }
         }
+    }
+
+    // MARK: The accounts step
+
+    private var accountsStepShown:Bool { fixed == nil && [.accessibility,.mail,.extensionOn].allSatisfy(found.done) }
+    private var accountsDone:Bool { !accounts.isEmpty && accounts.allSatisfy(\.connected) && calendars.allSatisfy{ $0.state == .connected } }
+    /// Mail's accounts, read again at most every ten seconds until there are some, and the rows' states every pass.
+    private func readAccounts() async {
+        if accounts.isEmpty,found.mailRunning,Date().timeIntervalSince(accountsReadAt) > 10 {
+            accountsReadAt=Date()
+            await accountModel.refreshAccounts()
+        }
+        let fresh=await MailDotAccountRow.load()
+        // Gmail, iCloud and Outlook first, as Dot reads them through ChatGPT; then the accounts read through Mail.
+        let ordered=fresh.filter{ $0.gmailAccount }+fresh.filter{ $0.iCloudAccount }+fresh.filter{ $0.outlookAccount }+fresh.filter{ !$0.gmailAccount && !$0.iCloudAccount && !$0.outlookAccount }
+        if ordered != accounts { accounts=ordered }
+        let freshCalendars=await MailDotCalendarRow.load(for:ordered)
+        if freshCalendars != calendars { calendars=freshCalendars }
+    }
+    @ViewBuilder private var accountsStep:some View {
+        let open = !accountsLater
+        VStack(alignment:.leading,spacing:8) {
+            HStack(alignment:.center,spacing:12) {
+                ZStack {
+                    Circle().fill(accountsDone ? Color.green : Color.primary.opacity(0.08)).frame(width:28,height:28)
+                    if accountsDone { Image(systemName:"checkmark").font(.caption.weight(.bold)).foregroundStyle(.white) }
+                    else { Text(verbatim:"\(SetupFlow.Step.allCases.count+1)").font(.callout.weight(.semibold)) }
+                }
+                Text("Connect your accounts").fontWeight(.semibold).foregroundStyle(open || accountsDone ? Color.primary : MailDotStyle.supporting)
+                Spacer(minLength:0)
+            }
+            .accessibilityElement(children:.ignore)
+            .accessibilityLabel(Text("Connect your accounts"))
+            .accessibilityValue(accountsDone ? Text("Done") : Text("Not Done"))
+            if open {
+                VStack(alignment:.leading,spacing:10) {
+                    if accounts.isEmpty {
+                        HStack(spacing:8) { ProgressView().controlSize(.small); Text("Reading accounts from Mail…").foregroundStyle(MailDotStyle.supporting) }
+                    } else {
+                        VStack(spacing:0) {
+                            ForEach(Array(accountRows.enumerated()),id:\.element.id) { index,item in
+                                if index > 0 { Divider() }
+                                item.view
+                            }
+                        }
+                        .background(RoundedRectangle(cornerRadius:8).fill(Color.primary.opacity(0.04)))
+                        .overlay(RoundedRectangle(cornerRadius:8).stroke(Color.primary.opacity(0.10)))
+                    }
+                    if found.current != nil { HStack { Spacer(); Button("Later") { accountsLater=true } } }
+                }.padding(.leading,40)
+            }
+        }
+        .sheet(item:$choosingFolders) { account in
+            NativeMailSetupView(account:account,settings:accountModel) { choosingFolders=nil; Task { await readAccounts() } }
+                .frame(minWidth:460,minHeight:420)
+        }
+    }
+    /// Each mail account in the order shown, with its calendar under it.
+    private var accountRows:[(id:String,view:AnyView)] {
+        var rows:[(id:String,view:AnyView)]=[]
+        var shownCalendars=Set<String>()
+        for account in accounts {
+            rows.append((account.id,AnyView(accountRow(account))))
+            if let address=account.addresses.first {
+                for calendar in calendars where !shownCalendars.contains(calendar.id) && MailDraft.address(calendar.email) == MailDraft.address(address) {
+                    shownCalendars.insert(calendar.id)
+                    rows.append((calendar.id,AnyView(calendarRow(calendar))))
+                }
+            }
+        }
+        for calendar in calendars where !shownCalendars.contains(calendar.id) { rows.append((calendar.id,AnyView(calendarRow(calendar)))) }
+        return rows
+    }
+    private func accountRow(_ account:MailDotAccountRow) -> some View {
+        let address=account.addresses.first ?? account.name
+        let kind=account.gmailAccount ? "Gmail" : account.iCloudAccount ? "iCloud Mail" : account.outlookAccount ? "Outlook" : account.name
+        let state:ConnectorState=account.connected ? .connected : account.checking ? .checking : .connect(failure:nil)
+        return listRow(symbol:account.native == nil || account.gmailAccount || account.iCloudAccount || account.outlookAccount ? "envelope" : "tray",title:address,detail:kind,state:state) {
+            if account.gmailAccount { accountModel.activate(address,provider:"gmail") }
+            else if account.iCloudAccount { accountModel.activate(address,provider:"icloud") }
+            else if account.outlookAccount { accountModel.activate(address,provider:"outlook") }
+            else if let native=account.native { accountModel.reload(); choosingFolders=native }
+            Task { await readAccounts() }
+        }
+    }
+    private func calendarRow(_ calendar:MailDotCalendarRow) -> some View {
+        listRow(symbol:"calendar",title:calendar.name,detail:calendar.account,state:calendar.state) {
+            accountModel.activateCalendar(calendar.provider,email:calendar.email)
+            Task { await readAccounts() }
+        }
+    }
+    private func listRow(symbol:String,title:String,detail:String,state:ConnectorState,connect:@escaping () -> Void) -> some View {
+        HStack(spacing:10) {
+            Image(systemName:symbol).frame(width:20).foregroundStyle(MailDotStyle.supporting).accessibilityHidden(true)
+            VStack(alignment:.leading,spacing:1) {
+                Text(verbatim:title).lineLimit(1).truncationMode(.middle)
+                Text(verbatim:detail).font(.caption).foregroundStyle(MailDotStyle.supporting).lineLimit(1)
+            }
+            Spacer(minLength:8)
+            switch state {
+            case .connected:
+                Label("Connected",systemImage:"checkmark.circle.fill").font(.callout).foregroundStyle(MailDotStyle.successText)
+            case .checking:
+                HStack(spacing:6) { ProgressView().controlSize(.mini); Text("Checking").font(.callout).foregroundStyle(MailDotStyle.supporting) }
+            case .connect:
+                Button("Connect…",action:connect).controlSize(.small)
+            }
+        }
+        .padding(.horizontal,12).padding(.vertical,8)
+        .accessibilityElement(children:.contain)
     }
 
     // MARK: Rows

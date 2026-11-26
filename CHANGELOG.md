@@ -1,10 +1,16 @@
 # Changes
 
+## 0.4.236, 26 November 2026
+
+- Outlook.com and Microsoft 365 accounts work only through ChatGPT's Outlook Email connector, like Gmail and iCloud.
+- Setup ends with Connect your accounts, which lists the accounts found in Mail with their calendars.
+- Settings › Accounts has a Calendars section for Google Calendar, iCloud Calendar and Outlook Calendar.
+
+While Mail Dot is in development, each release replaces the one before it on the Releases page.
+
 ## 0.4.235, 26 November 2026
 
 - The reply panel labels its draft switcher Version ‹ n of N ›, and no longer shows "Not yet in your message".
-
-While Mail Dot is in development, each release replaces the one before it on the Releases page.
 
 ## 0.4.234, 25 November 2026
 

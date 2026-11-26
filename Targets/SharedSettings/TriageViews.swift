@@ -192,6 +192,13 @@ struct MailDotAccountRow:Identifiable,Equatable {
     /// An iCloud Mail account: the row offers ChatGPT's iCloud Mail plugin, and never AppleScript (owner decision, 15
     /// November 2026). One already set up through AppleScript keeps working until the plugin is confirmed.
     var offersICloudConnector=false
+    /// An Outlook account: the row offers ChatGPT's Outlook Email connector, and never AppleScript (owner decision, 26
+    /// November 2026). One already set up through AppleScript keeps working until the connector is confirmed.
+    var offersOutlookConnector=false
+    /// A Gmail, iCloud or Outlook account, reached through its connector or not: its calendar is offered beside it.
+    var gmailAccount=false
+    var iCloudAccount=false
+    var outlookAccount=false
 
     static func load() async -> [MailDotAccountRow] {
         await Task.detached {
@@ -206,13 +213,15 @@ struct MailDotAccountRow:Identifiable,Equatable {
                 let connectorUp=viaConnector.map{$0.available && $0.observedAt != nil} ?? false
                 let grant=native.flatMap{account in nativeState.grants.first{$0.accountID == account.id && $0.revokedAt == nil && !$0.mailboxes.isEmpty}}
                 let verified=grant?.verifiedAt != nil
-                let iCloud=viaConnector?.provider == "icloud" || native?.isICloud == true
-                let gmail = !iCloud && (viaConnector != nil || native?.isGmail == true)
+                let iCloud=viaConnector?.provider == "icloud" || (viaConnector == nil && native?.isICloud == true)
+                let outlook = !iCloud && (viaConnector?.provider == "outlook" || (viaConnector == nil && native?.isOutlook == true))
+                let gmail = !iCloud && !outlook && (viaConnector != nil || native?.isGmail == true)
                 // Gmail and iCloud are reached only through their plugins; AppleScript is for accounts that have none
                 // (owner decision, 15 November 2026). One already read through Mail keeps working until its plugin is confirmed.
-                let connection=connectorUp ? (iCloud ? String(localized:"iCloud, through Dot’s iCloud connector") : String(localized:"Gmail, through Dot’s Gmail connector"))
+                let connection=connectorUp ? (iCloud ? String(localized:"iCloud, through Dot’s iCloud connector") : outlook ? String(localized:"Outlook, through Dot’s Outlook connector") : String(localized:"Gmail, through Dot’s Gmail connector"))
                     : verified ? String(localized:"Mail on this Mac, through AppleScript")
                     : iCloud ? String(localized:"iCloud connector not connected")
+                    : outlook ? String(localized:"Outlook connector not connected")
                     : gmail ? String(localized:"Gmail connector not connected")
                     : String(localized:"Mail on this Mac, through AppleScript: not yet connected")
                 var check:String?,failed=false,checking=false
@@ -238,8 +247,8 @@ struct MailDotAccountRow:Identifiable,Equatable {
                 }
                 // Use Gmail/iCloud Connector… asks Dot to confirm the connection: the row says so until Dot answers, and gives
                 // Dot's reason if it could not confirm (owner request, 15 November 2026).
-                if !connectorUp,iCloud || gmail,let address=addresses.first.map(MailDraft.address),
-                   let asked=settings.requests.last(where:{ $0.kind == .activate && $0.email.map(MailDraft.address) == address }) {
+                if !connectorUp,iCloud || gmail || outlook,let address=addresses.first.map(MailDraft.address),
+                   let asked=settings.requests.last(where:{ $0.kind == .activate && MailConnection.connectorProviders.contains($0.input?.provider ?? "gmail") && $0.email.map(MailDraft.address) == address }) {
                     switch asked.status {
                     case .pending,.awaitingAuthorization: check=String(localized:"Asking Dot to confirm the connection…"); checking=true; failed=false
                     case .failed: check=String(localized:"Dot could not confirm the connection")+(asked.outcome.map{": "+$0} ?? "."); failed=true; checking=false
@@ -251,6 +260,8 @@ struct MailDotAccountRow:Identifiable,Equatable {
                                          connected:connectorUp || verified,automatic:ids.allSatisfy(settings.automaticReplies(account:)),mailDot:ids.allSatisfy(settings.mailDot(account:)))
                 if let account=native,!connectorUp,account.isGmail { made.offersConnector=true }
                 if !connectorUp,iCloud { made.offersICloudConnector=true }
+                if !connectorUp,outlook { made.offersOutlookConnector=true }
+                made.gmailAccount=gmail; made.iCloudAccount=iCloud; made.outlookAccount=outlook
                 if let account=native,!connectorUp,grant != nil {
                     made.meaningOffered=true
                     made.meaning=settings.searchByMeaning(account:account.id)
@@ -272,6 +283,58 @@ struct MailDotAccountRow:Identifiable,Equatable {
     }
 }
 
+/// A calendar connector offered for the owner's accounts: Google Calendar beside each Gmail account, and iCloud Calendar
+/// for the Apple Account, in Settings and in setup (owner approval, 26 November 2026).
+struct MailDotCalendarRow:Identifiable,Equatable {
+    let provider:MailCalendarConnection.Provider
+    /// The mail address it is asked about: the Gmail address, or the first iCloud Mail address.
+    let email:String
+    let state:ConnectorState
+    var id:String { provider.rawValue+":"+email }
+    var name:String { provider == .google ? "Google Calendar" : provider == .outlook ? "Outlook Calendar" : "iCloud Calendar" }
+    /// The line under the name: the Google or Microsoft account, or "Apple Account", which the iCloud connector signs in with.
+    var account:String { provider == .icloud ? String(localized:"Apple Account") : email }
+
+    static func load(for accounts:[MailDotAccountRow]) async -> [MailDotCalendarRow] {
+        let gmail=accounts.filter(\.gmailAccount).compactMap(\.addresses.first)
+        let iCloud=accounts.filter(\.iCloudAccount).compactMap(\.addresses.first)
+        let outlook=accounts.filter(\.outlookAccount).compactMap(\.addresses.first)
+        guard !gmail.isEmpty || !iCloud.isEmpty || !outlook.isEmpty else { return [] }
+        let settings=await Task.detached { (try? MailSettingsStore.shared().read()) ?? MailSettings() }.value
+        return settings.calendarOffers(gmail:gmail,iCloud:iCloud,outlook:outlook).map{ MailDotCalendarRow(provider:$0.provider,email:$0.email,state:$0.state) }
+    }
+}
+
+/// One calendar as Settings shows it, in the card of an account: its name, its account, where it stands, and Connect… until
+/// Dot has confirmed it.
+struct MailDotCalendarCard:View {
+    let row:MailDotCalendarRow
+    let connect:() -> Void
+    var body:some View {
+        HStack(alignment:.top,spacing:10) {
+            Image(systemName:"calendar").foregroundStyle(row.state == .connected ? MailDotStyle.tint : MailDotStyle.supporting).frame(width:20).padding(.top,2)
+            VStack(alignment:.leading,spacing:2) {
+                Text(verbatim:row.name).fontWeight(.semibold)
+                Text(verbatim:row.account).font(.callout).foregroundStyle(MailDotStyle.supporting).lineLimit(1)
+                switch row.state {
+                case .connected:
+                    Label { Text("Connected").foregroundStyle(MailDotStyle.supporting) } icon: { Image(systemName:"checkmark.circle.fill").foregroundStyle(Color.green) }.font(.caption)
+                case .checking:
+                    HStack(spacing:5) { ProgressView().controlSize(.mini); Text("Checking").font(.caption).foregroundStyle(MailDotStyle.supporting) }
+                case .connect(let failure):
+                    Label { Text("Not connected").foregroundStyle(MailDotStyle.warningText) } icon: { Image(systemName:"exclamationmark.circle").foregroundStyle(Color.orange) }.font(.caption)
+                    if let failure { Text(failure).font(.caption).foregroundStyle(MailDotStyle.dangerText).lineLimit(3).fixedSize(horizontal:false,vertical:true) }
+                    Button("Connect…",action:connect).controlSize(.small)
+                }
+            }
+            Spacer(minLength:0)
+        }
+        .padding(10)
+        .background(RoundedRectangle(cornerRadius:8).fill(Color.primary.opacity(0.04)))
+        .accessibilityElement(children:.contain)
+    }
+}
+
 /// Mail Dot's settings, inside the Mail Dot panel: MailKit gives an extension no tab in Mail's Settings.
 struct MailDotSettingsView:View {
     /// The width of each switch column, so that the headings sit over the switches.
@@ -282,6 +345,7 @@ struct MailDotSettingsView:View {
     /// Whether macOS lets Mail Dot read the Mail folder, as the background app last found it.
     @State private var diskAccess:Bool?
     @State private var accounts:[MailDotAccountRow]=[]
+    @State private var calendars:[MailDotCalendarRow]=[]
     @State private var loaded=false
     @State private var failure:String?
     @StateObject private var model=MailSettingsModel()
@@ -404,9 +468,13 @@ struct MailDotSettingsView:View {
                                     Button("Use iCloud Connector…") { model.activate(address,provider:"icloud"); Task { await reload() } }.controlSize(.small)
                                         .help("Dot reaches iCloud Mail through ChatGPT’s iCloud connector. An account already set up through Mail keeps working until the connector is confirmed.")
                                 }
+                                if account.offersOutlookConnector,let address=account.addresses.first {
+                                    Button("Use Outlook Connector…") { model.activate(address,provider:"outlook"); Task { await reload() } }.controlSize(.small)
+                                        .help("Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed.")
+                                }
                                 // A Gmail or iCloud account is never set up through AppleScript; one already set up keeps its folders until
                                 // its plugin is confirmed (owner decision, 15 November 2026).
-                                if let native=account.native,!((native.isICloud || native.isGmail) && !account.allowed) {
+                                if let native=account.native,!((native.isICloud || native.isGmail || native.isOutlook) && !account.allowed) {
                                     if !account.allowed {
                                         Button("Connect…") { model.reload(); connecting=native }.buttonStyle(.borderedProminent).controlSize(.small)
                                     } else {
@@ -448,6 +516,13 @@ struct MailDotSettingsView:View {
                     }
                     .padding(10)
                     .background(RoundedRectangle(cornerRadius:8).fill(Color.primary.opacity(0.04)))
+                }
+                // Google Calendar and iCloud Calendar, as in setup's last step (owner approval, 26 November 2026).
+                if !calendars.isEmpty {
+                    Text("CALENDARS").font(.caption.weight(.semibold)).foregroundStyle(MailDotStyle.supporting).kerning(0.5).padding(.horizontal,10).padding(.top,6)
+                    ForEach(calendars) { row in
+                        MailDotCalendarCard(row:row) { model.activateCalendar(row.provider,email:row.email); Task { await reload() } }
+                    }
                 }
                 // The footnote to the third column's heading, in the owner's wording: why an account with a connector has no box there.
                 if !accounts.isEmpty {
@@ -562,6 +637,8 @@ struct MailDotSettingsView:View {
     private func reload() async {
         let fresh=await MailDotAccountRow.load()
         if fresh != accounts { accounts=fresh }
+        let freshCalendars=await MailDotCalendarRow.load(for:fresh)
+        if freshCalendars != calendars { calendars=freshCalendars }
         let access=await Task.detached { (try? MailTriageStore.shared().read())?.connection?.fullDiskAccess }.value
         if access != diskAccess { diskAccess=access }
         let freshRules=await Task.detached { (try? MailSettingsStore.shared().read())?.effectiveDraftingRules ?? DraftingRules.starters }.value

@@ -576,3 +576,14 @@
 "Older draft" = "Önceki taslak";
 "Newer draft" = "Daha yeni taslak";
 "Version" = "Sürüm";
+"Connect your accounts" = "Hesaplarınızı bağlayın";
+"Reading accounts from Mail…" = "Hesaplar Mail’den okunuyor…";
+"Later" = "Daha Sonra";
+"Checking" = "Denetleniyor";
+"Apple Account" = "Apple Hesabı";
+"Not connected" = "Bağlı değil";
+"CALENDARS" = "TAKVİMLER";
+"Outlook, through Dot’s Outlook connector" = "Outlook, Dot’un Outlook bağlayıcısıyla";
+"Outlook connector not connected" = "Outlook bağlayıcısı bağlı değil";
+"Use Outlook Connector…" = "Outlook Bağlayıcısını Kullan…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "Dot, Outlook Mail’e ChatGPT’nin Outlook bağlayıcısıyla ulaşır. Mail’de zaten kurulu bir hesap, bağlayıcı onaylanana kadar çalışmaya devam eder.";

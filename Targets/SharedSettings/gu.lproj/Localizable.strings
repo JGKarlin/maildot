@@ -576,3 +576,14 @@
 "Older draft" = "જૂનો ડ્રાફ્ટ";
 "Newer draft" = "નવો ડ્રાફ્ટ";
 "Version" = "સંસ્કરણ";
+"Connect your accounts" = "તમારા એકાઉન્ટ્સ કનેક્ટ કરો";
+"Reading accounts from Mail…" = "Mail માંથી એકાઉન્ટ્સ વાંચી રહ્યાં છીએ…";
+"Later" = "પછીથી";
+"Checking" = "તપાસી રહ્યાં છીએ";
+"Apple Account" = "Apple એકાઉન્ટ";
+"Not connected" = "કનેક્ટ નથી";
+"CALENDARS" = "કૅલેન્ડર";
+"Outlook, through Dot’s Outlook connector" = "Outlook, Dot ના Outlook કનેક્ટર દ્વારા";
+"Outlook connector not connected" = "Outlook કનેક્ટર જોડાયેલ નથી";
+"Use Outlook Connector…" = "Outlook કનેક્ટર વાપરો…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "Dot ChatGPT ના Outlook કનેક્ટર દ્વારા Outlook Mail સુધી પહોંચે છે. Mail માં પહેલેથી સેટ થયેલું ખાતું કનેક્ટરની પુષ્ટિ સુધી કામ કરતું રહે છે.";

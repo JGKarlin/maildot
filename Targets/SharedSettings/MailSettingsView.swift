@@ -10,6 +10,11 @@ import BridgeCore
     @Published var nativeGrants:[NativeMailGrant]=[]
     static let gmailURL=URL(string:"https://chatgpt.com/plugins/plugin_connector_1p_95d39881713c8191931482a62d6edff9")!
     static let iCloudURL=URL(string:"https://chatgpt.com/plugins/plugin_connector_6a99cb6846448190875813bf1e8e5504")!
+    /// ChatGPT's own pages for the two calendar connectors (read from ChatGPT's plugin directory, 26 November 2026).
+    static let outlookURL=URL(string:"https://chatgpt.com/plugins/plugin_connector_1p_6bcb5879c73c819196abc70016166099")!
+    static let outlookCalendarURL=URL(string:"https://chatgpt.com/plugins/plugin_connector_1p_fd0f4f41caa88191a9456514bbffa06d")!
+    static let googleCalendarURL=URL(string:"https://chatgpt.com/plugins/plugin_connector_1p_f8509de903288191b14a160c6c5d20b0")!
+    static let iCloudCalendarURL=URL(string:"https://chatgpt.com/plugins/plugin_connector_6a99cb684648819088fe4d6a0e373614")!
     static func setupClient() throws -> MailSetupClient {
         try MailSetupClient(store:NativeMailStore.shared(),wake:{ await wakeHelper() })
     }
@@ -58,12 +63,32 @@ import BridgeCore
             NSWorkspace.shared.open(Self.iCloudURL)
             return
         }
+        if provider == "outlook" {
+            var input=MailSettingsInput(); input.provider="outlook"
+            request(.activate,email:email,instruction:"Connect the Outlook account \(email) through ChatGPT's Outlook Email connector. The owner will complete Microsoft sign-in and consent. Verify the authenticated profile for this exact email and report it with provider outlook, its stable profile ID and current connection ID. Do not change schedules or email.",input:input)
+            guard error == nil else { return }
+            NSWorkspace.shared.open(Self.outlookURL)
+            return
+        }
         activate(email)
     }
     func activate(_ email:String) {
         request(.activate,email:email,instruction:"Connect the Gmail account \(email) through ChatGPT's Gmail connector. The owner will complete Google sign-in and consent. Verify the authenticated profile for this exact email and report its stable profile ID and current connection ID. Do not change schedules or email.")
         guard error == nil else { return }
         NSWorkspace.shared.open(Self.gmailURL)
+    }
+    /// Opens ChatGPT's page for the calendar connector, and asks Dot to confirm it once the owner has added it (owner
+    /// approval, 26 November 2026). Like iCloud Mail, the calendar connectors give no profile id: Dot confirms with none.
+    func activateCalendar(_ provider:MailCalendarConnection.Provider,email:String) {
+        var input=MailSettingsInput(); input.provider=provider.activation
+        let instruction=provider == .outlook
+            ? "Confirm that ChatGPT's Outlook Calendar connector is connected for the Microsoft account \(email), so that you can read the owner's schedule as well as add events. The owner completes Microsoft sign-in and consent in ChatGPT. If it is connected to this account, report this request confirmed with result_code verified and no connections or schedules. If it is not connected, or connected to another account, report failed and say which. Do not create, change or delete events, schedules or email."
+            : provider == .google
+            ? "Confirm that ChatGPT's Google Calendar connector is connected for the Google account \(email), so that you can read the owner's schedule as well as add events. The owner completes Google sign-in and consent in ChatGPT. If it is connected to this account, report this request confirmed with result_code verified and no connections or schedules. If it is not connected, or connected to another account, report failed and say which. Do not create, change or delete events, schedules or email."
+            : "Confirm that ChatGPT's iCloud Calendar connector is connected, so that you can read the owner's schedule as well as add events. The owner adds it in ChatGPT with their Apple Account address and an app-specific password; it may differ from the iCloud Mail address \(email). If it is connected, report this request confirmed with result_code verified and no connections or schedules. If it is not, report failed and say so. Do not create, change or delete events, schedules or email."
+        request(.activate,email:email,instruction:instruction,input:input)
+        guard error == nil else { return }
+        NSWorkspace.shared.open(provider == .google ? Self.googleCalendarURL : provider == .outlook ? Self.outlookCalendarURL : Self.iCloudCalendarURL)
     }
     func verifyNative(_ account:NativeMailAccount,grant:NativeMailGrant) {
         var input=MailSettingsInput(); input.nativeAccountID=account.id; input.nativeGrantVersion=grant.version

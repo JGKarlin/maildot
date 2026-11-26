@@ -576,3 +576,14 @@
 "Older draft" = "Starszy szkic";
 "Newer draft" = "Nowszy szkic";
 "Version" = "Wersja";
+"Connect your accounts" = "Połącz swoje konta";
+"Reading accounts from Mail…" = "Odczytywanie kont z Maila…";
+"Later" = "Później";
+"Checking" = "Sprawdzanie";
+"Apple Account" = "Konto Apple";
+"Not connected" = "Niepołączone";
+"CALENDARS" = "KALENDARZE";
+"Outlook, through Dot’s Outlook connector" = "Outlook, przez łącznik Outlook Dota";
+"Outlook connector not connected" = "Łącznik Outlook nie jest połączony";
+"Use Outlook Connector…" = "Użyj łącznika Outlook…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "Dot sięga do Poczty Outlook przez łącznik Outlook w ChatGPT. Konto skonfigurowane już w Mail działa, dopóki łącznik nie zostanie potwierdzony.";

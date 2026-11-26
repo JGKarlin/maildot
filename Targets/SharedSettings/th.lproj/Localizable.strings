@@ -576,3 +576,14 @@
 "Older draft" = "ฉบับร่างก่อนหน้า";
 "Newer draft" = "ฉบับร่างใหม่กว่า";
 "Version" = "เวอร์ชัน";
+"Connect your accounts" = "เชื่อมต่อบัญชีของคุณ";
+"Reading accounts from Mail…" = "กำลังอ่านบัญชีจาก Mail…";
+"Later" = "ภายหลัง";
+"Checking" = "กำลังตรวจสอบ";
+"Apple Account" = "บัญชี Apple";
+"Not connected" = "ไม่ได้เชื่อมต่อ";
+"CALENDARS" = "ปฏิทิน";
+"Outlook, through Dot’s Outlook connector" = "Outlook ผ่านตัวเชื่อมต่อ Outlook ของ Dot";
+"Outlook connector not connected" = "ไม่ได้เชื่อมต่อตัวเชื่อมต่อ Outlook";
+"Use Outlook Connector…" = "ใช้ตัวเชื่อมต่อ Outlook…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "Dot เข้าถึงอีเมล Outlook ผ่านตัวเชื่อมต่อ Outlook ของ ChatGPT บัญชีที่ตั้งค่าไว้ในเมลแล้วจะยังทำงานจนกว่าจะยืนยันตัวเชื่อมต่อ";

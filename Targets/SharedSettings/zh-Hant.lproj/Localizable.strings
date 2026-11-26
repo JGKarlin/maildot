@@ -576,3 +576,14 @@
 "Older draft" = "較早的草稿";
 "Newer draft" = "較新的草稿";
 "Version" = "版本";
+"Connect your accounts" = "連接你的帳號";
+"Reading accounts from Mail…" = "正在從「郵件」讀取帳號⋯";
+"Later" = "稍後";
+"Checking" = "正在檢查";
+"Apple Account" = "Apple 帳號";
+"Not connected" = "未連接";
+"CALENDARS" = "行事曆";
+"Outlook, through Dot’s Outlook connector" = "Outlook，透過 Dot 的 Outlook 連接器";
+"Outlook connector not connected" = "Outlook 連接器未連接";
+"Use Outlook Connector…" = "使用 Outlook 連接器⋯";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "Dot 透過 ChatGPT 的 Outlook 連接器存取 Outlook 郵件。已透過「郵件」設定的帳號在連接器確認前會繼續運作。";

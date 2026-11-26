@@ -1,6 +1,6 @@
 # Privacy
 
-Hooner LLC publishes Mail Dot. This page states what Mail Dot does with mail and with data. It applies to Mail Dot 0.4.235 and later, and was last updated on 26 November 2026.
+Hooner LLC publishes Mail Dot. This page states what Mail Dot does with mail and with data. It applies to Mail Dot 0.4.236 and later, and was last updated on 26 November 2026.
 
 ## What Mail Dot collects
 
@@ -20,7 +20,7 @@ Mail Dot connects Apple Mail on the Mac to Dot in the user's own ChatGPT account
 
 The text of a message goes to ChatGPT in three cases: when the user shares a message with Dot, when Mail Dot offers an important message to Dot for a draft or a report, and when Dot looks mail up to answer a question the user asked in Ask Dot. Automatic drafts can be switched off for any account.
 
-For a Gmail or an iCloud account, Dot reads and searches through the connector for that service in ChatGPT. These accounts require their connector, and cannot be newly set up through Mail. An account that an earlier version of Mail Dot was already reading through Mail keeps working that way until its connector is confirmed; Mail Dot then switches it over and removes that account's index entries and embeddings from the Mac. ChatGPT connects to the provider directly: to Google through the sign-in the user gives it, and to Apple through an app-specific password that the user creates for iCloud Mail and adds in ChatGPT, which ChatGPT keeps in order to connect. Through that access Dot can read the whole mailbox on the provider's servers. Mail Dot does not hold that access or the password, keeps no copy of that mail, and plays no part in what Dot may read there. The user can withdraw the access in ChatGPT and, for iCloud, by revoking the app-specific password at Apple.
+For a Gmail, an iCloud or an Outlook account, Dot reads and searches through the connector for that service in ChatGPT. These accounts require their connector, and cannot be newly set up through Mail. An account that an earlier version of Mail Dot was already reading through Mail keeps working that way until its connector is confirmed; Mail Dot then switches it over and removes that account's index entries and embeddings from the Mac. ChatGPT connects to the provider directly: to Google through the sign-in the user gives it, and to Apple through an app-specific password that the user creates for iCloud Mail and adds in ChatGPT, which ChatGPT keeps in order to connect. Through that access Dot can read the whole mailbox on the provider's servers. Mail Dot does not hold that access or the password, keeps no copy of that mail, and plays no part in what Dot may read there. The user can withdraw the access in ChatGPT and, for iCloud, by revoking the app-specific password at Apple.
 
 For an account that has no connector, such as an Exchange or other IMAP account, Dot reads through Mail on the Mac, and Mail Dot limits what it receives. Mail Dot searches its own index on the Mac and sends Dot only what the request needs. One search returns passages from at most 25 matching messages, and one read returns the full text of at most five messages. Dot may make several such requests to answer one question. Dot can reach only the folders the user has allowed, and it never receives the index itself or a mailbox as a whole.
 
@@ -32,7 +32,7 @@ Mail Dot keeps its settings, Dot's drafts and reports, and a record of its own a
 
 ## The search index
 
-For a Gmail or an iCloud account, which ChatGPT reaches through a connector, Dot searches on the provider's servers, and Mail Dot keeps no index and no copy of the mail. Mail Dot holds no index entries or embeddings for an account once it is on its connector.
+For a Gmail, an iCloud or an Outlook account, which ChatGPT reaches through a connector, Dot searches on the provider's servers, and Mail Dot keeps no index and no copy of the mail. Mail Dot holds no index entries or embeddings for an account once it is on its connector.
 
 For an account that has no connector, Mail Dot keeps a search index on the Mac. It covers only the folders the user has allowed. It holds each message's sender, date, subject and own text, and it is stored in Mail Dot's private storage in the user's macOS account. A message deleted in Mail is removed from the index. The index is encrypted with SQLCipher. Its key is made on the Mac and kept in the login Keychain, readable only by Mail Dot and its helper. The index is excluded from Time Machine backups, and removing Mail Dot deletes both the index and its key. The index itself is never sent anywhere. Dot receives from it the results of the searches it makes to answer the user's question: passages from at most 25 matching messages for one search, and the full text of at most five messages for one read. Dot may make several such requests for one question, and what it receives is then handled by OpenAI under the user's ChatGPT account.
 

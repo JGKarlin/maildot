@@ -17,7 +17,8 @@ extension MailSettings {
                 key="refresh"
             case .activate:
                 guard page != .schedules else { return false }
-                key="activate:" + MailDraft.address(request.email ?? "")
+                // Per connector as well as per address: a Gmail account and its Google Calendar are separate controls.
+                key="activate:" + (request.input?.provider ?? "gmail") + ":" + MailDraft.address(request.email ?? "")
             case .nativeLink:
                 guard page != .schedules,let version=request.input?.nativeGrantVersion else { return false }
                 key="native:" + (request.input?.nativeAccountID ?? "")

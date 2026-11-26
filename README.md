@@ -34,7 +34,7 @@ Ask Dot opens from Mail Dot's icon in any message's header, just below the date,
 
 <p align="center"><img src="docs/images/ask-dot.png" width="680" alt="The Ask Dot bar with a question about a revised budget, an answer with numbered citations, three source messages, and a line for each of three accounts stating what was searched: a Work account with a filled check mark, and a Gmail and an iCloud account with outlined check marks."></p>
 
-Gmail and iCloud are searched on the provider's servers through their connectors. For every other account Mail Dot builds an encrypted search index on the Mac, covering only the folders you allow and kept in step with Mail. It holds each message's sender, date, subject and own text, without the quoted history. It finds messages by their words in any language, Japanese included. **Search by Meaning**, chosen per account under Accounts in Mail Dot's settings, adds embeddings made on the Mac by the language model built into macOS (which macOS may first download from Apple), so a question also finds messages that concern the same matter in different words. Each account's row shows its progress, and unticking it removes that account's embeddings. To read past mail while Mail is closed, Search by Meaning asks for Full Disk Access, which macOS grants only for the whole disk; Mail Dot reads only the Mail folder at `~/Library/Mail`, writes nothing there and skips junk and deleted mail. Without that access it reads through Mail, which works only while Mail is open.
+Gmail, iCloud and Outlook are searched on the provider's servers through their connectors. For every other account Mail Dot builds an encrypted search index on the Mac, covering only the folders you allow and kept in step with Mail. It holds each message's sender, date, subject and own text, without the quoted history. It finds messages by their words in any language, Japanese included. **Search by Meaning**, chosen per account under Accounts in Mail Dot's settings, adds embeddings made on the Mac by the language model built into macOS (which macOS may first download from Apple), so a question also finds messages that concern the same matter in different words. Each account's row shows its progress, and unticking it removes that account's embeddings. To read past mail while Mail is closed, Search by Meaning asks for Full Disk Access, which macOS grants only for the whole disk; Mail Dot reads only the Mail folder at `~/Library/Mail`, writes nothing there and skips junk and deleted mail. Without that access it reads through Mail, which works only while Mail is open.
 
 <p align="center"><img src="docs/images/settings-search-by-meaning.png" width="460" alt="The Accounts tab of Mail Dot's settings, with three columns of checkboxes headed Mail Dot, Auto replies and Search by Meaning. An iCloud account and a Gmail account, each read through Dot's connector, have no box in the third column. A Work account read through Mail has Search by Meaning ticked and shows a progress bar. A footnote states that Search by Meaning is not needed for Gmail or iCloud."></p>
 
@@ -64,25 +64,28 @@ Choose how the window lays out a report under Layout in Mail Dot's settings; the
 
 ## Which accounts Mail Dot works with
 
-**Gmail and iCloud work only through their plugin connectors in ChatGPT. Reading through Mail is only for accounts that have no connector.**
+**Gmail, iCloud and Outlook work only through their plugin connectors in ChatGPT. Reading through Mail is only for accounts that have no connector.**
 
 | Account | How Dot reads it | How Dot searches it |
 | --- | --- | --- |
 | Gmail, Google Workspace | ChatGPT's Gmail connector, required | On Google's servers, through the connector |
 | iCloud | ChatGPT's iCloud Mail connector, required | On Apple's servers, through the connector |
-| Any account without a connector, such as Exchange or another IMAP service | Through Mail on the Mac, in the folders you allow | In Mail Dot's encrypted index on the Mac, with Search by Meaning as an option |
+| Outlook.com, Microsoft 365 | ChatGPT's Outlook Email connector, required | On Microsoft's servers, through the connector |
+| Any account without a connector, such as a self-hosted Exchange server or another IMAP service | Through Mail on the Mac, in the folders you allow | In Mail Dot's encrypted index on the Mac, with Search by Meaning as an option |
 
-Under Accounts in Mail Dot's settings, a Gmail account that is not yet connected shows Use Gmail Connector…, and an iCloud account Use iCloud Connector…. Each opens the connector's page in ChatGPT (Gmail asks for a Google sign-in, iCloud for an app-specific password created at Apple) and asks Dot to confirm. The row then moves from "Gmail connector not connected" or "iCloud connector not connected" through "Asking Dot to confirm the connection…" to "Gmail, through Dot's Gmail connector" or "iCloud, through Dot's iCloud connector", or shows Dot's reason if it could not confirm. Mail sent to another address of a connected mailbox, such as an alias Mail knows, also goes through that connector.
+Under Accounts in Mail Dot's settings, a Gmail account that is not yet connected shows Use Gmail Connector…, an iCloud account Use iCloud Connector…, and an Outlook account Use Outlook Connector…. Each opens the connector's page in ChatGPT (Gmail asks for a Google sign-in, iCloud for an app-specific password created at Apple, Outlook for a Microsoft sign-in) and asks Dot to confirm. The row then moves from "Gmail connector not connected", "iCloud connector not connected" or "Outlook connector not connected" through "Asking Dot to confirm the connection…" to "Gmail, through Dot's Gmail connector", "iCloud, through Dot's iCloud connector" or "Outlook, through Dot's Outlook connector", or shows Dot's reason if it could not confirm. Mail sent to another address of a connected mailbox, such as an alias Mail knows, also goes through that connector.
 
 <p align="center"><img src="docs/images/settings-connectors.png" width="460" alt="The Accounts tab of Mail Dot's settings with a Gmail account and an iCloud account whose connectors are not yet connected, each showing only a button to use its connector, and a Work account read through Mail with Search by Meaning ticked."></p>
 
-A Gmail or iCloud account cannot be newly set up through Mail. The one exception is an account an earlier version was already reading through Mail: it keeps working that way until its connector is confirmed, and Mail Dot then switches it over and removes its part of the index.
+Below the accounts, a Calendars section offers each account's calendar connector: Google Calendar beside a Gmail account, iCloud Calendar for your Apple Account, and Outlook Calendar beside an Outlook account. Connect… opens the connector's page in ChatGPT and asks Dot to confirm it, so that Dot can read your schedule as well as add events, and the row turns Connected once Dot confirms.
+
+A Gmail, iCloud or Outlook account cannot be newly set up through Mail. The one exception is an account an earlier version was already reading through Mail: it keeps working that way until its connector is confirmed, and Mail Dot then switches it over and removes its part of the index.
 
 ## How Mail Dot protects mail
 
 Mail is handled in two places only: by Dot, and on the Mac. What Dot receives differs by account.
 
-**Dot does receive mail; that is Mail Dot's purpose.** For Gmail and iCloud, ChatGPT connects to the provider directly, through the Google sign-in or the iCloud app-specific password you give it, which ChatGPT keeps in order to connect. Dot can then read the whole mailbox on the provider's servers; Mail Dot holds no copy of that mail and plays no part in what Dot sees there. For an account without a connector, Mail Dot limits what Dot receives: passages from at most 25 messages per search and the full text of at most five per read, though Dot may make several requests for one question, and only from the folders you allow. Dot never receives the index or a whole mailbox. Whatever Dot reads, from any account, is handled by OpenAI under your ChatGPT account and OpenAI's terms.
+**Dot does receive mail; that is Mail Dot's purpose.** For Gmail, iCloud and Outlook, ChatGPT connects to the provider directly, through the Google or Microsoft sign-in or the iCloud app-specific password you give it, which ChatGPT keeps in order to connect. Dot can then read the whole mailbox on the provider's servers; Mail Dot holds no copy of that mail and plays no part in what Dot sees there. For an account without a connector, Mail Dot limits what Dot receives: passages from at most 25 messages per search and the full text of at most five per read, though Dot may make several requests for one question, and only from the folders you allow. Dot never receives the index or a whole mailbox. Whatever Dot reads, from any account, is handled by OpenAI under your ChatGPT account and OpenAI's terms.
 
 **What Mail Dot keeps stays on the Mac.** Its settings, Dot's drafts and reports, and the search index live in your user account. The index is encrypted with SQLCipher under a key made on the Mac and held in your login Keychain, readable only by Mail Dot and its helper; the Search by Meaning embeddings are stored inside it; it is kept out of Time Machine; and removing Mail Dot deletes it and its key.
 
@@ -113,7 +116,7 @@ Mail Dot's settings open from the gear at the bottom right of every Mail Dot pan
 
 ## Requirements
 
-A Mac with Apple silicon running macOS 14 or later (developed and tested on macOS 27), Apple Mail with at least one account, and a ChatGPT plan that includes Dot, with the ChatGPT app for Mac for setup and voice calls. Gmail and iCloud accounts need their connectors turned on in ChatGPT. Setup has Dot work on the Mac and in the browser, so Dot must be allowed to work on this Mac, and it uses your OpenAI Platform account at platform.openai.com to create the private connection. A ChatGPT workspace that does not allow custom plugins cannot complete setup.
+A Mac with Apple silicon running macOS 14 or later (developed and tested on macOS 27), Apple Mail with at least one account, and a ChatGPT plan that includes Dot, with the ChatGPT app for Mac for setup and voice calls. Gmail, iCloud and Outlook accounts need their connectors turned on in ChatGPT. Setup has Dot work on the Mac and in the browser, so Dot must be allowed to work on this Mac, and it uses your OpenAI Platform account at platform.openai.com to create the private connection. A ChatGPT workspace that does not allow custom plugins cannot complete setup.
 
 ## Installation and setup
 
@@ -121,17 +124,19 @@ Installation takes five steps, and Mail Dot checks each one for itself.
 
 ### 1. Run the installer
 
-Download the installer, a file named like `Mail-Dot-0.4.235.pkg`, from the [Releases page](https://github.com/JGKarlin/maildot/releases); its SHA-256 checksum is in the release notes. Quit Mail, then open the installer and follow it; it will not continue while Mail is open. It places Mail Dot in Applications and opens it.
+Download the installer, a file named like `Mail-Dot-0.4.236.pkg`, from the [Releases page](https://github.com/JGKarlin/maildot/releases); its SHA-256 checksum is in the release notes. Quit Mail, then open the installer and follow it; it will not continue while Mail is open. It places Mail Dot in Applications and opens it.
 
 ### 2. Follow the setup window
 
-Set Up Mail Dot shows four steps and opens again by itself whenever Mail Dot starts before setup is complete.
+Set Up Mail Dot shows five steps and opens again by itself whenever Mail Dot starts before setup is complete.
 
 <p align="center"><img src="docs/images/setup.png" width="520" alt="The Set Up Mail Dot window with three steps completed and the fourth, connecting Mail Dot to Dot, nearly done: Dot has created the connection and the key and added Mail Dot to ChatGPT, Mail Dot sees both subscriptions, Dot has answered a drafting test, and a settings test is running. A Remove Mail Dot button sits at the bottom left."></p>
 
 The first three are permissions only you can give: Turn on Accessibility for Mail Dot, so that it can write to Dot in ChatGPT and start calls; Allow Mail Dot to work with Mail, so that it can read the messages you choose and place Dot's drafts (Mail must be open for macOS to ask); and Turn on Mail Dot in Mail, the extension switch in the next step.
 
 The fourth, Connect Mail Dot to Dot, starts by itself. Mail Dot opens ChatGPT and asks Dot to create a private connection in your OpenAI account and a key that runs only that connection, hand the key to Mail Dot for the Keychain, and add Mail Dot to ChatGPT as a private plugin. The window shows each stage, and setup ends on Mail Dot's own checks, not on Dot's word: both of Dot's subscriptions present, a drafting test and a settings test answered, and Keep connected run once. Dot reads no mail during setup. You may be asked to sign in to OpenAI and to approve Mail Dot's tools in ChatGPT. If ChatGPT is signed out or has no Dot, a permission was refused, or Dot stops, the window says what to do.
+
+The fifth, Connect your accounts, appears once the permissions are in place, while Dot's connection is still being made. It lists the accounts found in Mail, Gmail, iCloud and Outlook first, each with its calendar. Connect… opens the connector's page in ChatGPT, or for any other account the choice of folders to read through Mail, and each row turns Connected once Dot confirms it. Later puts the step aside; the accounts stay to connect under Accounts in the settings.
 
 ### 3. Turn on the extension in Mail
 
@@ -149,7 +154,7 @@ A line that needs attention is orange and has a button that leads to the fix: Al
 
 ### 5. Connect mail accounts
 
-Click Accounts and turn on each account with its Mail Dot checkbox. Use Gmail Connector… for Gmail and Use iCloud Connector… for iCloud; any other account is read through Mail, in the folders you choose with its Connect… button.
+If you chose Later in setup, or to add an account afterwards, click Accounts and turn on each account with its Mail Dot checkbox. Use Gmail Connector… for Gmail, Use iCloud Connector… for iCloud and Use Outlook Connector… for Outlook; any other account is read through Mail, in the folders you choose with its Connect… button. Under Calendars, Connect… adds each account's calendar.
 
 ## Automatic updates
 

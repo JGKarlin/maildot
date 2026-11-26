@@ -576,3 +576,14 @@
 "Older draft" = "Starší koncept";
 "Newer draft" = "Novší koncept";
 "Version" = "Verzia";
+"Connect your accounts" = "Pripojte svoje účty";
+"Reading accounts from Mail…" = "Načítavajú sa účty z Mailu…";
+"Later" = "Neskôr";
+"Checking" = "Prebieha kontrola";
+"Apple Account" = "Účet Apple";
+"Not connected" = "Nepripojené";
+"CALENDARS" = "KALENDÁRE";
+"Outlook, through Dot’s Outlook connector" = "Outlook, cez konektor Outlook od Dota";
+"Outlook connector not connected" = "Konektor Outlook nie je pripojený";
+"Use Outlook Connector…" = "Použiť konektor Outlook…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "Dot sa k Pošte Outlook dostane cez konektor Outlook v ChatGPT. Účet už nastavený v Maile funguje, kým sa konektor nepotvrdí.";

@@ -576,3 +576,14 @@
 "Older draft" = "较早的草稿";
 "Newer draft" = "较新的草稿";
 "Version" = "版本";
+"Connect your accounts" = "连接你的账户";
+"Reading accounts from Mail…" = "正在从“邮件”读取账户…";
+"Later" = "以后";
+"Checking" = "正在检查";
+"Apple Account" = "Apple 账户";
+"Not connected" = "未连接";
+"CALENDARS" = "日历";
+"Outlook, through Dot’s Outlook connector" = "Outlook，通过 Dot 的 Outlook 连接器";
+"Outlook connector not connected" = "Outlook 连接器未连接";
+"Use Outlook Connector…" = "使用 Outlook 连接器…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "Dot 通过 ChatGPT 的 Outlook 连接器访问 Outlook 邮件。已通过“邮件”设置的账户在连接器确认前会继续工作。";

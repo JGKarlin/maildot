@@ -576,3 +576,14 @@
 "Older draft" = "Rascunho anterior";
 "Newer draft" = "Rascunho mais recente";
 "Version" = "Versão";
+"Connect your accounts" = "Ligue as suas contas";
+"Reading accounts from Mail…" = "A ler as contas do Mail…";
+"Later" = "Mais tarde";
+"Checking" = "A verificar";
+"Apple Account" = "Conta Apple";
+"Not connected" = "Não ligado";
+"CALENDARS" = "CALENDÁRIOS";
+"Outlook, through Dot’s Outlook connector" = "Outlook, através do conetor do Outlook do Dot";
+"Outlook connector not connected" = "Conetor do Outlook não ligado";
+"Use Outlook Connector…" = "Usar o conetor do Outlook…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "O Dot alcança o Outlook Mail através do conetor do Outlook do ChatGPT. Uma conta já configurada no Mail continua a funcionar até o conetor ser confirmado.";

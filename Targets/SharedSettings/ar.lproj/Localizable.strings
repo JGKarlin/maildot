@@ -576,3 +576,14 @@
 "Older draft" = "المسودة الأقدم";
 "Newer draft" = "المسودة الأحدث";
 "Version" = "الإصدار";
+"Connect your accounts" = "اربط حساباتك";
+"Reading accounts from Mail…" = "جارٍ قراءة الحسابات من Mail…";
+"Later" = "لاحقًا";
+"Checking" = "جارٍ التحقق";
+"Apple Account" = "حساب Apple";
+"Not connected" = "غير متصل";
+"CALENDARS" = "التقويمات";
+"Outlook, through Dot’s Outlook connector" = "Outlook، عبر موصل Outlook الخاص بـ Dot";
+"Outlook connector not connected" = "موصل Outlook غير متصل";
+"Use Outlook Connector…" = "استخدام موصل Outlook…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "يصل Dot إلى بريد Outlook عبر موصل Outlook في ChatGPT. يواصل الحساب المُعد مسبقًا في البريد العمل حتى يتم تأكيد الموصل.";

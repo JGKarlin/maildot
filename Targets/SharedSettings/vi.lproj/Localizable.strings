@@ -576,3 +576,14 @@
 "Older draft" = "Bản nháp cũ hơn";
 "Newer draft" = "Bản nháp mới hơn";
 "Version" = "Phiên bản";
+"Connect your accounts" = "Kết nối tài khoản của bạn";
+"Reading accounts from Mail…" = "Đang đọc tài khoản từ Mail…";
+"Later" = "Để sau";
+"Checking" = "Đang kiểm tra";
+"Apple Account" = "Tài khoản Apple";
+"Not connected" = "Chưa kết nối";
+"CALENDARS" = "LỊCH";
+"Outlook, through Dot’s Outlook connector" = "Outlook, qua trình kết nối Outlook của Dot";
+"Outlook connector not connected" = "Trình kết nối Outlook chưa kết nối";
+"Use Outlook Connector…" = "Dùng trình kết nối Outlook…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "Dot truy cập Outlook Mail qua trình kết nối Outlook của ChatGPT. Tài khoản đã thiết lập trong Mail vẫn hoạt động cho đến khi trình kết nối được xác nhận.";

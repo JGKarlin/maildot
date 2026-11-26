@@ -311,3 +311,14 @@
 "Mail Dot’s setup has stopped" = "Mail Dot’s setup has stopped";
 "ChatGPT’s always-on agent, reached through Mail Dot’s private connection." = "ChatGPT’s always-on agent, reached through Mail Dot’s private connection.";
 "Version" = "Version";
+"Connect your accounts" = "Connect your accounts";
+"Reading accounts from Mail…" = "Reading accounts from Mail…";
+"Later" = "Later";
+"Checking" = "Checking";
+"Apple Account" = "Apple Account";
+"Not connected" = "Not connected";
+"CALENDARS" = "CALENDARS";
+"Outlook, through Dot’s Outlook connector" = "Outlook, through Dot’s Outlook connector";
+"Outlook connector not connected" = "Outlook connector not connected";
+"Use Outlook Connector…" = "Use Outlook Connector…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed.";

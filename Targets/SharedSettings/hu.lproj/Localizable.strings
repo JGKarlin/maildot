@@ -576,3 +576,14 @@
 "Older draft" = "Régebbi piszkozat";
 "Newer draft" = "Újabb piszkozat";
 "Version" = "Változat";
+"Connect your accounts" = "Fiókok összekapcsolása";
+"Reading accounts from Mail…" = "Fiókok beolvasása a Mailből…";
+"Later" = "Később";
+"Checking" = "Ellenőrzés";
+"Apple Account" = "Apple-fiók";
+"Not connected" = "Nincs összekapcsolva";
+"CALENDARS" = "NAPTÁRAK";
+"Outlook, through Dot’s Outlook connector" = "Outlook, Dot Outlook-összekötőjén át";
+"Outlook connector not connected" = "Az Outlook-összekötő nincs csatlakoztatva";
+"Use Outlook Connector…" = "Outlook-összekötő használata…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "Dot a ChatGPT Outlook-összekötőjén át éri el az Outlook Mailt. A Mailben már beállított fiók az összekötő megerősítéséig tovább működik.";

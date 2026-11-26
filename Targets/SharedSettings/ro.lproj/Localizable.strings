@@ -576,3 +576,14 @@
 "Older draft" = "Ciornă mai veche";
 "Newer draft" = "Ciornă mai nouă";
 "Version" = "Versiunea";
+"Connect your accounts" = "Conectează-ți conturile";
+"Reading accounts from Mail…" = "Se citesc conturile din Mail…";
+"Later" = "Mai târziu";
+"Checking" = "Se verifică";
+"Apple Account" = "Cont Apple";
+"Not connected" = "Neconectat";
+"CALENDARS" = "CALENDARE";
+"Outlook, through Dot’s Outlook connector" = "Outlook, prin conectorul Outlook al lui Dot";
+"Outlook connector not connected" = "Conectorul Outlook nu este conectat";
+"Use Outlook Connector…" = "Folosește conectorul Outlook…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "Dot ajunge la Outlook Mail prin conectorul Outlook din ChatGPT. Un cont deja configurat în Mail funcționează până la confirmarea conectorului.";

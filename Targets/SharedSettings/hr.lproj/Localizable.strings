@@ -576,3 +576,14 @@
 "Older draft" = "Stariji nacrt";
 "Newer draft" = "Noviji nacrt";
 "Version" = "Verzija";
+"Connect your accounts" = "Povežite svoje račune";
+"Reading accounts from Mail…" = "Čitanje računa iz Maila…";
+"Later" = "Kasnije";
+"Checking" = "Provjera";
+"Apple Account" = "Apple račun";
+"Not connected" = "Nije povezano";
+"CALENDARS" = "KALENDARI";
+"Outlook, through Dot’s Outlook connector" = "Outlook, putem Dotova Outlook poveznika";
+"Outlook connector not connected" = "Outlook poveznik nije povezan";
+"Use Outlook Connector…" = "Upotrijebi Outlook poveznik…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "Dot dolazi do Outlook Maila putem Outlook poveznika u ChatGPT-u. Račun već postavljen u Mailu radi dok se poveznik ne potvrdi.";

@@ -576,3 +576,14 @@
 "Older draft" = "이전 초안";
 "Newer draft" = "최신 초안";
 "Version" = "버전";
+"Connect your accounts" = "계정 연결";
+"Reading accounts from Mail…" = "Mail에서 계정을 읽는 중…";
+"Later" = "나중에";
+"Checking" = "확인 중";
+"Apple Account" = "Apple 계정";
+"Not connected" = "연결되지 않음";
+"CALENDARS" = "캘린더";
+"Outlook, through Dot’s Outlook connector" = "Outlook, Dot의 Outlook 커넥터를 통해";
+"Outlook connector not connected" = "Outlook 커넥터가 연결되지 않음";
+"Use Outlook Connector…" = "Outlook 커넥터 사용…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "Dot은 ChatGPT의 Outlook 커넥터를 통해 Outlook Mail에 접근합니다. Mail에서 이미 설정한 계정은 커넥터가 확인될 때까지 계속 작동합니다.";

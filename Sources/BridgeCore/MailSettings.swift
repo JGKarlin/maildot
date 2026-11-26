@@ -15,19 +15,32 @@ public struct NativeMailAccount:Codable,Equatable,Identifiable,Sendable {
         let host=server.lowercased()
         return host == "mail.me.com" || host.hasSuffix(".mail.me.com") || addresses.contains { address in ["@icloud.com","@me.com","@mac.com"].contains { address.lowercased().hasSuffix($0) } }
     }
+    /// An Outlook account: Microsoft's mail servers (Outlook.com and Microsoft 365), or an Outlook.com, Hotmail, Live or MSN
+    /// address. Dot reaches it through ChatGPT's Outlook Email connector, never through AppleScript, as for Gmail and iCloud
+    /// (owner decision, 26 November 2026).
+    public var isOutlook:Bool {
+        let host=server.lowercased()
+        let hosts=["outlook.office365.com","outlook.office.com","imap-mail.outlook.com","smtp-mail.outlook.com","smtp.office365.com","outlook.live.com"]
+        let domains=["outlook.com","outlook.jp","hotmail.com","hotmail.co.uk","hotmail.co.jp","hotmail.fr","hotmail.de","live.com","live.jp","live.co.uk","msn.com"]
+        return hosts.contains(host) || addresses.contains { address in domains.contains { address.lowercased().hasSuffix("@"+$0) } }
+    }
 }
 
 public struct MailConnection:Codable,Equatable,Identifiable,Sendable {
-    /// The providers whose ChatGPT plugin Dot reads mail through: Gmail, and iCloud Mail (15 November 2026).
-    public static let connectorProviders:Set<String>=["gmail","icloud"]
+    /// The providers whose ChatGPT plugin Dot reads mail through: Gmail, iCloud Mail (15 November 2026) and Outlook Email
+    /// (26 November 2026).
+    public static let connectorProviders:Set<String>=["gmail","icloud","outlook"]
     /// Mail Dot's account id for the account this connection reaches.
-    public var accountID:String { provider == "icloud" ? "icloud:"+id : "gmail:"+id }
+    public var accountID:String { (Self.connectorProviders.contains(provider) ? provider : "gmail")+":"+id }
+    /// The route Dot is told to read this account by: gmail_connector, icloud_connector or outlook_connector.
+    public var route:String { (Self.connectorProviders.contains(provider) ? provider : "gmail")+"_connector" }
     /// A connection Dot has reported and can use now.
     public var isLiveConnector:Bool { available && observedAt != nil && Self.connectorProviders.contains(provider) }
     /// The connection id inside one of Mail Dot's connector account ids, if it is one.
     public static func connectionID(inAccountID id:String) -> String? {
         if id.hasPrefix("gmail:") { return String(id.dropFirst(6)) }
         if id.hasPrefix("icloud:") { return String(id.dropFirst(7)) }
+        if id.hasPrefix("outlook:") { return String(id.dropFirst(8)) }
         return nil
     }
     public var id:String
@@ -101,7 +114,7 @@ public struct MailSettingsInput:Codable,Equatable,Sendable {
     public var completeInventory:Bool?
     public var inventoryScope:MailInventoryScope?
     public var verificationRequestedAt:Date?
-    /// For an activation: the plugin asked for, "gmail" or "icloud". Absent means Gmail, as before 15 November 2026.
+    /// For an activation: the plugin asked for, "gmail", "icloud", "outlook" or a calendar's. Absent means Gmail, as before 15 November 2026.
     public var provider:String?
     public init() {}
 }
@@ -258,6 +271,9 @@ public struct MailSettings:Codable,Sendable {
     public var ownerNames:[String]?
     /// The Mac user's full name, recorded by the companion; the extension cannot ask for it itself.
     public var macUserFullName:String?
+    /// The calendar connectors Dot has confirmed in ChatGPT, so that it sees the owner's schedule as well as adding
+    /// events (owner approval, 26 November 2026). Absent in settings saved before it.
+    public var calendars:[MailCalendarConnection]?
     /// The accounts, by Mail Dot's account id, that receive mail at each of these addresses.
     public func accountIDs(receiving addresses:[String]) -> Set<String> {
         let wanted=Set(addresses.map{$0.lowercased()})
@@ -287,6 +303,10 @@ public struct MailSettings:Codable,Sendable {
                   ["gmail","outlook","icloud"].contains(item.provider) else { throw BridgeFailure("Invalid connected email profile.") }
         }
         guard Set(connections.map { $0.provider + ":" + MailDraft.address($0.email) }).count == connections.count else { throw BridgeFailure("Conflicting profile IDs for the same email account require explicit reconciliation.") }
+        if let calendars {
+            guard calendars.count <= 20,Set(calendars.map(\.id)).count == calendars.count,
+                  calendars.allSatisfy({ !$0.email.isEmpty && $0.email.utf8.count <= 320 }) else { throw BridgeFailure("Invalid calendar connection.") }
+        }
         for item in nativeAccounts {
             guard item.name.utf8.count <= 512, item.server.utf8.count <= 512, item.addresses.count <= 30,
                   item.addresses.allSatisfy({ $0.utf8.count <= 320 }) else { throw BridgeFailure("Invalid Mail account metadata.") }
@@ -402,7 +422,7 @@ public enum MailSettingsCoordinator {
                 guard accounts.contains(where:{$0.id == selected}) else { throw BridgeFailure("The native account does not match the displayed email address.") }
             } else if accounts.count == 1 { request.input?.nativeAccountID=accounts[0].id }
         }
-        if kind == .activate,let email { request.expectedProfileID=settings.connections.first(where:{ MailConnection.connectorProviders.contains($0.provider) && MailDraft.address($0.email) == MailDraft.address(email) })?.id }
+        if kind == .activate,MailCalendarConnection.Provider(activation:request.input?.provider ?? "") == nil,let email { request.expectedProfileID=settings.connections.first(where:{ MailConnection.connectorProviders.contains($0.provider) && MailDraft.address($0.email) == MailDraft.address(email) })?.id }
         updated.requests.append(request); updated.revision += 1
         try updated.validate(); settings = updated
         return request
@@ -444,7 +464,11 @@ public enum MailSettingsCoordinator {
         // iCloud's connector shows Dot the signed-in address but no stable profile or connection id, so Dot confirms it
         // without a profile and Mail Dot records the connection for the address asked about (15 November 2026).
         var connections=connections
-        if request.kind == .activate,request.input?.provider == "icloud",let email=request.email {
+        // A calendar connector is confirmed the same way: no profile, and Mail Dot records it (26 November 2026).
+        let calendar=request.kind == .activate ? request.input?.provider.flatMap(MailCalendarConnection.Provider.init(activation:)) : nil
+        if calendar != nil {
+            guard connections.isEmpty,schedules.isEmpty,request.email != nil else { throw BridgeFailure("Confirm only the calendar connector asked about, with no accounts or schedules.") }
+        } else if request.kind == .activate,request.input?.provider == "icloud",let email=request.email {
             guard schedules.isEmpty,connections.allSatisfy({ $0.provider == "icloud" && MailDraft.address($0.email) == MailDraft.address(email) }) else {
                 throw BridgeFailure("Confirm only the iCloud Mail connection for the address asked about.")
             }
@@ -454,7 +478,9 @@ public enum MailSettingsCoordinator {
                 connections=[made]
             }
         } else if request.kind == .activate {
-            guard schedules.isEmpty,connections.count == 1,let email=request.email,connections.contains(where:{ MailDraft.address($0.email) == MailDraft.address(email) && $0.available && MailConnection.connectorProviders.contains($0.provider) }) else { throw BridgeFailure("Return only the authenticated Gmail profile matching the requested email account.") }
+            // The profile of the connector asked for: Gmail unless the request names Outlook.
+            let asked=request.input?.provider ?? "gmail"
+            guard schedules.isEmpty,connections.count == 1,let email=request.email,connections.contains(where:{ MailDraft.address($0.email) == MailDraft.address(email) && $0.available && $0.provider == asked }) else { throw BridgeFailure(asked == "outlook" ? "Return only the authenticated Outlook profile matching the requested email account." : "Return only the authenticated Gmail profile matching the requested email account.") }
             if let expected=request.expectedProfileID { guard connections[0].id == expected else { throw BridgeFailure("Reconnection must preserve the account's stable provider profile ID.") } }
         }
         for profile in connections {
@@ -473,6 +499,12 @@ public enum MailSettingsCoordinator {
         }
         var updated=settings
         var report=MailSettings(); report.connections=connections; report.schedules=schedules; try report.validate()
+        if let calendar,let email=request.email {
+            let made=MailCalendarConnection(provider:calendar,email:email,confirmedAt:.now)
+            var list=updated.calendars ?? []
+            list.removeAll { $0.id == made.id }; list.append(made)
+            updated.calendars=list
+        }
         if request.kind == .refresh {
             if scope != .schedules { for i in updated.connections.indices { updated.connections[i].available = false } }
             if scope != .accounts { for i in updated.schedules.indices { updated.schedules[i].available = false; updated.schedules[i].nextRunAt=nil } }
@@ -643,4 +675,64 @@ public enum SenderNotes {
         return result
     }
     public static let polishInstructions="For action noteCleanup, person gives a correspondent's address and name, and notes lists the owner's notes, typed on their Mac, on how you should write to that person, each with id and text. Rewrite each note as one clear, concise drafting instruction that keeps exactly the owner's meaning, in the language they typed it, stated as the owner would state it (for example: Address him as Dr. Hartman). Correct spelling and grammar; add nothing they did not say; do not merge, split or drop notes. Report this request ready with summary set to a JSON array alone, one object per note with its id unchanged: [{\"id\":\"…\",\"text\":\"…\"}], each text at most 300 characters. If person.available is false, report failed."
+}
+
+/// A calendar connector in ChatGPT that Dot has confirmed: Google Calendar for a Gmail account, iCloud Calendar for the
+/// owner's Apple Account (owner approval, 26 November 2026). Like iCloud Mail, these connectors give Dot no stable profile
+/// id, so Mail Dot records the confirmation itself, against the mail address it was asked about.
+public struct MailCalendarConnection:Codable,Equatable,Sendable,Identifiable {
+    public enum Provider:String,Codable,Sendable,CaseIterable {
+        case google,icloud,outlook
+        /// The provider named in an activation request's input.
+        public var activation:String { rawValue+"Calendar" }
+        public init?(activation:String) {
+            guard let found=Self.allCases.first(where:{ $0.activation == activation }) else { return nil }
+            self=found
+        }
+    }
+    public var provider:Provider
+    /// The Gmail address for Google Calendar; for iCloud Calendar, the iCloud Mail address it was asked about (the
+    /// connector itself signs in with the Apple Account, which Mail Dot does not know).
+    public var email:String
+    public var confirmedAt:Date
+    public init(provider:Provider,email:String,confirmedAt:Date) { self.provider=provider; self.email=email; self.confirmedAt=confirmedAt }
+    /// One Google Calendar per Gmail address; one iCloud Calendar in all, as one Apple Account holds it.
+    public var id:String { provider == .icloud ? "icloud" : provider.rawValue+":"+MailDraft.address(email) }
+}
+
+/// Where a connector stands for one address in Settings and in setup: confirmed, being confirmed by Dot, or to be
+/// connected, with Dot's reason when its last check failed (owner approval, 26 November 2026).
+public enum ConnectorState:Equatable,Sendable {
+    case connect(failure:String?)
+    case checking
+    case connected
+}
+
+extension MailSettings {
+    /// Dot's latest activation request for this provider and address: "gmail", "icloud", or a calendar's activation name.
+    public func latestActivation(provider:String,email:String) -> MailSettingsRequest? {
+        requests.last { $0.kind == .activate && ($0.input?.provider ?? "gmail") == provider && MailDraft.address($0.email ?? "") == MailDraft.address(email) }
+    }
+    /// Whether the calendar connector is confirmed for this address, being checked, or still to connect.
+    public func calendarState(_ provider:MailCalendarConnection.Provider,email:String) -> ConnectorState {
+        let id=MailCalendarConnection(provider:provider,email:email,confirmedAt:.distantPast).id
+        if (calendars ?? []).contains(where:{ $0.id == id }) { return .connected }
+        guard let request=latestActivation(provider:provider.activation,email:email) else { return .connect(failure:nil) }
+        switch request.status {
+        case .pending,.awaitingAuthorization,.question: return .checking
+        case .failed: return .connect(failure:request.outcome)
+        case .confirmed: return .connect(failure:nil)
+        }
+    }
+    /// The calendar rows to offer for the owner's mail accounts: Google Calendar for each Gmail address, one iCloud Calendar
+    /// for the first iCloud address, and Outlook Calendar for each Outlook address, each with its state.
+    public func calendarOffers(gmail:[String],iCloud:[String],outlook:[String]=[]) -> [(provider:MailCalendarConnection.Provider,email:String,state:ConnectorState)] {
+        func each(_ provider:MailCalendarConnection.Provider,_ addresses:[String]) -> [(provider:MailCalendarConnection.Provider,email:String,state:ConnectorState)] {
+            var seen=Set<String>()
+            return addresses.filter{ seen.insert(MailDraft.address($0)).inserted }.map{ (provider,$0,calendarState(provider,email:$0)) }
+        }
+        var offers=each(.google,gmail)
+        if let first=iCloud.first { offers.append((.icloud,first,calendarState(.icloud,email:first))) }
+        return offers+each(.outlook,outlook)
+    }
 }

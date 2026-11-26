@@ -576,3 +576,14 @@
 "Older draft" = "Παλαιότερο πρόχειρο";
 "Newer draft" = "Νεότερο πρόχειρο";
 "Version" = "Έκδοση";
+"Connect your accounts" = "Συνδέστε τους λογαριασμούς σας";
+"Reading accounts from Mail…" = "Ανάγνωση λογαριασμών από το Mail…";
+"Later" = "Αργότερα";
+"Checking" = "Γίνεται έλεγχος";
+"Apple Account" = "Λογαριασμός Apple";
+"Not connected" = "Δεν έχει συνδεθεί";
+"CALENDARS" = "ΗΜΕΡΟΛΟΓΙΑ";
+"Outlook, through Dot’s Outlook connector" = "Outlook, μέσω του συνδέσμου Outlook του Dot";
+"Outlook connector not connected" = "Ο σύνδεσμος Outlook δεν είναι συνδεδεμένος";
+"Use Outlook Connector…" = "Χρήση του συνδέσμου Outlook…";
+"Dot reaches Outlook mail through ChatGPT’s Outlook Email connector. An account already set up through Mail keeps working until the connector is confirmed." = "Το Dot φτάνει στο Outlook Mail μέσω του συνδέσμου Outlook του ChatGPT. Ένας λογαριασμός που έχει ήδη ρυθμιστεί στο Mail λειτουργεί μέχρι να επιβεβαιωθεί ο σύνδεσμος.";
