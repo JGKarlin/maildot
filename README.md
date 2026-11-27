@@ -1,4 +1,4 @@
-# Mail Dot
+![Mail Dot — Dot is great for writing mail, but its chat window is not.](docs/images/social-preview.png)
 
 Mail Dot brings Dot, ChatGPT's always-on agent, into Apple Mail on the Mac. Dot runs in the cloud on its own computer and keeps working between conversations, and Mail Dot gives it a private connection to your mail. Dot drafts replies that draw on the whole correspondence, answers questions about your mail in plain language with the messages it relied on, and reports on each thread so that you can see at a glance what is decided, what is open and what waits on you. You stay in Mail throughout, and nothing is sent until you press Send.
 
