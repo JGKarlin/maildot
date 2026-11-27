@@ -30,7 +30,9 @@ final class ReplyCaptureTests:XCTestCase {
     }
     func testRequiresExactCompleteBodyLengthAndBoundedText() throws {
         XCTAssertNoThrow(try ReplyCapturePolicy.validateBody("A😀\n",length:4))
-        XCTAssertThrowsError(try ReplyCapturePolicy.validateBody("A😀\n",length:3),"never longer than Mail says")
+        XCTAssertNoThrow(try ReplyCapturePolicy.validateBody("A😀\n",length:3),"a line break Mail's count leaves out is no missing text")
+        // Owner report, 27 November 2026: a long Japanese reply came back 9 characters longer than Mail's count.
+        XCTAssertNoThrow(try ReplyCapturePolicy.validateBody(String(repeating:"返信の本文。\n",count:562)+String(repeating:"\n",count:9),length:3934))
         XCTAssertNoThrow(try ReplyCapturePolicy.validateBody(String(repeating:"a",count:5000),length:5003),"an image in the quoted mail is a character without text")
         XCTAssertThrowsError(try ReplyCapturePolicy.validateBody(String(repeating:"a",count:100),length:5000),"most of the text missing")
         // A long thread of quoted replies is read; only a message past the bound for real threads is refused.

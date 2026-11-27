@@ -138,7 +138,12 @@ struct MailDotSetupView:View {
     @State private var choosingFolders:NativeMailAccount?
     /// Later puts the step aside; the accounts stay to connect in Settings, Accounts.
     @AppStorage("SetupAccountsLater") private var accountsLater=false
-    init(fixed:SetupFindings?=nil) { self.fixed=fixed; _found=State(initialValue:fixed ?? SetupFindings()) }
+    /// For rendering previews: the accounts step's rows given instead of read from Mail.
+    var fixedAccounts:(accounts:[MailDotAccountRow],calendars:[MailDotCalendarRow])?
+    init(fixed:SetupFindings?=nil,fixedAccounts:(accounts:[MailDotAccountRow],calendars:[MailDotCalendarRow])?=nil) {
+        self.fixed=fixed; self.fixedAccounts=fixedAccounts; _found=State(initialValue:fixed ?? SetupFindings())
+        if let fixedAccounts { _accounts=State(initialValue:fixedAccounts.accounts); _calendars=State(initialValue:fixedAccounts.calendars) }
+    }
     var body:some View {
         VStack(alignment:.leading,spacing:18) {
             HStack(spacing:12) {
@@ -202,7 +207,7 @@ struct MailDotSetupView:View {
 
     // MARK: The accounts step
 
-    private var accountsStepShown:Bool { fixed == nil && [.accessibility,.mail,.extensionOn].allSatisfy(found.done) }
+    private var accountsStepShown:Bool { (fixed == nil || fixedAccounts != nil) && [.accessibility,.mail,.extensionOn].allSatisfy(found.done) }
     private var accountsDone:Bool { !accounts.isEmpty && accounts.allSatisfy(\.connected) && calendars.allSatisfy{ $0.state == .connected } }
     /// Mail's accounts, read again at most every ten seconds until there are some, and the rows' states every pass.
     private func readAccounts() async {
@@ -246,7 +251,7 @@ struct MailDotSetupView:View {
                         .background(RoundedRectangle(cornerRadius:8).fill(Color.primary.opacity(0.04)))
                         .overlay(RoundedRectangle(cornerRadius:8).stroke(Color.primary.opacity(0.10)))
                     }
-                    if found.current != nil { HStack { Spacer(); Button("Later") { accountsLater=true } } }
+                    if found.current != nil { HStack { Spacer(); Button("Later") { if fixed == nil { accountsLater=true } } } }
                 }.padding(.leading,40)
             }
         }

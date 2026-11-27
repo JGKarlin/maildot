@@ -36,6 +36,8 @@ import BridgeCore
                     }
                 }
             }
+            // Set Up Mail Dot while Dot builds its connection, with the accounts step open beside it (the README's picture).
+            panes.append(("setup-accounts",CGSize(width:MailDotSetupView.width,height:1300),AnyView(MailDotSetupView(fixed:setupPreview(),fixedAccounts:setupAccountsPreview()).frame(maxHeight:.infinity,alignment:.top).background(Color(nsColor:.windowBackgroundColor)).environment(\.colorScheme,.light))))
             for (tabName,tab) in [("accounts",MailDotSettingsView.Tab.accounts),("rules",.rules),("layout",.layout)] {
                 for dark in [false,true] {
                     panes.append(("settings-\(tabName)-\(dark ? "dark" : "light")",CGSize(width:460,height:600),
@@ -128,6 +130,27 @@ import BridgeCore
         window.orderOut(nil)
         front?.activate()
         print("HARNESS_DONE")
+    }
+
+    /// Steps one to three done, and Dot part way through building its connection.
+    static func setupPreview() -> SetupFindings {
+        var found=SetupFindings()
+        found.facts.accessibility=true; found.facts.mailAllowed=true; found.facts.extensionOn=true
+        let start=Date().addingTimeInterval(-90)
+        found.askedAt=start
+        found.reports=["started","tunnel_created","key_created"].enumerated().map{ SetupThroughDot.Report(at:start.addingTimeInterval(Double($0.offset*20+10)).formatted(.iso8601),step:$0.element) }
+        return found
+    }
+    /// A Gmail account already connected, an iCloud account being confirmed, and an account read through Mail, with the
+    /// two calendars to connect. Invented addresses only.
+    static func setupAccountsPreview() -> (accounts:[MailDotAccountRow],calendars:[MailDotCalendarRow]) {
+        func row(_ id:String,_ name:String,_ address:String,native:NativeMailAccount?=nil,connected:Bool,checking:Bool=false) -> MailDotAccountRow {
+            MailDotAccountRow(id:id,native:native,allowed:false,check:nil,checkFailed:false,checking:checking,accountIDs:[id],name:name,addresses:[address],connection:"",connected:connected,automatic:true,mailDot:true)
+        }
+        var gmail=row("gmail:p","Gmail","alex.morgan@gmail.example.invalid",connected:true); gmail.gmailAccount=true
+        var iCloud=row("icloud:i","iCloud","alex.morgan@icloud.example.invalid",connected:false,checking:true); iCloud.iCloudAccount=true
+        let work=row("mail:W","Work","alex.morgan@work.example.invalid",native:NativeMailAccount(id:"W",name:"Work",addresses:["alex.morgan@work.example.invalid"],server:"mail.work.example.invalid"),connected:false)
+        return ([gmail,iCloud,work],[MailDotCalendarRow(provider:.google,email:gmail.addresses[0],state:.connected),MailDotCalendarRow(provider:.icloud,email:iCloud.addresses[0],state:.connect(failure:nil))])
     }
 
     static func seed() throws {

@@ -31,9 +31,12 @@ enum ReplyCapturePolicy {
             throw BridgeFailure("This message is too long for Mail Dot to read (\(length) characters; the limit is \(MailBodyLimits.characters)).")
         }
         // Mail counts an image or other object in the quoted mail as a character it does not return as text,
-        // so the text can be shorter than the reported length; it is never longer. Seen 12 November 2026 on a
-        // real reply that Mail Dot then refused as "too long".
-        guard text.utf16.count <= length, length - text.utf16.count <= max(64, length / 20) else {
+        // so the text can be shorter than the reported length (seen 12 November 2026 on a real reply that Mail Dot
+        // then refused as "too long"). It can also be longer: Mail's text puts a line break at the edge of each
+        // quoted block or paragraph that its count of characters leaves out (owner report, 27 November 2026: a long
+        // Japanese reply came back with 3943 characters of an expected 3934 and was refused as partial). Only text
+        // well short of the count is a part; text at or beyond it is the whole, as far as truncation goes.
+        guard length - text.utf16.count <= max(64, length / 20) else {
             throw BridgeFailure("Mail returned only part of this message's text (\(text.utf16.count) of \(length) characters), so Mail Dot did not read it. Try again; if it repeats, the message holds something Mail Dot cannot read.")
         }
     }
